@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "MIT"}
 authors = [{name = "Abhijith Sivaprasadan"}]
-dependencies = ["numpy>=1.26"]
+dependencies = ["numpy>=2.0,<3"]
 classifiers = [
   "Programming Language :: Python :: 3",
   "Topic :: Scientific/Engineering",

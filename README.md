@@ -2,7 +2,7 @@
 
 **Research software for the comparative study of PI/PID, model-predictive and self-optimising control of industrial high-temperature heat pumps.**
 
-**Current implementation: WP2 synthetic plant + WP3 simulation-only PI baseline.** Two PI tuning methods, anti-windup and reproducible closed-loop comparisons are implemented. Physical PID tuning, MPC, SOC and real-fluid calibration are **not** implemented or validated.
+**Current implementation: WP2 synthetic plant + WP3 simulation-only PI baseline and robustness study.** Two independent tuning methods, anti-windup, and reproducible noise, delay, parameter-mismatch and actuator-saturation comparisons are implemented. Physical PID tuning, MPC, SOC and real-fluid calibration are **not** implemented or validated.
 
 ![Example synthetic open-loop thermal response](results/wp2_illustrative_thermal_response.png)
 
@@ -42,6 +42,7 @@ PYTHONPATH=. python -m unittest discover -s tests -v
 PYTHONPATH=. python -m ht_hp_controlbench
 PYTHONPATH=. python scripts/make_report.py
 PYTHONPATH=. python scripts/run_wp3.py
+PYTHONPATH=. python scripts/run_wp3_robustness.py
 ```
 
 Outputs: `results/wp2_illustrative_timeseries.csv`, `results/ua_sensitivity.csv`, `results/wp2_illustrative_thermal_response.png`, `results/verification.txt`.
@@ -49,6 +50,8 @@ Outputs: `results/wp2_illustrative_timeseries.csv`, `results/ua_sensitivity.csv`
 ## WP3 simulation-only PI baseline (implemented)
 
 [Read the WP3 methods, tuning and limitations](docs/WP3_PI_CONTROL.md). WP3 implements bounded PI with anti-windup and bumpless initialization on the unchanged WP2 plant; it estimates gains independently from a simulated FOPDT step response and relay oscillation, with three IMC lambda settings and a relay-derived PI. The 4-hour synthetic comparison and transfer to bypass-controlled operation are reported in [results/wp3_pi_comparison.csv](results/wp3_pi_comparison.csv) and [results/wp3_identification.txt](results/wp3_identification.txt). This is **not** experimental PI/PID tuning or validated control of heat-pump hardware.
+
+**WP3 robustness extension:** [Methods and limitations](docs/WP3_ROBUSTNESS.md) · [full 80-run matrix](results/wp3_robustness_matrix.csv) · [machine-readable summary](results/wp3_robustness_summary.json). Four tuning variants were compared across 20 predeclared synthetic scenarios covering paired sensor noise, 60/180-s measurement delays, ±20% plant perturbations, combined uncertainties, severe capacity saturation, temporary setpoint-excursion recovery, and transfer to bypass mode. In this particular synthetic suite the relay-derived PI had lower tracking IAE in 17/20 scenarios, but was more sensitive to delayed/noisy measurements and produced substantially greater command movement. This is **not** an equipment performance or controller robustness certification.
 
 **Caution:** The WP2 example simulates scripted changes at 20 min (process return), 30 min (open-loop compressor command), and 40 min (source temperature). It does not establish tracking, stability under a real controller, or comparative controller performance.
 
@@ -60,7 +63,7 @@ With buffer fixed at 130°C and service duty held at 300 kW, the UA exponent aff
 
 ## Verification boundary
 
-The 13 executable tests check the nominated synthetic algebra, high-precision HX stability, equilibria for both modes, flow degrees of freedom, physical service classification, the bypass active-set kink, command/actual lag, slew, analytic heat-loss-only decay, timestep convergence, energy integrals and an independently computed trapezoidal energy audit. Tests do **not** establish measured plant fidelity or temperature/pressure/refrigerant validity. All parameter values are assumed, not equipment specifications; real-fluid WP7 is outstanding.
+The original 13 WP2 executable tests check the nominated synthetic algebra, high-precision HX stability, equilibria for both modes, flow degrees of freedom, physical service classification, the bypass active-set kink, command/actual lag, slew, analytic heat-loss-only decay, timestep convergence, energy integrals and an independently computed trapezoidal energy audit. Tests do **not** establish measured plant fidelity or temperature/pressure/refrigerant validity. All parameter values are assumed, not equipment specifications; real-fluid WP7 is outstanding.
 
 ## Project organization
 
@@ -69,6 +72,9 @@ The 13 executable tests check the nominated synthetic algebra, high-precision HX
 - `ht_hp_controlbench/pi.py`: PI controller, FOPDT and relay identification, gain calculations and metrics
 - `scripts/run_wp3.py`: reproducible PI tuning sweep, numerical results and plot
 - `tests/test_wp3.py`: independent tuning/feedback tests
+- `ht_hp_controlbench/robustness.py`: isolated observation-noise/delay layer, scenario parameters and comparison metrics
+- `scripts/run_wp3_robustness.py`: predefined 20-scenario/4-controller deterministic sweep and reports
+- `tests/test_wp3_robustness.py`: sensing, uncertainty, constraints, recovery, paired-seed and energy-accounting tests
 - `tests/test_wp2.py`: independent numerical/physics assertions
 - `scripts/make_report.py`: reproducible UA study, figure and verification summary
 - `reference/WP1_Feasibility_v0.5.py`: frozen earlier standalone worksheet for provenance
@@ -78,7 +84,7 @@ The 13 executable tests check the nominated synthetic algebra, high-precision HX
 
 1. Confirm a complete WP2 operating-envelope test matrix beyond the single nominal point; consider numeric stiffness and adaptive solver cross-check.
 2. Define sensor/measurement noise in a separate observation layer (not injected into conservation equations).
-3. WP3 continuation: extend PI validation to parameter perturbations, sensor noise and time delays; two baseline tuning methods and anti-windup are already implemented in simulation.
+3. WP3 follow-up: evaluate wider uncertainty distributions, noise correlation, actuator wear models and formal robustness margins; the initial 20-scenario simulation screening is implemented.
 4. WP4: implement LTV/QP MPC with explicit trust region, rollout-error monitoring, and controlled PI fallback; **only then** add a specific mid-horizon bypass active-set test.
 5. WP7: replace assumed compressor/fluid map with real-fluid property and pressure-feasibility work; parameter identification or hardware validation are separate requirements.
 

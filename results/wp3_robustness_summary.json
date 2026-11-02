@@ -1,0 +1,81 @@
+{
+  "scientific_status": "synthetic uncalibrated numerical PI sensitivity only",
+  "measurement_model": "Gaussian white noise at control samples; integer-sample delay; no estimator",
+  "parameter_model": "one-at-a-time perturbations with fixed nominal PI gains and bias",
+  "controller_tuning_origin": "all methods identified on nominal no-bypass plant",
+  "noise_seed_paired_between_methods": true,
+  "integration_step_s": 10.0,
+  "control_period_s": 60.0,
+  "duration_s": 14400.0,
+  "scenario_count": 20,
+  "method_count": 4,
+  "run_count": 80,
+  "failure_count": 0,
+  "lowest_iae_wins": {
+    "IMC_lambda_0p5tau": 3,
+    "IMC_lambda_1tau": 0,
+    "IMC_lambda_2tau": 0,
+    "Relay_TyreusLuyben": 17
+  },
+  "failures": [],
+  "baseline_metrics": {
+    "IMC_lambda_0p5tau": {
+      "iae_Ks": 2686.4179614107825,
+      "rmse_K": 0.24145154430773785,
+      "service_unserved_kWh": 0.0,
+      "electrical_kWh": 584.5483985589865,
+      "max_abs_error_K": 0.39999999999997726
+    },
+    "IMC_lambda_1tau": {
+      "iae_Ks": 4137.198709557807,
+      "rmse_K": 0.32789470683915584,
+      "service_unserved_kWh": 0.0,
+      "electrical_kWh": 586.4257081101077,
+      "max_abs_error_K": 0.5668804680768744
+    },
+    "IMC_lambda_2tau": {
+      "iae_Ks": 5849.707989714709,
+      "rmse_K": 0.43385681088822925,
+      "service_unserved_kWh": 0.0,
+      "electrical_kWh": 589.1915714070965,
+      "max_abs_error_K": 0.7169504792647672
+    },
+    "Relay_TyreusLuyben": {
+      "iae_Ks": 790.2422356869631,
+      "rmse_K": 0.10672345118912767,
+      "service_unserved_kWh": 0.0,
+      "electrical_kWh": 583.4246373303671,
+      "max_abs_error_K": 0.39999999999997726
+    }
+  },
+  "worst_case_metrics_by_method": {
+    "IMC_lambda_0p5tau": {
+      "max_iae_Ks": 98112.46556115685,
+      "max_rmse_K": 6.969743041548672,
+      "max_service_unserved_kWh": 1139.9722222222222,
+      "max_bound_fraction": 0.9004149377593361,
+      "max_iae_case": "severe_actuator_capacity_minus40pct"
+    },
+    "IMC_lambda_1tau": {
+      "max_iae_Ks": 102014.19137584284,
+      "max_rmse_K": 7.230967159509376,
+      "max_service_unserved_kWh": 1107.0555555555557,
+      "max_bound_fraction": 0.8091286307053942,
+      "max_iae_case": "severe_actuator_capacity_minus40pct"
+    },
+    "IMC_lambda_2tau": {
+      "max_iae_Ks": 110115.63348363899,
+      "max_rmse_K": 7.82203668341831,
+      "max_service_unserved_kWh": 1107.888888888889,
+      "max_bound_fraction": 0.5933609958506224,
+      "max_iae_case": "severe_actuator_capacity_minus40pct"
+    },
+    "Relay_TyreusLuyben": {
+      "max_iae_Ks": 94665.74660811061,
+      "max_rmse_K": 6.768974749231141,
+      "max_service_unserved_kWh": 1139.9722222222222,
+      "max_bound_fraction": 0.979253112033195,
+      "max_iae_case": "severe_actuator_capacity_minus40pct"
+    }
+  }
+}

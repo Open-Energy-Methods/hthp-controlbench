@@ -25,3 +25,5 @@ jobs:
         run: python scripts/make_report.py
       - name: Reproduce WP3 PI identification and closed-loop sweep
         run: python scripts/run_wp3.py
+      - name: Reproduce WP3 robustness stress-test matrix
+        run: python scripts/run_wp3_robustness.py
