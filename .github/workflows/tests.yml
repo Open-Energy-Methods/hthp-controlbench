@@ -27,3 +27,5 @@ jobs:
         run: python scripts/run_wp3.py
       - name: Reproduce WP3 robustness stress-test matrix
         run: python scripts/run_wp3_robustness.py
+      - name: Reproduce WP4 constrained MPC and baseline comparison
+        run: python scripts/run_wp4.py
