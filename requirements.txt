@@ -1,2 +1,3 @@
 numpy>=2.0,<3
+scipy>=1.11.4,<2
 matplotlib>=3.7  # optional; only needed for scripts/make_report.py

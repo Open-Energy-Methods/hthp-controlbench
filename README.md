@@ -2,7 +2,7 @@
 
 **Research software for the comparative study of PI/PID, model-predictive and self-optimising control of industrial high-temperature heat pumps.**
 
-**Current implementation: WP2 synthetic plant + WP3 simulation-only PI baseline and robustness study.** Two independent tuning methods, anti-windup, and reproducible noise, delay, parameter-mismatch and actuator-saturation comparisons are implemented. Physical PID tuning, MPC, SOC and real-fluid calibration are **not** implemented or validated.
+**Current implementation: WP2 synthetic plant + WP3 PI robustness + WP4 initial constrained MPC benchmark.** Two independent tuning methods, anti-windup, and reproducible noise, delay, parameter-mismatch and actuator-saturation comparisons are implemented. Physical PID tuning, genuine SOC and real-fluid calibration are **not** implemented or validated. WP4 MPC is implemented for synthetic numerical experiments only.
 
 ![Example synthetic open-loop thermal response](results/wp2_illustrative_thermal_response.png)
 
@@ -31,7 +31,7 @@ The planned programme shares one plant model across three independently testable
 - Provisional `UA(f)=UA_nominal * f^a`, with `a=0,0.6,0.7,0.8` sensitivity. This is an exploratory correlation *not validated against any HX geometry or operating regime*.
 - Separate actual physical heat, quality-qualified heat and unmet service. Any actual physical heat transfer remains inside conservation law even if below specification.
 - RK4 integration of temperature/modulation **and physical energy integrals**; independent endpoint-trapezoid energy audit and timestepping tests.
-- A pre-programmed **WP2 open-loop** disturbance experiment. WP3 adds a separate closed-loop PI experiment; **there is still no derivative/PID, SOC or MPC implementation**. The active-set-crossing MPC-predictor/fallback test remains WP4 work.
+- A pre-programmed **WP2 open-loop** disturbance experiment. WP3 adds a separate closed-loop PI experiment; **there is still no derivative/PID or SOC implementation; WP4 now adds synthetic MPC**. The active-set-crossing MPC-predictor/fallback test remains WP4 work.
 
 ## Execute
 
@@ -85,9 +85,15 @@ The original 13 WP2 executable tests check the nominated synthetic algebra, high
 1. Confirm a complete WP2 operating-envelope test matrix beyond the single nominal point; consider numeric stiffness and adaptive solver cross-check.
 2. Define sensor/measurement noise in a separate observation layer (not injected into conservation equations).
 3. WP3 follow-up: evaluate wider uncertainty distributions, noise correlation, actuator wear models and formal robustness margins; the initial 20-scenario simulation screening is implemented.
-4. WP4: implement LTV/QP MPC with explicit trust region, rollout-error monitoring, and controlled PI fallback; **only then** add a specific mid-horizon bypass active-set test.
+4. WP4 now includes the LTV/QP baseline, explicit trust region, nonlinear rollout check, PI fallback, and a mid-horizon bypass active-set crossing test. Extend the MPC comparison to noisy/delayed measurements, broader uncertainty envelopes and solvers before declaring the control study complete.
 5. WP7: replace assumed compressor/fluid map with real-fluid property and pressure-feasibility work; parameter identification or hardware validation are separate requirements.
 
 ## Licence and citation
 
 Code is published under the MIT License; see [LICENSE](LICENSE). Citation metadata, including the author’s verified ORCID, is in [CITATION.cff](CITATION.cff). No paper, published journal result or experimental validation is implied.
+
+## WP4 locally linearized constrained MPC (initial prototype)
+
+[Read the MPC methods, fairness protocol, results and limits](docs/WP4_MPC.md). WP4 constructs a new locally linearized plant and affine **joint electrical-power** model every 120 seconds, solves a convex-QP-structured constrained receding-horizon problem with SciPy SLSQP, checks the solution against a nonlinear model rollout, and retries/returns to bounded PI when a model or solver check fails. This is **not** a certified MPC safety controller.
+
+Reproduce with `python scripts/run_wp4.py` after installing dependencies. Results: [full study CSV](results/wp4_control_comparison.csv), [JSON summary](results/wp4_control_summary.json), [plot](results/wp4_control_comparison.png). The fair persistence case and the artificially perfect future-forecast case are labelled separately. PI can outperform MPC under model mismatch; no real-world heat-pump advantage has been established.
