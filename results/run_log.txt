@@ -1,0 +1,4 @@
+Nominal: T_h=133.05000°C, T_b=130.00000°C, n=0.7500000
+Final:   T_h=138.32687°C, T_b=135.30781°C, n=0.7900000
+Max |energy integral residual| [J]: 1.0639429092407227e-05
+CSV: results/wp2_illustrative_timeseries.csv (synthetic, NOT calibrated)

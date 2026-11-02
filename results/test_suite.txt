@@ -1,0 +1,18 @@
+test_bypass_capacity_boundary_continuous_but_kinked (test_wp2.PhysicsTests.test_bypass_capacity_boundary_continuous_but_kinked) ... ok
+test_compressor_command_lag_separate_and_slew (test_wp2.PhysicsTests.test_compressor_command_lag_separate_and_slew) ... ok
+test_constant_fixed_process_flow_and_return_disturbance (test_wp2.PhysicsTests.test_constant_fixed_process_flow_and_return_disturbance) ... ok
+test_energy_conservation_full_transient (test_wp2.PhysicsTests.test_energy_conservation_full_transient) ... ok
+test_heat_loss_analytic_when_decoupled_and_off (test_wp2.PhysicsTests.test_heat_loss_analytic_when_decoupled_and_off) ... ok
+test_independent_trapezoid_energy_audit_converges (test_wp2.PhysicsTests.test_independent_trapezoid_energy_audit_converges) ... ok
+test_near_cr_unity_against_high_precision_decimal (test_wp2.PhysicsTests.test_near_cr_unity_against_high_precision_decimal) ... ok
+test_no_demand_does_not_delete_physical_transfer (test_wp2.PhysicsTests.test_no_demand_does_not_delete_physical_transfer) ... ok
+test_nominal_equilibria_both_modes (test_wp2.PhysicsTests.test_nominal_equilibria_both_modes) ... ok
+test_refinement_convergence (test_wp2.PhysicsTests.test_refinement_convergence) ... ok
+test_service_is_separate_from_conservation_during_undercapacity (test_wp2.PhysicsTests.test_service_is_separate_from_conservation_during_undercapacity) ... ok
+test_ua_sensitivity_provisional (test_wp2.PhysicsTests.test_ua_sensitivity_provisional) ... ok
+test_wp1_nominal_and_bypass (test_wp2.PhysicsTests.test_wp1_nominal_and_bypass) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.652s
+
+OK

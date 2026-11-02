@@ -1,0 +1,8 @@
+HTHP-ControlBench WP2 synthetic research evidence; NOT hardware validated
+Unit tests: run `PYTHONPATH=. python -m unittest discover -s tests -v`
+UA exponent sweep: baseline f=0.931468874, exponent 0.8 f=0.955044992
+Bypass fraction change: 2.5311% relative; exceeds suggested 1% screening threshold
+Header/HP duty unchanged in this sweep BY DESIGN: duty and buffer state fixed.
+Illustrative 3600 s max integrated energy balance residual: 1.063943e-05 J
+This is the roundoff-sized residual of shared RK4 integral states; an independent trapezoid test also exists.
+NOT TESTED: dynamic PI/MPC/SOC performance, hardware, certified heat pump or real-fluid COP.
