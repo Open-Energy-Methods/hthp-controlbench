@@ -1,6 +1,7 @@
 """Piecewise-constant disturbances/commands with RK4 and energy-integral diagnostics.
 
-No PI/MPC controller implemented. Command slew imposed once per control interval.
+WP3 optionally supplies feedback through Schedule.feedback; the same RK4 plant is reused.
+Command slew imposed once per control interval.
 """
 from __future__ import annotations
 from dataclasses import dataclass
@@ -13,6 +14,7 @@ from .core import Parameters, State, Disturbance, output, rhs
 class Schedule:
     command: Callable[[float], float]
     disturbance: Callable[[float], Disturbance]
+    feedback: Callable[[float, State, Disturbance, float], float] | None = None
 
 
 @dataclass(frozen=True)
@@ -72,7 +74,8 @@ def simulate(p: Parameters, x0: State, schedule: Schedule, duration_s: float=360
         service[k]=r.hx.qualified
         if k==steps:commands[k]=u_prev; break
         if k%control_steps==0:
-            u_requested=float(schedule.command(float(t)))
+            u_requested=float(schedule.feedback(float(t),x,d,u_prev) if schedule.feedback is not None
+                              else schedule.command(float(t)))
             u_target=min(p.n_max,max(p.n_min,u_requested))
             u_prev=max(p.n_min,min(p.n_max,u_prev+max(-p.max_command_step,min(p.max_command_step,u_target-u_prev))))
         commands[k]=u_prev

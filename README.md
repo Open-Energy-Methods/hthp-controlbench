@@ -2,7 +2,7 @@
 
 **Research software for the comparative study of PI/PID, model-predictive and self-optimising control of industrial high-temperature heat pumps.**
 
-**Current release: WP2 synthetic nonlinear thermal plant v0.1.** Only the open-loop plant and numerical tests are implemented; PI/PID, MPC, SOC and real-fluid calibration are planned, **not** implemented or validated.
+**Current implementation: WP2 synthetic plant + WP3 simulation-only PI baseline.** Two PI tuning methods, anti-windup and reproducible closed-loop comparisons are implemented. Physical PID tuning, MPC, SOC and real-fluid calibration are **not** implemented or validated.
 
 ![Example synthetic open-loop thermal response](results/wp2_illustrative_thermal_response.png)
 
@@ -31,7 +31,7 @@ The planned programme shares one plant model across three independently testable
 - Provisional `UA(f)=UA_nominal * f^a`, with `a=0,0.6,0.7,0.8` sensitivity. This is an exploratory correlation *not validated against any HX geometry or operating regime*.
 - Separate actual physical heat, quality-qualified heat and unmet service. Any actual physical heat transfer remains inside conservation law even if below specification.
 - RK4 integration of temperature/modulation **and physical energy integrals**; independent endpoint-trapezoid energy audit and timestepping tests.
-- A *pre-programmed open-loop* disturbance experiment; **no PI, PID, SOC, MPC, or closed-loop heat-pump controller has been implemented here.** The planned active-set-crossing MPC-predictor/fallback test remains WP4 work; WP2 tests only establish the bypass kink in the physical model.
+- A pre-programmed **WP2 open-loop** disturbance experiment. WP3 adds a separate closed-loop PI experiment; **there is still no derivative/PID, SOC or MPC implementation**. The active-set-crossing MPC-predictor/fallback test remains WP4 work.
 
 ## Execute
 
@@ -41,11 +41,16 @@ Requires Python 3.10+ and `numpy`; `matplotlib` is optional and used only for pl
 PYTHONPATH=. python -m unittest discover -s tests -v
 PYTHONPATH=. python -m ht_hp_controlbench
 PYTHONPATH=. python scripts/make_report.py
+PYTHONPATH=. python scripts/run_wp3.py
 ```
 
 Outputs: `results/wp2_illustrative_timeseries.csv`, `results/ua_sensitivity.csv`, `results/wp2_illustrative_thermal_response.png`, `results/verification.txt`.
 
-**Caution:** The example simulates scripted changes at 20 min (process return), 30 min (open-loop compressor command), and 40 min (source temperature). It does not establish tracking, stability under a real controller, or comparative controller performance.
+## WP3 simulation-only PI baseline (implemented)
+
+[Read the WP3 methods, tuning and limitations](docs/WP3_PI_CONTROL.md). WP3 implements bounded PI with anti-windup and bumpless initialization on the unchanged WP2 plant; it estimates gains independently from a simulated FOPDT step response and relay oscillation, with three IMC lambda settings and a relay-derived PI. The 4-hour synthetic comparison and transfer to bypass-controlled operation are reported in [results/wp3_pi_comparison.csv](results/wp3_pi_comparison.csv) and [results/wp3_identification.txt](results/wp3_identification.txt). This is **not** experimental PI/PID tuning or validated control of heat-pump hardware.
+
+**Caution:** The WP2 example simulates scripted changes at 20 min (process return), 30 min (open-loop compressor command), and 40 min (source temperature). It does not establish tracking, stability under a real controller, or comparative controller performance.
 
 ## Nominal physics and differences from WP1
 
@@ -60,7 +65,10 @@ The 13 executable tests check the nominated synthetic algebra, high-precision HX
 ## Project organization
 
 - `ht_hp_controlbench/core.py`: model, finite-flow HX, synthetic cycle, algebraic bypass, RHS and equilibrium solver
-- `ht_hp_controlbench/sim.py`: bounded open-loop command schedule, RK4 and energy integrals
+- `ht_hp_controlbench/sim.py`: bounded command schedule including optional closed-loop feedback, RK4 and energy integrals
+- `ht_hp_controlbench/pi.py`: PI controller, FOPDT and relay identification, gain calculations and metrics
+- `scripts/run_wp3.py`: reproducible PI tuning sweep, numerical results and plot
+- `tests/test_wp3.py`: independent tuning/feedback tests
 - `tests/test_wp2.py`: independent numerical/physics assertions
 - `scripts/make_report.py`: reproducible UA study, figure and verification summary
 - `reference/WP1_Feasibility_v0.5.py`: frozen earlier standalone worksheet for provenance
@@ -70,7 +78,7 @@ The 13 executable tests check the nominated synthetic algebra, high-precision HX
 
 1. Confirm a complete WP2 operating-envelope test matrix beyond the single nominal point; consider numeric stiffness and adaptive solver cross-check.
 2. Define sensor/measurement noise in a separate observation layer (not injected into conservation equations).
-3. WP3: identify and independently tune an honest PI baseline using two methods with anti-windup.
+3. WP3 continuation: extend PI validation to parameter perturbations, sensor noise and time delays; two baseline tuning methods and anti-windup are already implemented in simulation.
 4. WP4: implement LTV/QP MPC with explicit trust region, rollout-error monitoring, and controlled PI fallback; **only then** add a specific mid-horizon bypass active-set test.
 5. WP7: replace assumed compressor/fluid map with real-fluid property and pressure-feasibility work; parameter identification or hardware validation are separate requirements.
 
