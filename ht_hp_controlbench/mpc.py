@@ -285,7 +285,7 @@ def solve_mpc(x: State, previous: float, p: Parameters, d: Disturbance,
             return MPCSolution(False,previous,'nonlinear_state_constraint_violation',l,linear,true,err,perr,None,N,iterations)
         if err>cfg.nonlinear_temp_tolerance_k or perr>cfg.nonlinear_power_relative_tolerance:
             return MPCSolution(False,previous,'nonlinear_rollout_mismatch',l,linear,true,err,perr,None,N,iterations)
-        return MPCSolution(True,float(z[0]),'accepted',l,linear,true,err,perr,float(res.fun),N,iterations)
+        return MPCSolution(True,float(z[0]),'accepted',l,linear,true,err,perr,float(.5*z@H@z+g@z),N,iterations)
     except (ValueError,RuntimeError,OverflowError,FloatingPointError,ImportError) as exc:
         return MPCSolution(False,previous,'prediction_error:'+str(exc),None,None,None,np.inf,np.inf,None,0,0)
 
