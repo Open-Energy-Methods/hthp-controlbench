@@ -49,6 +49,20 @@ class ClaimAuditTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,"mismatched physical"):
             audited_pair(a,b,inventory_kwh=.5,actuator_tol=.02)
 
+    def test_same_seed_is_not_enough_if_realized_sensor_noise_differs(self):
+        a=self.by[("nominal","PI_IMC")]
+        b=copy.deepcopy(self.by[("nominal","MPC_property")])
+        b["noise_draws"][0]=999.0
+        with self.assertRaisesRegex(ValueError,"unequal realized sensor noise"):
+            audited_pair(a,b,inventory_kwh=.5,actuator_tol=.02)
+
+    def test_same_case_label_not_enough_if_initial_truth_differs(self):
+        a=self.by[("nominal","PI_IMC")]
+        b=copy.deepcopy(self.by[("nominal","MPC_property")])
+        b["true_states_at_decisions"][0][0]+=0.05
+        with self.assertRaisesRegex(ValueError,"unequal actual initial plant"):
+            audited_pair(a,b,inventory_kwh=.5,actuator_tol=.02)
+
     def test_fabricated_energy_and_published_flags_rejected(self):
         altered=copy.deepcopy(self.source)
         altered["pairs"][0]["eligible_for_conditional_electricity_comparison"]=False
