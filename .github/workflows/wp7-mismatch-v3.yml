@@ -1,0 +1,94 @@
+name: WP7 v3 model/plant-mismatch numerical research audit
+
+on:
+  push:
+    branches: [research-wp7-model-mismatch-sintef-v3]
+    paths:
+      - ".github/workflows/wp7-mismatch-v3.yml"
+      - "ht_hp_controlbench/wp7_control.py"
+      - "scripts/run_wp7_model_mismatch.py"
+      - "tests/test_wp7_model_mismatch.py"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  mismatch-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research-wp7-model-mismatch-sintef-v3
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install scientific dependencies
+        run: python -m pip install -e '.[realfluid,qp]'
+      - name: Test truth-only mismatch and nominal-model isolation
+        run: python -m unittest discover -s tests -p 'test_wp7_model_mismatch.py' -v
+      - name: Reproduce the frozen WP7 v2 nominal anchor and all predeclared mismatch cases
+        run: python scripts/run_wp7_model_mismatch.py
+      - name: Audit full-run service/terminal comparison gating
+        run: |
+          python - <<'PY'
+          import json,math
+          from pathlib import Path
+          p=Path("results/wp7_model_mismatch_v3.json")
+          x=json.loads(p.read_text())
+          assert x["benchmark_id"]=="WP7_NominalPredictor_TruthParameterMismatch_Holdout_v3"
+          assert x["nominal_anchor_v2_exact_reproduction"]
+          assert x["no_model_or_gain_retuning"] and x["same_sensing_same_command_limits"]
+          assert x["property_model_verified_against_hardware"] is False
+          assert len(x["cases"])==5 and len(x["runs"])==15 and len(x["pairs"])==10
+          assert len({(r["case"],r["controller"]) for r in x["runs"]})==15
+          assert len({(p["case"],p["baseline"]) for p in x["pairs"]})==10
+          for r in x["runs"]:
+              if r["status"]=="complete":
+                  for k in ("iae_Ks","electricity_kWh","max_energy_residual_J"):
+                      assert r[k] is not None and math.isfinite(r[k])
+                  assert r["max_energy_residual_J"]<1.
+              else:
+                  assert r["iae_Ks"] is None and r["electricity_kWh"] is None
+          for pair in x["pairs"]:
+              if not pair["eligible_for_conditional_electricity_comparison"]:
+                  assert pair["delta_electricity_kWh"] is None
+          for case in x["cases"]:
+              rows=[r for r in x["runs"] if r["case"]==case["case"]["name"]]
+              assert len(rows)==3 and len({tuple(r["noise_draws"]) for r in rows})==1
+              assert len({tuple(sorted(r["truth_parameter_ratios_to_nominal"].items())) for r in rows})==1
+          print(f"PASS: {x['complete_runs']}/15 full; {x['service_eligible_pairs']}/10 service; "+
+                f"{x['terminal_electricity_comparable_pairs']}/10 conditional electricity pairs")
+          PY
+      - name: Publish generated numerical results on the branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add results/wp7_model_mismatch_v3.json \
+                  results/wp7_model_mismatch_v3_pairs.csv \
+                  results/wp7_model_mismatch_v3_report.md
+          if ! git diff --cached --quiet; then
+            git commit -m "WP7 v3: archive independent frozen-predictor mismatch stress-test ledger"
+            git fetch origin research-wp7-model-mismatch-sintef-v3
+            for path in ht_hp_controlbench/wp7_control.py scripts/run_wp7_model_mismatch.py; do
+              if [ "$(git rev-parse "HEAD~1:$path")" != "$(git rev-parse "origin/research-wp7-model-mismatch-sintef-v3:$path")" ]; then
+                echo "Science source changed during run; refusing stale benchmark publication" >&2
+                exit 1
+              fi
+            done
+            git rebase origin/research-wp7-model-mismatch-sintef-v3
+            git push origin HEAD:research-wp7-model-mismatch-sintef-v3
+          fi
+      - name: Keep auditable research results without hiding adverse cases
+        uses: actions/upload-artifact@v4
+        with:
+          name: wp7-v3-property-model-mismatch-audit
+          path: |
+            results/wp7_model_mismatch_v3.json
+            results/wp7_model_mismatch_v3_pairs.csv
+            results/wp7_model_mismatch_v3_report.md
+          if-no-files-found: error
+          retention-days: 90
