@@ -37,8 +37,12 @@ mistaking heat-quality failure for energy savings?
 - **Service gate:** full-horizon process qualification, unserved specified
   energy <= 1e-6 kWh and physical process shortfall <= 1e-6 kWh.
   Electricity deltas are reported only when *both* PI and MPC are complete
-  and satisfy that same gate. These tolerances are *numerical*, not industrial
-  acceptance thresholds.
+  and satisfy that same gate, **and** have matched independent terminal
+  header energy, IF97 buffer enthalpy inventory and their sum (each within
+  0.5 kWh), compressor modulation and final applied command (each within 0.02).
+  Offset header/buffer inventory discrepancies cannot cancel. These tolerances
+  are *numerical comparability* thresholds, not calibrated uncertainty bands
+  or industrial process acceptance thresholds.
 
 ## Fixed scenario protocol
 
