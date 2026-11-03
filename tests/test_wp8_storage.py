@@ -1,5 +1,6 @@
 """WP8: thermodynamic service and tariff flexibility regression, no OEM claims."""
 import unittest
+import numpy as np
 from dataclasses import replace
 from unittest.mock import patch
 
@@ -108,6 +109,31 @@ class TestWP8(unittest.TestCase):
         self.assertAlmostEqual(result['service_qualified_fraction_completed'],1.0)
         self.assertLessEqual(result['service_qualified_fraction'],1.)
         self.assertFalse(result['equipment_verified'])
+
+    def test_valid_rk4_substages_cannot_commit_invalid_weighted_endpoint(self):
+        # Four individually valid stage *inputs*: k1..k3 zero, and k4
+        # evaluated at original feasible state. The RK4 accepted endpoint
+        # alone exceeds the tabulated property-map header temperatures.
+        calls=[0]
+        def forced_stage(*args,**kwargs):
+            calls[0]+=1
+            arr=np.zeros(8,float)
+            if calls[0]==4:
+                arr[0]=2.0  # dt=60 s, weighted endpoint header +20 K
+            return arr
+        with patch.object(flexmod,"_stage",side_effect=forced_stage):
+            result=simulate_24h(self.map,"baseline_pi",self.cfg,props=self.props)
+        self.assertEqual(calls[0],4)
+        self.assertEqual(result["status"],"failed_physical_or_property_constraint")
+        self.assertEqual(result["completed_steps"],0)
+        self.assertTrue(result["failures"])
+        self.assertAlmostEqual(result["electricity_kwh"],0.)
+        self.assertAlmostEqual(result["cost_eur"],0.)
+        self.assertAlmostEqual(result["condenser_heat_kwh"],0.)
+        self.assertAlmostEqual(result["process_heat_kwh"],0.)
+        self.assertAlmostEqual(result["service_qualified_fraction"],0.)
+        self.assertAlmostEqual(result["residual_energy_j"],0.)
+        self.assertFalse(result["equipment_verified"])
 
     def test_no_credit_when_service_fails_even_if_cash_is_lower(self):
         # Pure outcome gate: deliberately violated during 45-min event for small mass.
