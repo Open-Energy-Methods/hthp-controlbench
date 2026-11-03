@@ -97,3 +97,10 @@ Code is published under the MIT License; see [LICENSE](LICENSE). Citation metada
 [Read the MPC methods, fairness protocol, results and limits](docs/WP4_MPC.md). WP4 constructs a new locally linearized plant and affine **joint electrical-power** model every 120 seconds, solves a convex-QP-structured constrained receding-horizon problem with SciPy SLSQP, checks the solution against a nonlinear model rollout, and retries/returns to bounded PI when a model or solver check fails. This is **not** a certified MPC safety controller.
 
 Reproduce with `python scripts/run_wp4.py` after installing dependencies. Results: [full study CSV](results/wp4_control_comparison.csv), [JSON summary](results/wp4_control_summary.json), [plot](results/wp4_control_comparison.png). The fair persistence case and the artificially perfect future-forecast case are labelled separately. PI can outperform MPC under model mismatch; no real-world heat-pump advantage has been established.
+
+## WP4 robustness + solver audit (new extension)
+
+[WP4 robustness and QP audit methods](docs/WP4_ROBUSTNESS_AND_QP_AUDIT.md) · [20-case/5-method matrix](results/wp4_robustness_matrix.csv) · [summary](results/wp4_robustness_summary.json) · [figure](results/wp4_robustness_comparison.png).
+The robustness comparison now runs all PI and MPC methods with one identical noisy/delayed buffer-temperature sensor, an identical 120-second controller update period, a nominal-model-based estimate for MPC's unmeasured states, and independently reported perfect-forecast scenarios. On the synthetic predeclared set, MPC has lower IAE in 14 of 20 cases; relay-derived PI leads the other six. Severe physical compressor derating causes service failure under every controller. **No experiment or robust-stability proof is implied.**
+
+A dedicated **optional OSQP QP backend** was added alongside SciPy SLSQP. Install `pip install -e '.[plots,qp]'` and run `python scripts/run_wp4_solver_audit.py`; GitHub Actions executes both solver checks and the full robustness matrix. Backend equivalence is a numerical check, not a hardware/real-time guarantee.

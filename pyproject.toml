@@ -19,6 +19,7 @@ classifiers = [
 
 [project.optional-dependencies]
 plots = ["matplotlib>=3.7"]
+qp = ["osqp>=1.0,<2"]
 
 [tool.setuptools.packages.find]
 include = ["ht_hp_controlbench*"]
