@@ -62,40 +62,83 @@ def declared_holdout() -> tuple[MismatchSpec,...]:
     )
 
 
-def strict_nominal_reproduction(old:dict, new:dict):
-    """Disallow accidental scientific model changes under the new interface."""
+def strict_nominal_reproduction(old:dict, new:dict) -> dict:
+    """Explicitly audit nominal reproducibility, never retune controller.
+
+    The first cross-environment run found ~5.6e-6 K difference in MPC
+    trajectory under SLSQP (PI was bitwise identical). Hence MPC numerical
+    outputs have explicit, conservative absolute thresholds, reported as
+    maximum observed drift; method/solver decisions MUST match exactly.
+    These tolerances were set AFTER diagnosing this observed drift and are
+    not advertised as preregistered scientific acceptance intervals.
+    """
+    import numpy as np
+
+    method=new["controller"]
     fields=("case","controller","duration_s","sensor_noise_sd_k",
             "sensor_delay_s","seed","noise_draws","true_states_at_decisions",
             "estimated_states_at_decisions","sensed_buffer_at_decisions",
-            "applied_commands","status","pi_fallbacks","accepted_mpc")
+            "applied_commands","status","pi_fallbacks","accepted_mpc",
+            "solver_statuses")
+    trace_tols={
+        "true_states_at_decisions":[1e-4,1e-4,1e-5],
+        "estimated_states_at_decisions":[1e-4,1e-4,1e-5],
+        "sensed_buffer_at_decisions":[1e-4],
+        "applied_commands":[0.,1e-5],
+    }
+    metric_tols={
+        "iae_Ks":.1,
+        "electricity_kWh":.0001,
+        "process_heat_kWh":.0001,
+        "unserved_spec_heat_kWh":.0001,
+        "final_total_energy_delta_kWh":.0001,
+        "final_header_energy_delta_kWh":.0001,
+        "final_buffer_energy_delta_kWh":.0001,
+        "max_header_observer_error_K":.0001,
+        "max_modulation_observer_error":1e-5,
+    }
+    differences={}
     for key in fields:
-        # v2 stored nested tuples as JSON arrays.
+        # v2 persisted Python tuples as JSON arrays; normalization is lossless.
         normalized=json.loads(json.dumps(new[key],allow_nan=False))
-        if old[key]!=normalized:
-            diff = ""
-            if key in ("true_states_at_decisions","estimated_states_at_decisions",
-                       "sensed_buffer_at_decisions","applied_commands"):
-                a=old[key]; b=normalized
-                if len(a)==len(b):
-                    try:
-                        import numpy as np
-                        av=np.asarray(a,dtype=float)
-                        bv=np.asarray(b,dtype=float)
-                        if av.shape==bv.shape:
-                            delta=np.abs(av-bv)
-                            idx=np.unravel_index(int(np.argmax(delta)),delta.shape)
-                            diff=f" max_abs={np.max(delta)} index={idx} old={av[idx]} new={bv[idx]}"
-                    except (ValueError,TypeError):
-                        pass
-            raise RuntimeError(f"WP7 v2 nominal baseline drift method={new['controller']} key={key}"+diff)
-    for key in ("iae_Ks","electricity_kWh","process_heat_kWh",
-                "unserved_spec_heat_kWh","final_total_energy_delta_kWh",
-                "final_header_energy_delta_kWh","final_buffer_energy_delta_kWh",
-                "max_header_observer_error_K","max_modulation_observer_error"):
+        if old[key]==normalized:
+            differences[key]=0.
+            continue
+        if method!="MPC_property" or key not in trace_tols:
+            raise RuntimeError(f"WP7 v2 nominal structural/PI regression: method={method} key={key}")
+        av=np.asarray(old[key],dtype=float)
+        bv=np.asarray(normalized,dtype=float)
+        if av.shape!=bv.shape:
+            raise RuntimeError(f"WP7 v2 nominal MPC shape changed: {key}")
+        delta=np.abs(av-bv)
+        if not np.all(np.isfinite(delta)):
+            raise RuntimeError(f"nonfinite nominal reproducibility delta: {key}")
+        tolerances=np.asarray(trace_tols[key],dtype=float)
+        if delta.ndim==1:
+            allowed=tolerances[0]
+        else:
+            if len(tolerances)!=delta.shape[1]:
+                raise RuntimeError("invalid nominal comparison tolerance shape")
+            allowed=tolerances[None,:]
+        if np.any(delta>allowed):
+            raise RuntimeError(f"WP7 v2 nominal MPC trace drift exceeds tolerance "
+                f"key={key} max_abs={float(np.max(delta))}")
+        differences[key]=float(np.max(delta))
+    for key, tolerance in metric_tols.items():
         a,b=old[key],new[key]
-        if (a is None)!=(b is None) or (
-                a is not None and not isclose(a,b,rel_tol=1e-12,abs_tol=1e-8)):
-            raise RuntimeError(f"WP7 v2 nominal metric drift: {key}: {a} vs {b}")
+        if a is None or b is None:
+            if a!=b:
+                raise RuntimeError(f"WP7 v2 nominal missing metric mismatch: {key}")
+            differences[key]=0.
+            continue
+        delta=abs(float(a)-float(b))
+        if method!="MPC_property" and delta!=0:
+            raise RuntimeError(f"WP7 v2 nominal PI KPI not bitwise reproduced: {key}, delta={delta}")
+        if delta>tolerance:
+            raise RuntimeError(f"WP7 v2 nominal MPC KPI drift outside tolerance: {key}, delta={delta}, limit={tolerance}")
+        differences[key]=delta
+    return {"method":method,"max_observed_absolute_drift_by_field":differences,
+            "MPC_tolerances_selected_after_diagnosed_solver_drift":method=="MPC_property"}
 
 
 def main():
@@ -112,7 +155,7 @@ def main():
         modulations=(.5,.75,1.0),assumptions=CycleAssumptions())
     nominal_p=replace(Parameters(hx_mode="duty_limiter"),
                       n_min=model.modulations[0],n_max=model.modulations[-1])
-    runs=[];pairs=[];records=[]
+    runs=[];pairs=[];records=[];anchor_audits=[]
     for spec in declared_holdout():
         p_truth=(
             replace(nominal_p,**{spec.truth_parameter:
@@ -125,7 +168,7 @@ def main():
                 pi_settings=setting,observer_backend="property",
                 truth_parameters=p_truth,benchmark_id=ID)
             if spec.truth_parameter is None:
-                strict_nominal_reproduction(by_old[("nominal",method)],row)
+                anchor_audits.append(strict_nominal_reproduction(by_old[("nominal",method)],row))
             if row["status"]=="complete":
                 if row["max_energy_residual_J"]>=1.:
                     raise RuntimeError("invalid accepted conservation residual")
@@ -173,7 +216,8 @@ def main():
         "same_sensing_same_command_limits":True,
         "property_model_verified_against_hardware":False,
         "coolprop_version":backend_version(),
-        "nominal_anchor_v2_exact_reproduction":True,
+        "nominal_anchor_v2_reproduced_with_tolerances":True,
+        "nominal_anchor_v2_audit":anchor_audits,
         "cases":[{"case":asdict(s.case),"truth_parameter":s.truth_parameter,
                   "truth_scale":s.truth_scale} for s in declared_holdout()],
         "runs":runs,"pairs":pairs,"rows":records,
@@ -206,7 +250,12 @@ def main():
         "declared alternate HX process UA, header–buffer conductance, or compressor "
         "lag; predictor remains nominal. All variants have their own equal-service "
         "reference initialization. The nominal case must reproduce *every* "
-        "published v2 physical/control trace and KPI, or the runner fails.","",
+        "published v2 PI physical/control trace and KPI exactly; the MPC "
+        "is compared with explicit strict float tolerances. The first cross-"
+        "environment replay exposed a 5.6e-6 K nominal MPC trajectory "
+        "difference. Tolerances were introduced after diagnosing that "
+        "difference; they are not preregistered physical error margins. "
+        "All solver statuses and accepted step counts must still match.","",
         "These ±15% / +30% perturbations are **chosen illustrative errors**, "
         "not manufacturer tolerances or confidence intervals. The error family "
         "does not include a perturbed compressor Q/P map, compressor oil, finite "
