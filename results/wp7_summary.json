@@ -1,0 +1,73 @@
+{
+  "wp": "WP7 property-only and idealized 4-state cycle screen",
+  "coolprop_version": "8.0.0",
+  "property_library": "CoolProp HEOS refrigerants and IF97/HEOS Water",
+  "model_status": "uncalibrated, no manufacturer compressor/discharge limits; equipment feasibility NOT established",
+  "candidate_fluids": [
+    "R1233zd(E)",
+    "R1336mzz(Z)",
+    "R134a",
+    "Ammonia",
+    "CarbonDioxide"
+  ],
+  "nominal_passing": [
+    "R1233zd(E)"
+  ],
+  "nominal_rejected": {
+    "R1336mzz(Z)": "compressor_discharge_wet_or_not_superheated_vapor",
+    "R134a": "subcritical_condensing_temperature_above_critical_guard",
+    "Ammonia": "subcritical_condensing_temperature_above_critical_guard",
+    "CarbonDioxide": "transcritical_CO2_requires_different_cycle_topology"
+  },
+  "map_success": [
+    "R1233zd(E)"
+  ],
+  "map_failed": [],
+  "water_pressure_assumed_pa": 600000.0,
+  "source_grid_k": [
+    328.15,
+    333.15,
+    338.15
+  ],
+  "header_grid_k": [
+    403.15,
+    406.2,
+    413.15
+  ],
+  "n_grid": [
+    0.5,
+    0.75,
+    1.0
+  ],
+  "ref_cycle_duty_w": 310000.0,
+  "storage_conditional": {
+    "mass_kg": 5000.0,
+    "minimum_service_temperature_k": 401.53,
+    "hypothetical_high_temperature_k": 408.15,
+    "enthalpy_difference_j_kg": 28250.226233533,
+    "conditional_energy_kwh": 39.23642532435139,
+    "capacity_status": "conditional_arithmetic_ONLY__high_temperature_unproven"
+  },
+  "assumptions": {
+    "eta_isentropic": 0.75,
+    "evap_approach_k": 5.0,
+    "cond_approach_k": 5.0,
+    "superheat_k": 5.0,
+    "subcool_k": 4.0,
+    "critical_margin_k": 5.0,
+    "service_header_pressure_pa": 600000.0,
+    "water_saturation_margin_fraction": 0.15,
+    "reference_condenser_duty_w": 310000.0,
+    "reference_modulation": 0.75
+  },
+  "max_heldout_q_relative_error": 0.001900110990152225,
+  "max_heldout_p_relative_error": 0.0009487699810364506,
+  "water_if97_nominal_pa": 295841.93635725765,
+  "missing_evidence": [
+    "manufacturer-calibrated TESPy compressor and HX offdesign characteristics",
+    "manufacturer compressor displacement/efficiency and envelopes",
+    "refrigerant/pressure hardware design, approvals, leak safety",
+    "real equipment COP and field calibration",
+    "dynamic controller reruns with this property cycle instead of synthetic WP2 map"
+  ]
+}

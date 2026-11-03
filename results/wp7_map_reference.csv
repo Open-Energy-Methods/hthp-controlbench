@@ -1,0 +1,2 @@
+fluid,reference_heat_w,reference_n,equivalent_full_speed_suction_m3_s,nominal_suction_density_kg_m3,nominal_compressor_electrical_w,max_holdout_q_relative_error,max_holdout_p_relative_error,note
+R1233zd(E),310000.0,0.75,0.20422714630253777,17.65998643267353,123472.05423186488,0.001900110990152225,0.0009487699810364506,"implied volumetric flow at a forced 310kW nominal duty, NOT equipment calibration"

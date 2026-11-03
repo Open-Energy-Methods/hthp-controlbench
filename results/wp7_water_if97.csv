@@ -1,0 +1,6 @@
+status,reason,t_hot_k,loop_pressure_assumed_pa,saturation_pressure_if97_pa,saturation_pressure_heos_pa,relative_pressure_margin,enthalpy_difference_from_120C_j_kg,sat_backend_fractional_difference,water_property_origin
+property_water_pass,,393.15,600000.0,198665.3997393019,198674.42047977017,2.020153488163255,0.0,4.5406701318378424e-05,CoolProp IF97 and HEOS; uncalibrated assumed loop pressure
+property_water_pass,,403.15,600000.0,270259.60655999795,270279.97678558424,1.2200875951723082,42544.24550637265,7.537280855829978e-05,CoolProp IF97 and HEOS; uncalibrated assumed loop pressure
+property_water_pass,,406.2,600000.0,295841.93635725765,295866.99390685675,1.028110035338067,55558.68224552646,8.469911300483461e-05,CoolProp IF97 and HEOS; uncalibrated assumed loop pressure
+property_water_pass,,413.15,600000.0,361500.961984849,361539.09939991613,0.6597466206055265,85288.16861915565,0.00010549740962713265,CoolProp IF97 and HEOS; uncalibrated assumed loop pressure
+property_water_pass,,418.15,600000.0,415634.92260247027,415684.6401630355,0.44357455875733476,106744.11681537109,0.00011961834259237014,CoolProp IF97 and HEOS; uncalibrated assumed loop pressure
