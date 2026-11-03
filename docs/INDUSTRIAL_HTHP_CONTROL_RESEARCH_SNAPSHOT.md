@@ -24,19 +24,20 @@ These models share a scientific scope, but the *synthetic* PI/MPC experiments, t
 |---|---|---|
 | Corrected WP3–WP5, [L1_RelayPeak_v2](../results/L1_RelayPeak_v2/manifest.json) | Versioned tuning and noise/delay/mismatch tests, including explicit active constraints and solver checks | An internally reproducible **synthetic** controller comparison, not empirical equipment performance |
 | [WP7 property-consistent MPC v2](../results/wp7_property_predictor_v2_report.md) | 15/15 complete two-hour runs; 10/10 PI–MPC comparisons satisfy simulated service; **5/10** also match terminal inventories and commands | MPC improved tracking relative to the older synthetic predictor in 2/5 scenarios, worsened it in 3/5; among the five eligible PI–MPC electricity pairs, **MPC used more electricity in every pair** |
+| [WP7 truth-model mismatch v3](../results/wp7_model_mismatch_v3_report.md) | 15 attempted two-hour runs with fixed nominal control; **12/15 complete** and **4/10** terminal-equivalent energy comparisons | A **15% reduction in process HX UA prevents the fixed 130°C buffer reference from meeting the required starting service** (3 controller runs rejected). Among four eligible pairs, MPC again uses more electricity than the corresponding PI. These are illustrative, not calibrated equipment uncertainties |
 | [WP6 SOC/active sets](WP6_SOC_ACTIVE_SET.md) | One-actuator negative freedom result; two-actuator hypothetical active-set, sensitivity and held-out tests | Candidate for experimental work on *when* simple controlled variables approximate economic optimality; **not** proof of industrial optimality |
 | [WP8 timestep sensitivity](../results/wp8_timestep_sensitivity_v1.md) | 24 h integration-step screen at 60, 30 and 15 seconds | Modelled tariff saving ≈€0.107/day is small and **not** credible as a real industrial economic benefit |
 | [WP7 independent source audit](../results/wp7_external_empirical_evidence_v1.md) | Checksum-verified published R1233zd(E) compressor datasets; generated manufacturer-polynomial records separated from actual measurements | External measurements come from **other compressor designs and operating regimes**; no 310 kW OEM capacity, source/sink, instrumentation or safety validation established |
 
 The central technical lesson is that **tracking, energy consumption, process-service qualification and final stored energy are different quantities**. A controller that tracks a temperature setpoint more closely cannot be declared more efficient if it delivers different useful heat or ends with depleted storage. The comparison therefore rejects missing service, out-of-property-envelope states, partial trajectories, and unmatched header/buffer energy inventories.
 
-![Corrected synthetic PI–MPC tracking comparison](../results/L1_RelayPeak_v2/wp5_paired_tracking.png)
+![WP7 v3 tracking and eligible electricity under deliberately mismatched thermal/actuator models](../results/wp7_model_mismatch_v3_summary.svg)
 
-*Illustration: synthetic L1 results, not the property-backed WP7 MPC experiment.*
+*Figure: WP7 v3 property-backed simulation; rejected starting states are marked as unavailable, not plotted as zero. Positive electricity deltas mean MPC consumed more than the corresponding PI comparator. The experiment is not hardware validated.*
 
 ## Model-transfer challenge and future experimental design
 
-The separate [WP7 v3 model-mismatch experiment](../results/wp7_model_mismatch_v3_report.md) holds nominal PI gains and the property-based MPC predictor frozen while perturbing **only the simulated truth**: process-HX conductance, header-to-buffer conductance or compressor response lag. It also tests sensor noise/delay and source/return disturbances. Its nominal anchor must reproduce WP7 v2 within audited numerical tolerances. An infeasible starting service point is reported as **not comparable**, never silently dropped or retuned.
+The independently versioned [WP7 v3 model-mismatch experiment](../results/wp7_model_mismatch_v3_report.md) holds nominal PI gains and the property-based MPC predictor frozen while perturbing **only the simulated truth**: process-HX conductance, header-to-buffer conductance or compressor response lag. It also tests sensor noise/delay and source/return disturbances. Its nominal anchor must reproduce WP7 v2 within audited numerical tolerances. An infeasible starting service point is reported as **not comparable**, never silently dropped or retuned.
 
 This is still a *model-plant mismatch sensitivity* study, not a statistically calibrated uncertainty distribution. The next doctoral-grade validation steps require:
 
