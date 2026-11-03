@@ -1,6 +1,6 @@
 # WP7 — Real-fluid thermodynamic anchor and guarded offdesign map
 
-**Scope:** Refrigerant property calculations with CoolProp HEOS, water pressure/enthalpy with CoolProp IF97 and a parallel HEOS saturation check. This is a first-principles **four-state steady-state cycle screen**, not calibrated equipment, not a dynamic refrigerant twin, and not an independent TESPy network. WP2–WP6 remain intentionally unchanged.
+**Scope:** Refrigerant property calculations with CoolProp HEOS, water pressure/enthalpy with CoolProp IF97 and a parallel HEOS saturation check. This is a first-principles **four-state steady-state cycle screen** plus a separately solved TESPy component network using the **same CoolProp EOS**. Neither is calibrated equipment or a dynamic refrigerant twin. WP2–WP6 remain intentionally unchanged.
 
 ## Questions and evidence levels
 
@@ -10,7 +10,7 @@
 4. Can an imposed, non-validated constant-volumetric-flow relation construct a property-dependent capacity/power map? What are its held-out interpolation errors?
 5. Is assumed 6 bar(a) hot water in the compressed-liquid region, and what conditional inventory follows from the full IF97 enthalpy difference?
 
-**Evidence tags:** `property-calculated` (CoolProp EOS and IF97); `synthetic` (compressor efficiency, superheat, subcooling, imposed reference duty, hypothetical 6 bar loop); `cross-backend water-only` (IF97 versus HEOS); **no** `equipment calibrated`, `manufacturer validated`, `experimental`, `certified`, or `independently TESPy checked` claims.
+**Evidence tags:** `property-calculated` (CoolProp EOS and IF97); `synthetic` (compressor efficiency, superheat, subcooling, imposed reference duty, hypothetical 6 bar loop); `cross-backend water-only` (IF97 versus HEOS); **no** `equipment calibrated`, `manufacturer validated`, `experimental`, `certified`, or `independently validated EOS` claims. The TESPy network is a component-equation cross-check, not an independent property model.
 
 ## Modelling boundary and thermodynamic equations
 
@@ -77,16 +77,18 @@ python -m unittest discover -s tests -v
 python scripts/run_wp7.py
 ```
 
-The GitHub workflow uses all three supported Python versions to run WP7, with a downloadable **WP7 real-fluid artifact** from the 3.12 run. Generated files: `results/wp7_nominal_fluid_screen.csv`, `wp7_envelope.csv`, `wp7_water_if97.csv`, `wp7_map_reference.csv`, `wp7_map_holdout.csv`, `wp7_efficiency_approach_sensitivity.csv`, `wp7_synthetic_vs_cycle.csv`, `wp7_summary.json`, `wp7_scientific_report.md`, and `wp7_cop_temperature.png` (when matplotlib installed).
+The GitHub workflow uses all three supported Python versions to run CoolProp WP7; TESPy cross-check runs on Python 3.11 and 3.12, since TESPy 0.11 requires >=3.11. The 3.12 run also publishes a downloadable **WP7 real-fluid artifact**. Generated files: `results/wp7_nominal_fluid_screen.csv`, `wp7_envelope.csv`, `wp7_water_if97.csv`, `wp7_map_reference.csv`, `wp7_map_holdout.csv`, `wp7_efficiency_approach_sensitivity.csv`, `wp7_synthetic_vs_cycle.csv`, `wp7_summary.json`, `wp7_scientific_report.md`, and `wp7_cop_temperature.png` (when matplotlib installed).
 
-**Not completed by this initial implementation:** independently configured TESPy design/offdesign validation, machine-specific compressor specification/efficiency maps, refrigerant lifecycle and code compliance, measured thermodynamic/flow calibration, physically constrained compressor-coupled dynamic controller reruns, manufacturer-validated 135 °C charging margin. WP7 **must not be called fully equipment-validated** until these are completed.
+**Additional WP7 verification:** a TESPy component-network design solve is provided at three matched reference states, and must pass a 2% same-model discrepancy gate in CI. This independently solves network equations but **shares CoolProp thermophysical data** and does not establish manufacturer-calibrated TESPy offdesign.
+
+**Not completed by this initial implementation:** TESPy manufacturer-based design/offdesign characteristics, machine-specific compressor specification/efficiency maps, refrigerant lifecycle and code compliance, measured thermodynamic/flow calibration, physically constrained compressor-coupled dynamic controller reruns, manufacturer-validated 135 °C charging margin. WP7 **must not be called fully equipment-validated** until these are completed.
 
 ## Published sources and checking scope
 
 - CoolProp [high-level properties API](https://coolprop.org/coolprop/HighLevelAPI.html), including saturation-quality and state identifiers.
 - CoolProp [water IF97 documentation](https://coolprop.org/fluid_properties/IF97.html); water HEOS uses the distinct IAPWS-95-based EOS.
 - CoolProp [R1233zd(E) EOS and range](https://coolprop.org/fluid_properties/fluids/R1233zd%28E%29.html) and [R1336mzz(Z) EOS and range](https://coolprop.github.io/devdocs/fluid_properties/fluids/R1336mzz%28Z%29.html).
-- [TESPy heat-pump design and part-load tutorial](https://tespy.readthedocs.io/en/main/model_library/heat_pump_partload.html): shows how manufacturer compressor maps and offdesign HX scaling should ultimately be anchored. **Not claimed as an executed secondary simulation.**
+- [TESPy heat-pump design and part-load tutorial](https://tespy.readthedocs.io/en/main/model_library/heat_pump_partload.html): shows how manufacturer compressor maps and offdesign HX scaling should ultimately be anchored. The component-network cross-check now runs separately on Python 3.11 and 3.12; it is not a manufacturer-based offdesign simulation.
 - Frozen research specification: `docs/RESEARCH_PLAN_v0.5.md` §4.5, WP7 acceptance matrix.
 
 All numeric equipment choices in this stage remain hypothetical unless explicitly supported by a tested property EOS.

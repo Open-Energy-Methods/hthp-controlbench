@@ -40,6 +40,15 @@ jobs:
         run: python scripts/run_wp6.py
       - name: Reproduce WP7 CoolProp cycle and fluid property screen
         run: python scripts/run_wp7.py
+      - name: Install TESPy for separate component-network checks
+        if: matrix.python-version != '3.10'
+        run: python -m pip install -e '.[tespy]'
+      - name: Test WP7 TESPy network against direct CoolProp states
+        if: matrix.python-version != '3.10'
+        run: python -m unittest discover -s tests -p 'test_wp7_tespy.py' -v
+      - name: Cross-check WP7 direct cycle in TESPy network
+        if: matrix.python-version != '3.10'
+        run: python scripts/run_wp7_tespy.py
       - name: Upload WP7 property-generated reports
         if: matrix.python-version == '3.12'
         uses: actions/upload-artifact@v4
