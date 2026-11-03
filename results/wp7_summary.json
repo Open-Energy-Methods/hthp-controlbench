@@ -64,7 +64,7 @@
   "max_heldout_p_relative_error": 0.0009487699810364506,
   "water_if97_nominal_pa": 295841.93635725765,
   "missing_evidence": [
-    "TESPy independent steady-state/offdesign cross-check",
+    "manufacturer-calibrated TESPy compressor and HX offdesign characteristics",
     "manufacturer compressor displacement/efficiency and envelopes",
     "refrigerant/pressure hardware design, approvals, leak safety",
     "real equipment COP and field calibration",

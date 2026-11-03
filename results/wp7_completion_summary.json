@@ -1,0 +1,112 @@
+{
+  "status": "WP7_NUMERICAL_RESEARCH_COMPLETE__NOT_EQUIPMENT_VALIDATED",
+  "model": "R1233zd(E) CoolProp HEOS + IF97 water; TESPy same CoolProp EOS",
+  "coolprop_version": "8.0.0",
+  "tespy_version": "0.11.3 - Rankine's Renaissance",
+  "nominal_same_service": {
+    "status": "same_service_property_feasible__EQUIPMENT_UNVERIFIED",
+    "source_k": 333.15,
+    "t_buffer_k": 403.15,
+    "t_header_k": 406.2,
+    "process_outlet_k": 393.15,
+    "service_qualified": true,
+    "hx_bypass_fraction": 0.9314688744432147,
+    "q_process_w": 300000.00000000006,
+    "q_hp_required_w": 310000.00000000006,
+    "required_modulation": 0.7500000000000001,
+    "q_hp_max_assumed_w": 413333.3333333334,
+    "compressor_electric_required_w": 123472.0542318649,
+    "source_heat_required_w": 186527.94576813516,
+    "p_cond_pa": 2218883.3820459503,
+    "pressure_ratio": 6.525768802309526,
+    "discharge_k": 416.025969365783,
+    "hot_loop_exchange_w": 305000.00000000006,
+    "buffer_heat_loss_w": 5000.0,
+    "header_heat_loss_w": 5000.0,
+    "declared_map_support": true,
+    "equipment_verified": false
+  },
+  "assumptions": {
+    "eta_isentropic": 0.75,
+    "evap_approach_k": 5.0,
+    "cond_approach_k": 5.0,
+    "superheat_k": 5.0,
+    "subcool_k": 4.0,
+    "critical_margin_k": 5.0,
+    "service_header_pressure_pa": 600000.0,
+    "water_saturation_margin_fraction": 0.15,
+    "reference_condenser_duty_w": 310000.0,
+    "reference_modulation": 0.75
+  },
+  "reference_full_speed_suction_volume_m3_s": 0.20422714630253777,
+  "quasisteady_charge_without_equipment_ratings": {
+    "status": "conditional_quasisteady_charge_path__EQUIPMENT_UNVERIFIED",
+    "low_k": 401.55,
+    "high_k": 408.15,
+    "mass_kg": 5000.0,
+    "nodes": 21,
+    "energy_kwh": 39.11807062871958,
+    "charge_hours": 0.43199394121432544,
+    "surplus_min_w": 76570.09674227975,
+    "surplus_max_w": 105819.04892037195,
+    "max_p_cond_pa": 2460672.7913762536,
+    "max_discharge_k": 422.1983826133661,
+    "max_header_k": 411.9679736946955,
+    "equipment_verified": false,
+    "no_hardware_validation": "hypothetical swept volume, compression efficiency, pressure/discharge ratings, HX UA and 6 bar water loop"
+  },
+  "quasisteady_charge_with_HYPOTHETICAL_24bar_145C_limits": {
+    "status": "blocked_or_unverified",
+    "blocked_at_k": 404.52,
+    "reason": "hypothetical_equipment_limit_exceeded",
+    "equipment_verified": false
+  },
+  "fluid_PI_dynamic_2hour_pilot": [
+    {
+      "controller": "FOPDT_IMC_lambda_0p5tau",
+      "status": "completed_property_map_PI_test__EQUIPMENT_UNVERIFIED",
+      "duration_s": 7200.0,
+      "iae_Ks": 1707.2552745506825,
+      "electricity_kwh": 242.70637328003286,
+      "condenser_heat_kwh": 601.4059373022858,
+      "process_heat_kwh": 586.6666666666666,
+      "fraction_service_qualified": 1.0,
+      "max_energy_residual_J": 4.470348358154297e-06,
+      "max_abs_buffer_deviation_k": 0.684940409565229,
+      "max_actuator_slew": 0.0034191177275921802,
+      "equipment_verified": false
+    },
+    {
+      "controller": "Relay_TyreusLuyben",
+      "status": "completed_property_map_PI_test__EQUIPMENT_UNVERIFIED",
+      "duration_s": 7200.0,
+      "iae_Ks": 347.0102377139216,
+      "electricity_kwh": 244.93644133510261,
+      "condenser_heat_kwh": 606.2083143672952,
+      "process_heat_kwh": 586.6666666666666,
+      "fraction_service_qualified": 1.0,
+      "max_energy_residual_J": 3.8603320717811584e-07,
+      "max_abs_buffer_deviation_k": 0.21309349623203389,
+      "max_actuator_slew": 0.03250159521763929,
+      "equipment_verified": false
+    }
+  ],
+  "tespy_design_to_offdesign_test_count": 3,
+  "tespy_characteristic": "hypothetical eta_s vs m/m_design, NOT manufacturer data",
+  "excluded_model_validation": [
+    "OEM displacement and compressor efficiency/speed/discharge envelope",
+    "hydraulic pressure rating and pressure safety standard compliance",
+    "refrigerant-oil/materials/lifetime compatibility and safety classification",
+    "measured duty, COP, HX UA, evaporator and condenser pressure losses",
+    "system-specific transient/stratified storage and measured charging time",
+    "fluid-based retuning and independent fair PI/MPC/SOC ranking",
+    "experimental, operational and manufacturer validation"
+  ],
+  "sources": [
+    "https://coolprop.org/coolprop/HighLevelAPI.html",
+    "https://coolprop.org/fluid_properties/IF97.html",
+    "https://coolprop.org/fluid_properties/fluids/R1233zd%28E%29.html",
+    "https://tespy.readthedocs.io/en/stable/building_blocks/networks.html",
+    "https://tespy.readthedocs.io/en/stable/building_blocks/components.html"
+  ]
+}

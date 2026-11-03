@@ -1,15 +1,38 @@
 {
-  "artifact_source": "GitHub Actions CoolProp/TESPy generated outputs \u2014 not manually copied values",
+  "status": "exact_CI_generated_outputs__NOT_equipment_calibration",
   "repository": "abhijith-sivaprasadan/hthp-controlbench",
-  "source_head_sha": "e77c0aa640db88daa1e2ca4cc4eb2c8113e3a285",
-  "workflow_run_id": 41593366222,
-  "workflow_run_url": "https://github.com/abhijith-sivaprasadan/hthp-controlbench/actions/runs/41593366222",
-  "artifact_id": 13211187676,
-  "artifact_digest_sha256": "b61a9d246e6470922d049947c6a61d7059a492d81bddcb98e0b158f4167458f1",
-  "coolprop_version": "8.0.0",
-  "tespy_version": "0.11.3",
-  "scope": "synthetic assumptions; component-network crosscheck uses the SAME CoolProp EOS; no hardware or manufacturer calibration",
+  "source_head_sha": "6a460787cb9b04af01c74e6f1b8828ff210c70b3",
+  "workflow_run_id": 41623132657,
+  "workflow_run_url": "https://github.com/abhijith-sivaprasadan/hthp-controlbench/actions/runs/41623132657",
+  "artifact_id": 13225261607,
+  "artifact_digest_sha256": "90a53bd333fac058e51195031d7aaa088f1bf5069fa7195b521a27f168b91fa7",
+  "evidence": "CoolProp HEOS and IF97 water, TESPy same CoolProp EOS; hypothetical reference compressor/pressure, no OEM validation",
+  "file_count": 18,
   "files": [
+    {
+      "path": "results/wp7_actual_TESPy_offdesign.csv",
+      "size_bytes": 1348,
+      "sha256": "36e06d33097de9c93de10ef6bce62922a3f8aabf95f52706f0fbddd7cfca171b",
+      "git_blob_sha": "123bbe3f4c860a338ca1a3b8b65745d407ad11a0"
+    },
+    {
+      "path": "results/wp7_charge_profile.csv",
+      "size_bytes": 5486,
+      "sha256": "241956b8079fa7969bc795b7c3712be37130db7934bcbc0ad08705f817e1a29a",
+      "git_blob_sha": "6418c9f870c6a2c92e29eaa7f53ec9e4fd706c82"
+    },
+    {
+      "path": "results/wp7_completion_report.md",
+      "size_bytes": 3236,
+      "sha256": "05c8e61018e08c8fe246f66b2c3f864e0fcf10a17d5c71283e4629d607fb07ef",
+      "git_blob_sha": "7dd6fb6bcfa9003498038340848d9dee1e97acbb"
+    },
+    {
+      "path": "results/wp7_completion_summary.json",
+      "size_bytes": 4610,
+      "sha256": "cb74323591e357f0322ccfaae56cde17ebd53b417682f86073517a0c6b5f660f",
+      "git_blob_sha": "586fa99758aa30dcd9792d3a1ae7923de40456c1"
+    },
     {
       "path": "results/wp7_cop_temperature.png",
       "size_bytes": 58501,
@@ -47,22 +70,34 @@
       "git_blob_sha": "60d92b728e2778bcc9313dde2cbea893b8f8341a"
     },
     {
+      "path": "results/wp7_realfluid_PI_pilot.csv",
+      "size_bytes": 659,
+      "sha256": "2f7f326f66c30e829433e20a0e48d23c94dc55a701ed4e4cd27a02274e4d6730",
+      "git_blob_sha": "90f839213b380b17e4b75c7f43d14716f7aa3ba9"
+    },
+    {
       "path": "results/wp7_scientific_report.md",
-      "size_bytes": 3749,
-      "sha256": "1d6eec89d77328a31bd941ec08d0eb04d643fc5783217e21fd5e5376179dcb08",
-      "git_blob_sha": "23fc991154de7f28178842f7a4d4f5682f2ece87"
+      "size_bytes": 3747,
+      "sha256": "48e68be61855ff7c21b1f881262b3704e95483077f2ffadd012810f6ee5d989d",
+      "git_blob_sha": "d504a2a2b1c64567e62fa40e56746d9c48455c84"
     },
     {
       "path": "results/wp7_summary.json",
-      "size_bytes": 2266,
-      "sha256": "40a3a17ea7cef73399b9dc32c60d4ba843ad9265199b44d41fef07c967cef784",
-      "git_blob_sha": "6aa002d791bd58553fdf223ae6fa50343dbe5011"
+      "size_bytes": 2287,
+      "sha256": "01cf6043aa61c8ef89c45e6618e8c20fc81b037cbfde02245978edeea3292464",
+      "git_blob_sha": "1bf7a937a7dbe060f7bb0807a5f4ab731a84ce71"
     },
     {
       "path": "results/wp7_synthetic_vs_cycle.csv",
       "size_bytes": 365,
       "sha256": "6420d75fe05f10c4ffea0b01b5aa2ce4672fc4c4b3319b851ac36a4833554224",
       "git_blob_sha": "39a6022027aa4222380c27dcb1755700b3707c58"
+    },
+    {
+      "path": "results/wp7_system_service_screen.csv",
+      "size_bytes": 4359,
+      "sha256": "353013967a3c0e3d4ef3dcd805aa102de57e14fb1cc081999bbb6a9e420beb5e",
+      "git_blob_sha": "ab388b707da5d8f19286b197da06fd4c66d4f7dc"
     },
     {
       "path": "results/wp7_tespy_crosscheck.csv",
