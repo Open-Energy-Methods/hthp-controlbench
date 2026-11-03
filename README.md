@@ -2,7 +2,7 @@
 
 **Research software for the comparative study of PI/PID, model-predictive and self-optimising control of industrial high-temperature heat pumps.**
 
-**Current implementation: WP2 synthetic plant + WP3 independently tuned PI and robustness + WP4 constrained MPC and OSQP audit + WP5 scenario-wise comparative synthesis + WP6 synthetic SOC/active-set screening.** Two independent tuning methods, anti-windup, and reproducible noise, delay, parameter-mismatch and actuator-saturation comparisons are implemented. Physical PID tuning and real-fluid calibration are **not** implemented or validated. WP6 implements **exploratory nonlinear steady-state SOC candidate evaluation** using an explicitly hypothetical second hot-loop circulation actuator, plus a limited dynamic/noisy pilot; it is not a validated industrial SOC structure or a proof of nonlinear dynamic SOC optimality. WP4/WP5/WP6 conclusions are simulation-only.
+**Current implementation: WP2 synthetic plant + WP3 independently tuned PI and robustness + WP4 constrained MPC and OSQP audit + WP5 scenario-wise comparative synthesis + WP6 synthetic SOC/active-set screening + WP7 real-fluid property-cycle screening (uncalibrated).** Two independent tuning methods, anti-windup, and reproducible noise, delay, parameter-mismatch and actuator-saturation comparisons are implemented. Physical PID tuning and real-fluid calibration are **not** implemented or validated. WP6 implements **exploratory nonlinear steady-state SOC candidate evaluation** using an explicitly hypothetical second hot-loop circulation actuator, plus a limited dynamic/noisy pilot; it is not a validated industrial SOC structure or a proof of nonlinear dynamic SOC optimality. WP4/WP5/WP6 conclusions are simulation-only.
 
 ![Example synthetic open-loop thermal response](results/wp2_illustrative_thermal_response.png)
 
@@ -122,7 +122,7 @@ The unchanged baseline WP2 thermal plant has one manipulated compressor command;
 
 The *separate exploratory pump-actuated extension* adds a hypothetical hot-side circulation flow ratio `r`, a first-order pump flow lag for dynamic tests, an explicit cubic synthetic pump power law and flow-dependent heat exchanger UA. Its nonlinear steady economic optimisation identifies a pump-upper-constraint region and a remaining interior flow degree of freedom. WP6 constructs constant controlled-variable candidates within these regions (including a Hessian-based first-order stationarity combination), freezes them before a separate held-out disturbance grid, and reports **J_SOC − J_opt** only when heat service is equally feasible.
 
-**Source and scope:** [WP6 standalone scientific report](results/wp6_scientific_report.md) · [Methods and limitations](docs/WP6_SOC_ACTIVE_SET.md) · [Results JSON](results/wp6_summary.json). Candidate CVs are not identical to Manum–Skogestad's steady-state/quadratic nullspace method. The dynamic/noisy-plant pilot is a separate exploratory extension, not proof that a controller self-optimises on actual equipment. Storage/tariff arbitration and fluid property anchoring remain undone.
+**Source and scope:** [WP6 standalone scientific report](results/wp6_scientific_report.md) · [Methods and limitations](docs/WP6_SOC_ACTIVE_SET.md) · [Results JSON](results/wp6_summary.json). Candidate CVs are not identical to Manum–Skogestad's steady-state/quadratic nullspace method. The dynamic/noisy-plant pilot is a separate exploratory extension, not proof that a controller self-optimises on actual equipment. Storage/tariff arbitration and measured compressor calibration remain undone; WP7 now provides an uncalibrated CoolProp steady-state property anchor without changing WP6 numerical results.
 
 Reproduce from the repository root:
 
@@ -132,3 +132,21 @@ python -m unittest discover -s tests -v
 ```
 
 The WP6 script writes an explicit training/held-out active-set ledger, the 27-row nominal loss table, 162 additional parameter-mismatch tests, matched dynamic-service runs, a JSON provenance/audit file, a technical report and two figures. **No earlier WP2–WP5 result is altered.**
+
+
+---
+
+## WP7: real-fluid property and pressure screen (first implementation; not hardware validated)
+
+[WP7 thermodynamic assumptions, tests and limitations](docs/WP7_REALFLUID.md). A new **separate** CoolProp HEOS four-point subcritical cycle evaluates fluid phase limits, evaporating/condensing saturation pressure, compressor discharge, enthalpy-defined COP and modelled mass flow at an **imposed synthetic 310 kW duty**. IF97 water is used for saturation pressure and hypothetical water enthalpy storage; the water HEOS backend provides a cross-backend check.
+
+No WP2–WP6 controller results are silently modified. The reference offdesign map uses an assumed equivalent suction volume-flow relation, not equipment manufacturer displacement, and rejects out-of-range states instead of extrapolating. Real-device compressor efficiency, discharge/pressure limits, working-fluid safety, TESPy independent cycle checks and measured validation remain outstanding.
+
+To run with actual property values:
+
+```bash
+python -m pip install -e '.[plots,qp,realfluid]'
+python scripts/run_wp7.py
+```
+
+GitHub Actions executes the property model and uploads generated `results/wp7_*` CSV, JSON, Markdown and plot as a downloadable workflow artifact (Python 3.12 job). Missing CoolProp is a hard error in the numeric runner, never replaced with fabricated outputs.
