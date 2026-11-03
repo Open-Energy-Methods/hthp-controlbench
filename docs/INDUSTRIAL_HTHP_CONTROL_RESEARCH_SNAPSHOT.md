@@ -35,6 +35,10 @@ The central technical lesson is that **tracking, energy consumption, process-ser
 
 *Figure: WP7 v3 property-backed simulation; rejected starting states are marked as unavailable, not plotted as zero. Positive electricity deltas mean MPC consumed more than the corresponding PI comparator. The experiment is not hardware validated.*
 
+## A sensitivity that materially limits the energy claim
+
+The original [WP7 v3 comparator](../results/wp7_model_mismatch_v3_report.md) allows 0.5 kWh thermal mismatch per terminal store (and its total) plus a 0.02 actuator/command difference. An [independent rederivation from the raw controller ledger](../results/wp7_comparability_claim_audit_v4.md) shows **4/10** pairs qualify under that choice; tighter **0.10 kWh thermal** matching leaves **1/10**. The limits are numerical comparability decisions, not sensor uncertainty bounds. Thus the reported positive MPC-minus-PI electricity differences are **conditional and not evidence of an industrial efficiency ranking**. This result is part of the [researcher-facing self-audit](RESEARCHER_RED_TEAM_AUDIT_2026_11_03.md). It is more scientifically informative than hiding rejected pairs.
+
 ## Model-transfer challenge and future experimental design
 
 The independently versioned [WP7 v3 model-mismatch experiment](../results/wp7_model_mismatch_v3_report.md) holds nominal PI gains and the property-based MPC predictor frozen while perturbing **only the simulated truth**: process-HX conductance, header-to-buffer conductance or compressor response lag. It also tests sensor noise/delay and source/return disturbances. Its nominal anchor must reproduce WP7 v2 within audited numerical tolerances. An infeasible starting service point is reported as **not comparable**, never silently dropped or retuned.
