@@ -19,6 +19,7 @@ from .pi import PIController, PISettings
 from .mpc import MPCConfig, MPCController, _advance
 from .realfluid import CycleMap, PointRejected, coolprop_backend, _prop, water_loop_state
 from .thermo_feasibility import hold_service_at_buffer
+from .wp7_predictor import PropertyPredictor
 
 WATER_MASS_KG = 5000.0
 BENCHMARK = "WP7_PropertyTruth_SyntheticPredictor_Pilot_v1"
@@ -82,6 +83,7 @@ def run_property_controller(
     duration_s: float = 7200.0, step_s: float = 20.0,
     sensor_period_s: float = 60.0, control_period_s: float = 120.0,
     props=None, force_mpc_failure: bool = False,
+    observer_backend: str = "auto",
 ) -> dict:
     """Run a fixed-gain PI or MPC against the exact same property-map dynamic truth.
 
@@ -91,8 +93,12 @@ def run_property_controller(
     and is the only point where the experiment grants both true unmeasured states.
     Unreachable property states fail closed and disqualify the ENTIRE run.
     """
-    if method not in ("PI_IMC", "PI_relay", "MPC_persistence"):
+    if method not in ("PI_IMC", "PI_relay", "MPC_persistence", "MPC_property"):
         raise ValueError("unknown WP7 controller")
+    if observer_backend not in ("auto","synthetic","property"):
+        raise ValueError("unknown WP7 observer backend")
+    if method == "MPC_property" and observer_backend == "synthetic":
+        raise ValueError("property-MPC comparison requires its declared property observer")
     cfg = cfg or MPCConfig(horizon=6, period_s=control_period_s,
                            integration_step_s=step_s)
     if abs(cfg.period_s-control_period_s) > 1e-9:
@@ -135,7 +141,15 @@ def run_property_controller(
     y = np.array([x0.th,h0,x0.n,0.,0.,0.,0.,0.], dtype=float)
     target = x0.tb + 0.4
     pi = PIController(setting,target,x0.n,control_period_s)
-    mpc = MPCController(p,cfg,target,setting,x0.n,always_fail=force_mpc_failure) if method=="MPC_persistence" else None
+    property_predictor = PropertyPredictor(model,props,mass_kg=WATER_MASS_KG)
+    use_property_observer = (observer_backend=="property" or
+        (observer_backend=="auto" and method=="MPC_property"))
+    mpc = None
+    if method in ("MPC_persistence","MPC_property"):
+        mpc = MPCController(p,cfg,target,setting,x0.n,
+                            always_fail=force_mpc_failure,
+                            state_transition=property_predictor.advance if method=="MPC_property" else None,
+                            electric_power=property_predictor.power if method=="MPC_property" else None)
     rng = np.random.default_rng(case.seed)
     fifo = [x0.tb] * case.sensor_delay_samples
     estimator = x0
@@ -153,6 +167,9 @@ def run_property_controller(
     max_sensor_error = 0.0
     max_header_estimation_error = 0.0
     max_modulation_estimation_error = 0.0
+    header_estimation_error_sum = 0.0
+    modulation_estimation_error_sum = 0.0
+    sensor_innovations = []
     max_slew = 0.0
     failure = None
     finished_steps = 0
@@ -188,14 +205,19 @@ def run_property_controller(
             if k % sensor_steps == 0:
                 if k:
                     # Deliberately model-only propagation for unmeasured states.
-                    estimator = _advance(estimator,applied,p,previous_d,
-                                         sensor_period_s,cfg.integration_step_s)
+                    estimator = (
+                        property_predictor.advance(estimator,applied,p,previous_d,
+                                                   sensor_period_s,cfg.integration_step_s)
+                        if use_property_observer else
+                        _advance(estimator,applied,p,previous_d,
+                                 sensor_period_s,cfg.integration_step_s))
                 estimator = State(estimator.th,estimator.tb,
                                   float(np.clip(estimator.n,p.n_min,p.n_max)))
                 noise = float(rng.normal(0,case.sensor_noise_sd_k))
                 noise_draws.append(noise)
                 fifo.append(true_tb+noise)
                 seen = float(fifo.pop(0))
+                sensor_innovations.append(seen-estimator.tb)
                 estimator = State(estimator.th,seen,estimator.n)
                 previous_d = d
                 if k % control_steps == 0:
@@ -203,8 +225,12 @@ def run_property_controller(
                     estimates_at_decisions.append((estimator.th,estimator.tb,estimator.n))
                     sensed_at_decisions.append(seen)
                     max_sensor_error=max(max_sensor_error,abs(seen-true_tb))
-                    max_header_estimation_error=max(max_header_estimation_error,abs(estimator.th-y[0]))
-                    max_modulation_estimation_error=max(max_modulation_estimation_error,abs(estimator.n-y[2]))
+                    header_error=abs(estimator.th-y[0])
+                    modulation_error=abs(estimator.n-y[2])
+                    max_header_estimation_error=max(max_header_estimation_error,header_error)
+                    max_modulation_estimation_error=max(max_modulation_estimation_error,modulation_error)
+                    header_estimation_error_sum+=header_error
+                    modulation_estimation_error_sum+=modulation_error
                     proposed = (mpc.command(t,estimator,d,applied,p) if mpc
                                 else pi.command(t,estimator,d,applied,p))
                     # Same physical hard bounds and slew for every controller.
@@ -250,7 +276,10 @@ def run_property_controller(
     return {
         "benchmark_id": BENCHMARK, "case":case.name, "controller":method,
         "plant":"WP7 CoolProp condenser Q/P map + IF97 enthalpy; UNCALIBRATED",
-        "mpc_predictor":"WP2 synthetic nominal model (not WP7 property-derived)",
+        "mpc_predictor":("WP7 CoolProp/IF97 enthalpy and condenser map" if method=="MPC_property"
+                         else "WP2 synthetic nominal model (not WP7 property-derived)"), 
+        "observer_model":("WP7 property enthalpy state predictor" if use_property_observer
+                          else "WP2 synthetic nominal model"),
         "measurement":"one sampled noisy/delayed buffer temperature; current known disturbances",
         "equipment_verified":False,
         "status":"complete" if complete else "failed_physical_or_numerical_constraint",
@@ -284,6 +313,9 @@ def run_property_controller(
         "max_sensor_error_K":max_sensor_error,
         "max_header_observer_error_K":max_header_estimation_error,
         "max_modulation_observer_error":max_modulation_estimation_error,
+        "mean_absolute_header_observer_error_K":header_estimation_error_sum/max(1,len(decisions)),
+        "mean_absolute_modulation_observer_error":modulation_estimation_error_sum/max(1,len(decisions)),
+        "sensor_innovations_K":sensor_innovations,
         "noise_draws":noise_draws,
         "true_states_at_decisions":truth_at_decisions,
         "estimated_states_at_decisions":estimates_at_decisions,
