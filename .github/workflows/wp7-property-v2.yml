@@ -1,0 +1,80 @@
+name: WP7 property-consistent MPC and observer numerical audit
+
+on:
+  push:
+    branches: [wp7-property-consistent-mpc-observer-v2]
+    paths:
+      - '.github/workflows/wp7-property-v2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  wp7-property-v2:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: wp7-property-consistent-mpc-observer-v2
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install real-fluid and numerical solver dependencies
+        run: python -m pip install -e '.[qp,realfluid,plots]'
+      - name: Independently cross-check properties, observers and solver model injection
+        run: python -m unittest discover -s tests -p 'test_wp7_property_predictor.py' -v
+      - name: Reproduce frozen PI trajectories and compare new MPC transfer outcomes
+        run: python scripts/run_wp7_property_predictor.py
+      - name: Verify complete case matrix, finite reported metrics and source lineage
+        run: |
+          python - <<'PY'
+          import json,math
+          from pathlib import Path
+          root=Path('results')
+          v2=json.loads((root/'wp7_property_predictor_v2.json').read_text())
+          assert v2['run_count']==15 and len(v2['pairs'])==10
+          assert len(v2['old_vs_new_mpc'])==5
+          assert len({(r['case'],r['controller']) for r in v2['runs']})==15
+          assert len({(r['case'],r['baseline']) for r in v2['pairs']})==10
+          for r in v2['runs']:
+              if r['status']=='complete':
+                  assert all(r[k] is not None and math.isfinite(r[k]) for k in (
+                      'iae_Ks','electricity_kWh','max_energy_residual_J',
+                      'mean_absolute_header_observer_error_K',
+                      'mean_absolute_modulation_observer_error'))
+                  assert r['max_energy_residual_J'] < 1.
+              else:
+                  assert r['iae_Ks'] is None and r['electricity_kWh'] is None
+          for p in v2['pairs']:
+              if not p['eligible_for_conditional_electricity_comparison']:
+                  assert p['delta_electricity_kWh'] is None
+          print('Complete rows:',v2['complete_run_count'])
+          print('Terminal/electricity-comparable pairs:',v2['terminal_comparable_pairs'])
+          PY
+      - name: Publish exact reviewed-source v2 numerical result files to branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add results/wp7_property_predictor_v2.json \
+                  results/wp7_property_predictor_v2_pairs.csv \
+                  results/wp7_property_predictor_v2_transfer.csv \
+                  results/wp7_property_predictor_v2_report.md
+          if ! git diff --cached --quiet; then
+            git commit -m "WP7 v2: archive property-predictor control benchmark and observer evidence"
+            git push origin HEAD:wp7-property-consistent-mpc-observer-v2
+          fi
+      - name: Archive auditable numerical results
+        uses: actions/upload-artifact@v4
+        with:
+          name: wp7-property-predictor-v2-numerical-audit
+          path: |
+            results/wp7_property_predictor_v2.json
+            results/wp7_property_predictor_v2_pairs.csv
+            results/wp7_property_predictor_v2_transfer.csv
+            results/wp7_property_predictor_v2_report.md
+          retention-days: 90
+          if-no-files-found: error
