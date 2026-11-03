@@ -368,3 +368,108 @@ def finite_sink_bound(q_condenser_required_w:float, *,
         "heat_margin_w":margin,
         "heat_exchanger_verified":False,
     }
+
+
+def provisional_measured_observer_holdout(records:list[dict], evidence:dict, model,
+                                          *, props=None, p=None, dt_s:float=20.) -> dict:
+    """Compute held-out MODEL residuals from independent channels if supplied.
+
+    The predictor's only live correction is buffer_measured_k; true header
+    and actual modulation are used at INITIALIZATION and later for SCORING,
+    never passed to advance(). All gains/assumptions are frozen in the caller.
+    This output remains provisional until raw trace, sensor calibration and
+    asset identity have been verified externally by a qualified reviewer.
+    """
+    from dataclasses import replace
+    from math import sqrt
+    from .core import Parameters,State,Disturbance
+    from .wp7_predictor import PropertyPredictor
+    from .realfluid import coolprop_backend,PointRejected
+
+    asset=evidence.get("instrumented_asset_id")
+    gate=observer_record_gate(records,asset_id=asset,evidence=evidence)
+    if gate["status"]!="INSTRUMENTED_TRACE_PRESENT__INDEPENDENT_REVIEW_REQUIRED":
+        return dict(status="NO_PROVISIONAL_OBSERVER_SCORE",evidence_status=gate,
+                    physical_validation=False)
+    if not isfinite(dt_s) or dt_s<=0:
+        raise ValueError("positive finite observer model integration timestep required")
+    if evidence.get("sensor_delay_s") is None or evidence.get("time_sync_uncertainty_s") is None:
+        return dict(status="SENSOR_CLOCK_METADATA_INCOMPLETE",physical_validation=False)
+    delay=float(evidence["sensor_delay_s"])
+    clock_error=float(evidence["time_sync_uncertainty_s"])
+    if not isfinite(delay) or delay!=0 or not isfinite(clock_error) or clock_error<0:
+        return dict(status="SENSOR_DELAY_OR_CLOCK_NOT_ALIGNED__NO_SCORE",
+                    physical_validation=False)
+    p=p or replace(Parameters(hx_mode="duty_limiter"),
+                    n_min=model.modulations[0],n_max=model.modulations[-1])
+    props=props if props is not None else coolprop_backend()
+    predictor=PropertyPredictor(model,props)
+    first=records[0]
+    previous=State(float(first["header_measured_k"]),
+                   float(first["buffer_measured_k"]),
+                   float(first["modulation_measured"]))
+    previous_d=Disturbance(t_source=float(first["source_measured_k"]),
+                           t_return=float(first["return_measured_k"]))
+    previous_command=float(first["command_applied"])
+    last_t=float(first["time_s"])
+    validation_start,validation_end=map(float,evidence["heldout_interval"])
+    traces=[];h_errors=[];n_errors=[]
+    for row in records[1:]:
+        t=float(row["time_s"])
+        time_delta=t-last_t
+        if abs(time_delta/dt_s-round(time_delta/dt_s))>1e-8:
+            return dict(status="OBSERVER_UNALIGNED_INTEGRATION_CLOCK",
+                        failure_time_s=t,physical_validation=False)
+        try:
+            prediction=predictor.advance(previous,previous_command,p,
+                                         previous_d,time_delta,dt_s)
+        except (PointRejected,ValueError,OverflowError,FloatingPointError) as exc:
+            return dict(status="OBSERVER_PROPERTY_ENVELOPE_REJECTED",
+                        failure_time_s=t,failure_reason=str(exc),
+                        physical_validation=False)
+        observed_tb=float(row["buffer_measured_k"])
+        estimated=State(prediction.th,observed_tb,prediction.n)
+        # Truth held-out channels are read ONLY here, never fed into predictor.
+        if validation_start<=t<=validation_end:
+            eh=estimated.th-float(row["header_measured_k"])
+            en=estimated.n-float(row["modulation_measured"])
+            h_errors.append(eh);n_errors.append(en)
+            traces.append({
+                "time_s":t,
+                "estimated_header_k":estimated.th,
+                "estimated_modulation":estimated.n,
+                "measured_header_k_scoring_only":float(row["header_measured_k"]),
+                "measured_modulation_scoring_only":float(row["modulation_measured"]),
+                "buffer_innovation_k":observed_tb-prediction.tb,
+                "header_residual_k":eh,"modulation_residual":en,
+            })
+        previous=estimated
+        previous_d=Disturbance(t_source=float(row["source_measured_k"]),
+                               t_return=float(row["return_measured_k"]))
+        previous_command=float(row["command_applied"])
+        last_t=t
+    if len(h_errors)<2:
+        return dict(status="OBSERVER_INSUFFICIENT_HELDOUT_SAMPLES",
+                    samples=len(h_errors),physical_validation=False)
+
+    def summary(errors):
+        return {
+            "n":len(errors),
+            "mae":sum(abs(x) for x in errors)/len(errors),
+            "rmse":sqrt(sum(x*x for x in errors)/len(errors)),
+            "signed_bias":sum(errors)/len(errors),
+            "maximum_absolute_error":max(abs(x) for x in errors),
+        }
+
+    return {
+        "status":"DESCRIPTIVE_MEASURED_HOLDOUT_RESIDUALS__INDEPENDENT_REVIEW_REQUIRED",
+        "physical_validation":False,
+        "asset_id_as_supplied":asset,
+        "data_provenance_not_cryptographically_authenticated_to_an_instrument":True,
+        "observer_header_kelvin":summary(h_errors),
+        "observer_modulation_fraction":summary(n_errors),
+        "hidden_states_never_fed_back_after_initialization":True,
+        "heldout_interval_s":[validation_start,validation_end],
+        "traces":traces,
+        "warning":"Other physical limitations still apply: assumed 310kW compressor and HX cannot be validated from a trace manifest alone",
+    }
