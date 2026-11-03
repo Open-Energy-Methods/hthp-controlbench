@@ -1,7 +1,8 @@
-"""WP4: locally linearized convex-QP receding-horizon control for the synthetic plant.
+"""WP4: locally linearized convex-QP receding-horizon control with explicit prediction backends.
 
-No equipment validation. The true plant remains WP2's nonlinear RK4 model;
-the QP uses a freshly derived local discrete predictor and a JOINT affine
+No equipment validation. Default prediction remains WP2 nonlinear RK4;
+WP7 explicitly injects a separately tested property/enthalpy transition and
+power function. The QP uses a local discrete predictor and a JOINT affine
 approximation of electrical power (not a ratio of linearized COP and duty).
 SLSQP minimizes an explicitly constructed positive-semidefinite QP with linear
 constraints. This is *not* a global nonlinear MPC solver or stability proof.
@@ -88,14 +89,18 @@ class Linearization:
     power_source: float
 
 
-def linearize(x: State, u: float, p: Parameters, d: Disturbance, cfg: MPCConfig) -> Linearization:
+def linearize(x: State, u: float, p: Parameters, d: Disturbance, cfg: MPCConfig,
+              advance_fn: Callable | None = None,
+              power_fn: Callable | None = None) -> Linearization:
     """Central-difference local discrete dynamics and joint electric-power Jacobian.
 
     E columns: heat-source and process-return temperatures. Finite differencing
     may fail outside a declared thermodynamic envelope: caller must fall back.
     """
+    advance_fn=advance_fn or _advance
+    power_fn=power_fn or (lambda state,par,dist: output(state,par,dist).p_el)
     x0=_vec(x); d0=np.array([d.t_source,d.t_return]); h=np.array([0.02,0.02,0.0002]);
-    f=lambda xx,uu,dd:_vec(_advance(_state(xx),uu,p,dd,cfg.period_s,cfg.integration_step_s))
+    f=lambda xx,uu,dd:_vec(advance_fn(_state(xx),uu,p,dd,cfg.period_s,cfg.integration_step_s))
     nx=f(x0,u,d)
     A=np.zeros((3,3))
     for i in range(3):
@@ -121,7 +126,7 @@ def linearize(x: State, u: float, p: Parameters, d: Disturbance, cfg: MPCConfig)
     E=np.zeros((3,2))
     E[:,0]=(f(x0,u,_change_disturbance(d,source_delta=0.02))-f(x0,u,_change_disturbance(d,source_delta=-0.02)))/0.04
     E[:,1]=(f(x0,u,_change_disturbance(d,return_delta=0.02))-f(x0,u,_change_disturbance(d,return_delta=-0.02)))/0.04
-    power=lambda xx,dd:output(_state(xx),p,dd).p_el
+    power=lambda xx,dd:power_fn(_state(xx),p,dd)
     p0=float(power(x0,d));px=np.zeros(3)
     for i in range(3):
         dd=np.zeros(3);dd[i]=h[i]
@@ -166,7 +171,9 @@ class MPCSolution:
 
 def solve_mpc(x: State, previous: float, p: Parameters, d: Disturbance,
               cfg: MPCConfig, target_k: float, forecast: list[Disturbance],
-              prices_eur_per_kwh: list[float], *, force_failure: bool=False) -> MPCSolution:
+              prices_eur_per_kwh: list[float], *, force_failure: bool=False,
+              advance_fn: Callable | None=None,
+              power_fn: Callable | None=None) -> MPCSolution:
     """Solve an LTV-QP, validate nonlinearly against SAME forecast, never alter plant.
 
     A feasible QP with local model/constraint mismatch may still be rejected.
@@ -187,7 +194,9 @@ def solve_mpc(x: State, previous: float, p: Parameters, d: Disturbance,
                 z.c_proc != d.c_proc) for z in forecast[:cfg.horizon]):
             return MPCSolution(False,previous,'unsupported_disturbance_forecast',
                                None,None,None,np.inf,np.inf,None,0,0)
-        l=linearize(x,previous,p,d,cfg)
+        advance_fn=advance_fn or _advance
+        power_fn=power_fn or (lambda state,par,dist: output(state,par,dist).p_el)
+        l=linearize(x,previous,p,d,cfg,advance_fn=advance_fn,power_fn=power_fn)
         N=cfg.horizon; c,m=_prediction(l,forecast,N)
         dim=2*N;H=np.zeros((dim,dim));g=np.zeros(dim)
         for j in range(N):
@@ -274,10 +283,10 @@ def solve_mpc(x: State, previous: float, p: Parameters, d: Disturbance,
             return MPCSolution(False,previous,'qp_constraint_violation',l,linear,None,np.inf,np.inf,None,N,iterations)
         truth=[x];actual_p=[];affine_p=[]
         for j in range(N):
-            real=output(truth[-1],p,forecast[j]).p_el
+            real=power_fn(truth[-1],p,forecast[j])
             aff=l.p0+l.power_x@(_vec(truth[-1])-l.x0)+l.power_source*(forecast[j].t_source-d.t_source)
             actual_p.append(real);affine_p.append(aff)
-            truth.append(_advance(truth[-1],float(z[j]),p,forecast[j],cfg.period_s,cfg.integration_step_s))
+            truth.append(advance_fn(truth[-1],float(z[j]),p,forecast[j],cfg.period_s,cfg.integration_step_s))
         true=np.array([_vec(xx) for xx in truth]);
         err=float(np.max(abs(true[:,0:2]-linear[:,0:2])))
         perr=float(np.max(abs(np.array(actual_p)-np.array(affine_p))/np.maximum(np.abs(np.array(actual_p)),1000.)))
@@ -300,6 +309,8 @@ class MPCController:
     price_forecast: Callable[[float],float]=lambda t:0.16
     disturbance_forecast: Callable[[float,Disturbance],Disturbance] | None=None
     always_fail: bool=False
+    state_transition: Callable | None=None
+    electric_power: Callable | None=None
     decisions: list[MPCSolution]=field(default_factory=list)
     fallback_events: int=0
     pi: PIController | None=None
@@ -312,10 +323,12 @@ class MPCController:
             sources.append(self.disturbance_forecast(tj,d) if self.disturbance_forecast else d)
             prices.append(float(self.price_forecast(tj)))
         solution=solve_mpc(x,previous,self.p_model,d,cfg,self.setpoint_k,sources,prices,
-                           force_failure=self.always_fail)
+                           force_failure=self.always_fail,
+                           advance_fn=self.state_transition,power_fn=self.electric_power)
         if not solution.accepted and cfg.horizon>2 and not self.always_fail:
             shorter=MPCConfig(**{**cfg.__dict__,'horizon':max(2,cfg.horizon//2)})
-            retry=solve_mpc(x,previous,self.p_model,d,shorter,self.setpoint_k,sources,prices)
+            retry=solve_mpc(x,previous,self.p_model,d,shorter,self.setpoint_k,sources,prices,
+                            advance_fn=self.state_transition,power_fn=self.electric_power)
             solution=retry if retry.accepted else solution
         self.decisions.append(solution)
         if solution.accepted:

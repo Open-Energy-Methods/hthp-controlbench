@@ -174,6 +174,29 @@ WP7 now includes an explicit **system-level** assessment, rather than interpreti
 
 With CoolProp and TESPy installed: `python -m pip install -e '.[plots,qp,realfluid,tespy]'`, followed by `python scripts/run_wp7.py`, `python scripts/run_wp7_tespy.py`, `python scripts/run_wp7_completion.py` and the full test suite. CI publishes `results/wp7_completion_report.md`, the machine-readable `results/wp7_completion_summary.json`, the process/charge ledger, fluid-PI pilot and TESPy design/offdesign comparison. These deliver **numerical research closure under assumptions**, NOT proof of a commercially feasible 310 kW / 135°C machine. OEM displacement, pressure and discharge ratings, compressor efficiency curves, lubricant compatibility, hydraulic/pressure certification and experimental tests remain unverified.
 
+## WP7 controller-transfer experiments — synthetic predictor vs property predictor
+
+The original [WP7 v1 matched property-truth controller pilot](results/wp7_control_pilot_report.md)
+keeps the original **WP2 synthetic MPC predictor**. The separate
+[WP7 v2 property-consistent prediction study](results/wp7_property_predictor_v2_report.md)
+injects IF97 buffer-enthalpy dynamics and the CoolProp Q/P map into the
+same local-QP MPC solver, and uses a property-model observer corrected only
+by the shared noisy/delayed buffer sensor. Its [exact reproduction protocol](docs/WP7_PROPERTY_PREDICTOR_V2.md)
+freezes the v1 run ledger and reproduces **all ten PI trajectories** before
+comparing the five new MPC runs. The earlier data are **not overwritten**.
+
+The v2 results complete all 15 runs and qualify service in all 10 PI–MPC
+pairs, but only **5/10** satisfy the stronger final thermal-inventory and
+actuator-equivalence gate. Replacing the synthetic predictor lowers MPC
+tracking IAE in **2/5** scenarios and increases it in **3/5**; there are
+zero solver fallbacks. In every electricity-comparable case, MPC electricity
+use is **higher** than the matched PI comparator, by **0.16–0.78 kWh**
+over two hours. No cost-saving or general superiority claim is supported.
+These are model-to-model numerical results only, **not independent OEM or
+instrumented controller validation**. Reproduce with
+`python scripts/run_wp7_property_predictor.py` after installing
+`.[qp,realfluid,plots]`.
+
 ## WP8 — Temperature-qualified storage and synthetic price flexibility
 
 WP8 tests finite high-temperature water storage against the WP7 CoolProp/IF97
