@@ -122,7 +122,10 @@ class PropertyPredictorEOSIntegrationTests(unittest.TestCase):
              pi_settings=setting,cfg=cfg,duration_s=360.,step_s=20.,
              observer_backend="property")
         self.assertEqual(row["status"],"complete",row["failure_reason"])
-        self.assertLess(row["max_header_observer_error_K"],1e-3)
+        # Real IF97 T(P,H)/H(T,P) backward equations are approximate
+        # inverses; observer reconstructs enthalpy every 60s. The
+        # independently observed nominal error is ~0.014 K, not <1 mK.
+        self.assertLess(row["max_header_observer_error_K"],0.025)
         self.assertLess(row["max_modulation_observer_error"],1e-6)
 
 
