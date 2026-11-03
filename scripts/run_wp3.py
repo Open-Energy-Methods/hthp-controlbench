@@ -1,5 +1,7 @@
 """Reproduce the WP3 closed-loop PI study; all values synthetic, not hardware validated."""
 from pathlib import Path
+import os
+from ht_hp_controlbench.benchmark import BENCHMARK_ID
 import csv
 from ht_hp_controlbench.core import Parameters
 from ht_hp_controlbench.pi import (
@@ -8,7 +10,7 @@ from ht_hp_controlbench.pi import (
 )
 
 def main():
-    root=Path('results'); root.mkdir(exist_ok=True)
+    root=Path(os.environ.get('HTHP_RESULTS_DIR','results')); root.mkdir(parents=True,exist_ok=True)
     p=Parameters(hx_mode='no_bypass')
     fit=identify_step(p)
     relay=identify_relay(p)
@@ -30,7 +32,7 @@ def main():
     with (root/'wp3_pi_comparison.csv').open('w',newline='') as f:
         w=csv.DictWriter(f,fieldnames=rows[0].keys());w.writeheader();w.writerows(rows)
     with (root/'wp3_identification.txt').open('w') as f:
-        f.write('WP3 independent simulated PI identification (no_bypass only; synthetic, not calibrated)\n')
+        f.write(f'Benchmark: {BENCHMARK_ID}; WP3 independent simulated PI identification (no_bypass only; synthetic, not calibrated)\n')
         f.write('FOPDT step response: '+repr(fit)+'\n')
         f.write('Symmetric-relay describing-function approximation: '+repr(relay)+'\n')
         f.write('Relay Ku approximate: finite hysteresis and sampled slew-limited actuation.\n')
