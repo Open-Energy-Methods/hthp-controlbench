@@ -328,3 +328,43 @@ def observer_record_gate(records:list[dict]|None, *,
             "train_interval":train,"heldout_interval":held,
             "raw_sha256":ev["raw_data_sha256"],
     }
+
+
+def finite_sink_bound(q_condenser_required_w:float, *,
+                      mass_flow_kg_s:float|None=None,
+                      cp_j_kgk:float|None=None,
+                      inlet_k:float|None=None,
+                      maximum_outlet_k:float|None=None)->dict[str,Any]:
+    """Independent necessary hot-sink enthalpy/flow check, NOT HX/OEM acceptance.
+
+    Source requires an admissible cooling range, sink requires heating range.
+    An insufficient finite sink FLOW is a real necessary-condition failure;
+    a sufficient flow is NEVER sufficient for a real heat-exchanger rating.
+    """
+    if not isfinite(q_condenser_required_w) or q_condenser_required_w<=0:
+        raise ValueError("positive finite condenser requirement")
+    vals=(mass_flow_kg_s,cp_j_kgk,inlet_k,maximum_outlet_k)
+    if any(v is None for v in vals):
+        return {
+            "status":"UNVERIFIED_SINK_FLOW_OR_TEMPERATURE",
+            "required_condenser_w":q_condenser_required_w,
+            "necessary_sink_heat_upper_bound_w":None,
+            "minimum_flow_kg_s_given_temperature_range":None,
+            "heat_exchanger_verified":False,
+        }
+    if not all(isfinite(float(v)) for v in vals):
+        raise ValueError("finite sink measurements required")
+    m,cp,ti,to=map(float,vals)
+    if m<=0 or cp<=0 or to<=ti or ti<=0:
+        raise ValueError("positive finite hot sink enthalpy rise required")
+    upper=m*cp*(to-ti)
+    margin=upper-q_condenser_required_w
+    return {
+        "status":("NECESSARY_SINK_ENERGY_BOUND_FAIL" if margin < -1e-8 else
+                  "NECESSARY_SINK_ENERGY_BOUND_ONLY__HX_AND_EQUIPMENT_UNVERIFIED"),
+        "required_condenser_w":q_condenser_required_w,
+        "necessary_sink_heat_upper_bound_w":upper,
+        "minimum_flow_kg_s_given_temperature_range":q_condenser_required_w/(cp*(to-ti)),
+        "heat_margin_w":margin,
+        "heat_exchanger_verified":False,
+    }
