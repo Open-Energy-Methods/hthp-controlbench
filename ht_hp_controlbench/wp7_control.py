@@ -30,8 +30,8 @@ class PropertyControlCase:
     sensor_noise_sd_k: float = 0.0
     sensor_delay_samples: int = 0
     seed: int = 23
-    source_drop_k: float = 3.0
-    return_rise_k: float = 1.0
+    source_drop_k: float = 0.0
+    return_rise_k: float = 0.0
 
     def __post_init__(self):
         if not self.name or not all(isfinite(x) and x >= 0 for x in (
@@ -47,10 +47,10 @@ def declared_property_cases() -> tuple[PropertyControlCase, ...]:
     """Predeclare these held-out scenarios; do not search controller gains on them."""
     return (
         PropertyControlCase("nominal"),
-        PropertyControlCase("source_minus3K"),
+        PropertyControlCase("source_minus3K", source_drop_k=3.0),
         PropertyControlCase("sensor_noise_0p20K", sensor_noise_sd_k=.20),
         PropertyControlCase("sensor_delay_60s", sensor_delay_samples=1),
-        PropertyControlCase("combined_noise_delay_source", sensor_noise_sd_k=.20, sensor_delay_samples=1),
+        PropertyControlCase("combined_noise_delay_source", sensor_noise_sd_k=.20, sensor_delay_samples=1, source_drop_k=3.0, return_rise_k=1.0),
     )
 
 
