@@ -13,7 +13,7 @@ import json
 from ht_hp_controlbench.benchmark import nominal_tunings, tuning_manifest
 from ht_hp_controlbench.realfluid import CycleAssumptions, build_cycle_map, backend_version
 from ht_hp_controlbench.wp7_control import (
-    BENCHMARK, declared_property_cases, run_property_controller
+    BENCHMARK, declared_property_cases, run_property_controller, compare_property_pair
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -45,18 +45,7 @@ def main():
     for case in cases:
         entry={r["controller"]:r for r in runs if r["case"]==case.name}
         for method in ("PI_IMC","PI_relay"):
-            base=entry[method];candidate=entry["MPC_persistence"]
-            complete=base["status"]=="complete" and candidate["status"]=="complete"
-            qualified=complete and base["matched_service_gate"] and candidate["matched_service_gate"]
-            pairs.append({
-                "case":case.name,"baseline":method,"candidate":"MPC_persistence",
-                "both_numerically_complete":complete,
-                "both_service_eligible":qualified,
-                "delta_IAE_Ks":candidate["iae_Ks"]-base["iae_Ks"] if complete else None,
-                "delta_electricity_kWh":candidate["electricity_kWh"]-base["electricity_kWh"] if qualified else None,
-                "interpretation":("conditional_same_service_comparison" if qualified else
-                                 "NOT_ELIGIBLE_FOR_ENERGY_SAVING_CLAIM"),
-            })
+            pairs.append(compare_property_pair(entry[method],entry["MPC_persistence"]))
     if len(runs)!=len(cases)*len(METHODS):
         raise RuntimeError("incomplete WP7 scenario-method enumeration")
     ledger={
@@ -70,11 +59,13 @@ def main():
         "sampling":{"integration_s":20,"sensor_s":60,"control_s":120,"horizon_steps":6,"duration_s":7200},
         "controller_tuning":tuning_manifest(tuning,step,relay),
         "scenarios":[asdict(c) for c in cases],
+        "comparison_tolerances":{"header_kwh":0.5,"buffer_kwh":0.5,"total_kwh":0.5,"final_modulation":0.02,"final_command":0.02},
         "run_count":len(runs),
         "completed_runs":sum(r["status"]=="complete" for r in runs),
         "failed_runs":[{"case":r["case"],"controller":r["controller"],"reason":r["failure_reason"]}
                        for r in runs if r["status"]!="complete"],
         "service_eligible_pairs":sum(p["both_service_eligible"] for p in pairs),
+        "terminal_and_service_equivalent_pairs":sum(p["eligible_for_conditional_electricity_comparison"] for p in pairs),
         "runs":runs,"paired":pairs,
         "claim_boundary":"not an independently calibrated compressor, formal MPC design, robust stability proof, tariff saving, or process safety certification",
     }
@@ -84,7 +75,9 @@ def main():
             "pi_fallbacks","iae_Ks","electricity_kWh","process_heat_kWh",
             "physical_heat_shortfall_kWh","unserved_spec_heat_kWh","qualified_fraction",
             "matched_service_gate","max_energy_residual_J","max_applied_command_slew",
-            "max_sensor_error_K","max_header_observer_error_K","max_modulation_observer_error"]
+            "max_sensor_error_K","max_header_observer_error_K","max_modulation_observer_error",
+            "final_header_energy_delta_kWh","final_buffer_energy_delta_kWh","final_total_energy_delta_kWh",
+            "final_compressor_modulation","final_applied_command"]
     with (OUT/"wp7_control_pilot.csv").open("w",newline="") as f:
         writer=csv.DictWriter(f,fieldnames=fields,extrasaction="ignore")
         writer.writeheader();writer.writerows(runs)
@@ -93,7 +86,7 @@ def main():
     lines=[
         "# WP7: matched property-backed PI/MPC control pilot", "",
         f"**Benchmark:** `{BENCHMARK}`. **{ledger['completed_runs']}/{len(runs)} full-horizon runs completed**.",
-        f"**{ledger['service_eligible_pairs']}/{len(pairs)} comparisons** pass the strict full-service eligibility gate.",
+        f"**{ledger['service_eligible_pairs']}/{len(pairs)} comparisons** pass full service; only **{ledger['terminal_and_service_equivalent_pairs']}/{len(pairs)}** also match final thermal inventories and actuator states.",
         "",
         "## What is and is not matched", "",
         "- PI and MPC use the SAME property-derived refrigerant heat/electricity lookup, IF97 water enthalpy, thermal conductances, actuator lag, numerical timestep and process heat demand.",
@@ -101,6 +94,7 @@ def main():
         "- MPC predicts on the older, uncalibrated WP2 *synthetic* model. The observer propagates its unmeasured states using that model without accessing the true header temperature or compressor modulation after initialization.",
         "- PI gains are fixed from the WP3 nominal identification. MPC QP structure/weights are frozen before these scenarios; no calibration on the 5 cases.",
         "- Every property-map extrapolation or water-pressure phase failure stops that run. Such incomplete runs cannot be ranked.",
+        "- An electricity saving cannot be credited unless both runs also finish with independently matched header, IF97 buffer and total thermal inventories (0.5 kWh each), actual compressor modulation and final command (0.02 each).",
         "- A zero heat shortage in a simplified synthetic process does not establish guaranteed commercial heat service.",
         "", "## Run ledger", "",
         "| Scenario | Controller | Status | IAE (K s) | Electricity (kWh) | Spec-unserved (kWh) | Fallbacks |",
@@ -118,7 +112,7 @@ def main():
                   "|---|---|---|---:|---:|"])
     for row in pairs:
         da=row["delta_IAE_Ks"];de=row["delta_electricity_kWh"]
-        lines.append(f"| {row['case']} | {row['baseline']} | {row['both_service_eligible']} | "
+        lines.append(f"| {row['case']} | {row['baseline']} | {row['both_service_eligible']} | {row['terminal_equivalent']} | {row['eligible_for_conditional_electricity_comparison']} | "
                      f"{'—' if da is None else f'{da:.3f}'} | "
                      f"{'—' if de is None else f'{de:.3f}'} |")
     lines.extend(["","## Limits and next experiments","",
@@ -128,7 +122,7 @@ def main():
                   "Reproduce: `python scripts/run_wp7_control.py` with CoolProp/OSQP extras; run the WP7 controller unit/integration tests first.",
                   ""])
     (OUT/"wp7_control_pilot_report.md").write_text("\n".join(lines))
-    print("WP7 property-backed control pilot written:",ledger["completed_runs"],"complete,",ledger["service_eligible_pairs"],"qualified pairs")
+    print("WP7 property-backed control pilot written:",ledger["completed_runs"],"complete,",ledger["terminal_and_service_equivalent_pairs"],"terminal-and-service-equivalent pairs")
 
 
 if __name__=="__main__":
