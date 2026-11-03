@@ -61,6 +61,21 @@ WP2–WP5 operate on a synthetic performance map; WP6 changes the plant architec
 
 Full GitHub Python 3.10/3.11/3.12 tests and versioned artifacts are useful software controls. But a mathematical error shared by the plant, estimator and test assertions may satisfy every test. Tests against the same package do not supply sensor accuracy, manufacturer compressor maps, or uncertainty bounds. Document negative cases and cross-check with independently implemented analytical balances, alternate toolchains, and eventually laboratory measurements.
 
+### R8 — Numerical environment provenance is not frozen (medium)
+
+`pyproject.toml` constrains dependency ranges rather than a fully pinned
+machine/environment lock. A preceding WP7 v3 nominal rerun produced an
+approximately **5.6e-6 K** transient MPC difference under an SLSQP replay;
+the v3 benchmark properly disclosed a **post-hoc numerical comparison
+tolerance** rather than calling such differences bitwise-identical. The
+frozen data and code can be re-run, but exact results across OS, Python
+and solver library combinations are not guaranteed.
+
+**Required closure:** record full dependency versions, platform and optimizer
+backend alongside each numerical report; create a versioned reproducible
+environment for research publication, and treat any changed comparison
+threshold as a new reviewed numerical experiment.
+
 ## 3. Corrective code work from this review
 
 1. `scripts/audit_wp7_comparability.py` independently reads frozen v3 **raw per-controller** ledger and **re-derives** the same-scenario, same-noise, full-horizon, service, terminal-inventory and terminal-actuation comparisons; it does **not** use `compare_property_pair` or modify old records. It publishes strict-threshold sensitivity for the original results and rejects a tampered original comparator.
