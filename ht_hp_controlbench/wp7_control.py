@@ -333,7 +333,7 @@ def compare_property_pair(pi: dict, mpc: dict,
     charge is allowed to mask a depleted IF97 buffer. The tolerances are
     prespecified *numerical comparability* limits, not calibrated uncertainty.
     """
-    if pi["case"] != mpc["case"] or pi["controller"] not in ("PI_IMC","PI_relay") or mpc["controller"]!="MPC_persistence":
+    if pi["case"] != mpc["case"] or pi["controller"] not in ("PI_IMC","PI_relay") or mpc["controller"] not in ("MPC_persistence","MPC_property"):
         raise ValueError("invalid WP7 paired comparison identity")
     for key in ("duration_s","sample_period_s","control_period_s","sensor_delay_s",
                 "sensor_noise_sd_k","seed","plant","measurement","benchmark_id"):
