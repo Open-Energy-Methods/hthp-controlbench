@@ -1,0 +1,76 @@
+name: WP7 v4 independent comparability audit and WP8 accepted-endpoint regression
+
+on:
+  push:
+    branches: [audit-wp7-claim-boundary-and-tolerance-v4]
+    paths:
+      - ".github/workflows/wp7-claim-audit-v4.yml"
+      - "scripts/audit_wp7_comparability.py"
+      - "tests/test_wp7_comparability_audit.py"
+      - "tests/test_wp8_storage.py"
+      - "ht_hp_controlbench/storage_flexibility.py"
+      - "results/wp7_model_mismatch_v3.json"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  claim-and-physics-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-wp7-claim-boundary-and-tolerance-v4
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install test dependencies
+        run: python -m pip install -e .
+      - name: Recompute comparison eligibility independently from frozen v3 trajectories
+        run: python -m unittest discover -s tests -p "test_wp7_comparability_audit.py" -v
+      - name: Test WP8 conservation and acceptance at the ACTUAL RK4 endpoint
+        run: PYTHONPATH=tests:. python -m unittest test_wp8_storage.TestWP8.test_valid_rk4_substages_cannot_commit_invalid_weighted_endpoint -v
+      - name: Publish analysis of thermal-inventory tolerance post-hoc sensitivity
+        run: python scripts/audit_wp7_comparability.py
+      - name: Check verified audit counts and no false equipment claims
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          x=json.loads(Path("results/wp7_comparability_claim_audit_v4.json").read_text())
+          assert x["source_hardware_validated"] is False
+          assert x["rederived_default_gate_matches_published"]
+          expected={"0.50":4,"0.25":2,"0.10":1,"0.05":1,"0.01":1}
+          got={k:v["eligible_count"] for k,v in x["sensitivity"].items()}
+          assert got==expected,(got,expected)
+          assert x["sensitivity"]["0.10"]["eligible_cases"]==["nominal|PI_IMC"]
+          print("PASS: baseline 4/10 vs strict 1/10; simulated electricity and thermal inventories distinguished")
+          PY
+      - name: Commit derived audit only; refuse stale scientific inputs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add results/wp7_comparability_claim_audit_v4.json results/wp7_comparability_claim_audit_v4.md
+          if ! git diff --cached --quiet; then
+            git commit -m "WP7 v4: publish tolerance-sensitive independent comparator audit"
+            git fetch origin audit-wp7-claim-boundary-and-tolerance-v4
+            for path in scripts/audit_wp7_comparability.py results/wp7_model_mismatch_v3.json ht_hp_controlbench/storage_flexibility.py; do
+              if [ "$(git rev-parse "HEAD~1:$path")" != "$(git rev-parse "origin/audit-wp7-claim-boundary-and-tolerance-v4:$path")" ]; then
+                echo "Scientific input changed while computing audit: $path" >&2
+                exit 1
+              fi
+            done
+            git rebase origin/audit-wp7-claim-boundary-and-tolerance-v4
+            git push origin HEAD:audit-wp7-claim-boundary-and-tolerance-v4
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wp7-claim-boundary-audit-v4
+          path: |
+            results/wp7_comparability_claim_audit_v4.json
+            results/wp7_comparability_claim_audit_v4.md
+          if-no-files-found: error
