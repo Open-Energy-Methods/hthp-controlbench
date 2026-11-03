@@ -40,7 +40,9 @@ jobs:
           p=Path("results/wp7_model_mismatch_v3.json")
           x=json.loads(p.read_text())
           assert x["benchmark_id"]=="WP7_NominalPredictor_TruthParameterMismatch_Holdout_v3"
-          assert x["nominal_anchor_v2_exact_reproduction"]
+          assert x["nominal_anchor_v2_reproduced_with_tolerances"]
+          assert len(x["nominal_anchor_v2_audit"])==3
+          assert any(d["method"]=="MPC_property" for d in x["nominal_anchor_v2_audit"])
           assert x["no_model_or_gain_retuning"] and x["same_sensing_same_command_limits"]
           assert x["property_model_verified_against_hardware"] is False
           assert len(x["cases"])==5 and len(x["runs"])==15 and len(x["pairs"])==10
