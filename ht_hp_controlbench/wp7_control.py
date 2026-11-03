@@ -255,6 +255,13 @@ def run_property_controller(
         "unserved_spec_heat_kWh":float(energy_spec_unserved/3.6e6) if complete else None,
         "qualified_fraction":passed_steps/times if complete else None,
         "matched_service_gate":eligible,
+        # Final inventories MUST be matched for a valid paired energy claim:
+        # an identical process service alone can consume stored heat instead.
+        "final_header_energy_delta_kWh":float(p.c_h*(y[0]-x0.th)/3.6e6) if complete else None,
+        "final_buffer_energy_delta_kWh":float(WATER_MASS_KG*(y[1]-h0)/3.6e6) if complete else None,
+        "final_total_energy_delta_kWh":float((p.c_h*(y[0]-x0.th)+WATER_MASS_KG*(y[1]-h0))/3.6e6) if complete else None,
+        "final_compressor_modulation":float(y[2]) if complete else None,
+        "final_applied_command":float(applied) if complete else None,
         "max_energy_residual_J":float(abs(residual)) if complete else None,
         "max_applied_command_slew":max_slew,
         "max_sensor_error_K":max_sensor_error,
@@ -265,4 +272,59 @@ def run_property_controller(
         "estimated_states_at_decisions":estimates_at_decisions,
         "sensed_buffer_at_decisions":sensed_at_decisions,
         "applied_commands":decisions,
+    }
+
+
+def compare_property_pair(pi: dict, mpc: dict,
+                          *, inventory_tolerance_kwh: float = 0.5,
+                          actuator_tolerance: float = 0.02) -> dict:
+    """No electricity credit without same service, final stores AND actuator state.
+
+    Each store and their sum are independently matched. No compensating header
+    charge is allowed to mask a depleted IF97 buffer. The tolerances are
+    prespecified *numerical comparability* limits, not calibrated uncertainty.
+    """
+    if pi["case"] != mpc["case"] or pi["controller"] not in ("PI_IMC","PI_relay") or mpc["controller"]!="MPC_persistence":
+        raise ValueError("invalid WP7 paired comparison identity")
+    for key in ("duration_s","sample_period_s","control_period_s","sensor_delay_s",
+                "sensor_noise_sd_k","seed","plant","measurement","benchmark_id"):
+        if pi[key] != mpc[key]:
+            raise ValueError("unequal scenario/observation/plant budget: " + key)
+    if (not isfinite(inventory_tolerance_kwh) or inventory_tolerance_kwh <= 0 or
+        not isfinite(actuator_tolerance) or actuator_tolerance <= 0):
+        raise ValueError("positive finite numerical comparison tolerances required")
+    complete = pi["status"] == "complete" and mpc["status"] == "complete"
+    reasons=[]
+    if not complete:
+        reasons.append("incomplete_physical_or_numerical_run")
+    if complete and not (pi["matched_service_gate"] and mpc["matched_service_gate"]):
+        reasons.append("unmatched_or_unqualified_process_service")
+    for key,label in (
+        ("final_header_energy_delta_kWh","terminal_header_inventory_mismatch"),
+        ("final_buffer_energy_delta_kWh","terminal_buffer_inventory_mismatch"),
+        ("final_total_energy_delta_kWh","terminal_total_thermal_energy_mismatch"),
+    ):
+        if complete and abs(pi[key]-mpc[key]) > inventory_tolerance_kwh:
+            reasons.append(label)
+    for key,label in (
+        ("final_compressor_modulation","terminal_compressor_modulation_mismatch"),
+        ("final_applied_command","terminal_applied_command_mismatch"),
+    ):
+        if complete and abs(pi[key]-mpc[key]) > actuator_tolerance:
+            reasons.append(label)
+    eligible = complete and not reasons
+    return {
+        "case":pi["case"],
+        "baseline":pi["controller"],
+        "candidate":mpc["controller"],
+        "both_numerically_complete":complete,
+        "both_service_eligible":bool(complete and pi["matched_service_gate"] and mpc["matched_service_gate"]),
+        "terminal_equivalent":bool(complete and not any("terminal_" in x for x in reasons)),
+        "eligible_for_conditional_electricity_comparison":eligible,
+        "ineligibility_reasons":";".join(reasons),
+        "delta_IAE_Ks":mpc["iae_Ks"]-pi["iae_Ks"] if complete else None,
+        "delta_electricity_kWh":mpc["electricity_kWh"]-pi["electricity_kWh"] if eligible else None,
+        "raw_delta_electricity_kWh_diagnostic":mpc["electricity_kWh"]-pi["electricity_kWh"] if complete else None,
+        "interpretation":("conditional_matched_service_and_terminal_inventory" if eligible else
+                          "NOT_ELIGIBLE_FOR_ELECTRICITY_SAVING_CLAIM"),
     }
