@@ -31,7 +31,7 @@ The planned programme shares one plant model across three independently testable
 - Provisional `UA(f)=UA_nominal * f^a`, with `a=0,0.6,0.7,0.8` sensitivity. This is an exploratory correlation *not validated against any HX geometry or operating regime*.
 - Separate actual physical heat, quality-qualified heat and unmet service. Any actual physical heat transfer remains inside conservation law even if below specification.
 - RK4 integration of temperature/modulation **and physical energy integrals**; independent endpoint-trapezoid energy audit and timestepping tests.
-- A pre-programmed **WP2 open-loop** disturbance experiment. WP3 adds a separate closed-loop PI experiment; **there is still no derivative/PID or SOC implementation; WP4 now adds synthetic MPC**. The active-set-crossing MPC-predictor/fallback test remains WP4 work.
+- A pre-programmed **WP2 open-loop** disturbance experiment. WP3 supplies synthetic closed-loop PI tests; WP4 implements synthetic constrained MPC, including an active-set-crossing predictor/fallback test. WP6 adds exploratory nonlinear **steady-state SOC candidate screening** in a *separate, explicitly extended two-actuator model*. No derivative/PID hardware tuning or validated industrial SOC implementation is claimed.
 
 ## Execute
 
