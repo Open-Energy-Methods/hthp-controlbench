@@ -144,7 +144,6 @@ def run_transfer(model: CycleMap, method: str, case: PropertyTransferCase,
                 observer=State(observer.th,sensed,n_observed)
                 last_sensor_t=t
                 last_disturbance=d
-                last_observer_command=u
                 if k%controller_stride == 0:
                     # Physical truth is only used in offline error diagnostics.
                     observer_header_errors.append(abs(observer.th-float(y[0])))
@@ -153,6 +152,9 @@ def run_transfer(model: CycleMap, method: str, case: PropertyTransferCase,
                              else pi.command(t,observer,d,u,p))
                     bounded=float(np.clip(desired,p.n_min,p.n_max))
                     u=float(np.clip(bounded,u-p.max_command_step,u+p.max_command_step))
+                # Advance at the next sensor tick with the command that was
+                # ACTUALLY applied over this interval, not the pre-update one.
+                last_observer_command=u
             k1=_stage(y,u,model,5000.,p,d,props)
             k2=_stage(y+dt_s*k1/2,u,model,5000.,p,d,props)
             k3=_stage(y+dt_s*k2/2,u,model,5000.,p,d,props)
