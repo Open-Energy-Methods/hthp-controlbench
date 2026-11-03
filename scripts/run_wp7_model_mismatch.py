@@ -17,7 +17,7 @@ import json
 
 from ht_hp_controlbench.benchmark import nominal_tunings
 from ht_hp_controlbench.core import Parameters
-from ht_hp_controlbench.realfluid import CycleAssumptions,build_cycle_map,backend_version
+from ht_hp_controlbench.realfluid import CycleAssumptions,build_cycle_map,backend_version,PointRejected
 from ht_hp_controlbench.wp7_control import (
     PropertyControlCase,compare_property_pair,run_property_controller,
 )
@@ -141,6 +141,65 @@ def strict_nominal_reproduction(old:dict, new:dict) -> dict:
             "MPC_tolerances_selected_after_diagnosed_solver_drift":method=="MPC_property"}
 
 
+def unqualified_initial_state(spec:MismatchSpec,method:str,reason:str) -> dict:
+    """Structured rejection, NOT a partial/zero-energy physical simulation.
+
+    Only documented no-service starting-equilibrium rejections are mapped to
+    this record. Every other unexpected solver/property exception fails CI.
+    """
+    if not reason.startswith("no_property_backed_initial_equilibrium:"):
+        raise RuntimeError("unexpected initial failure must not be hidden: "+reason)
+    return {
+        "benchmark_id":ID,
+        "case":spec.case.name,
+        "controller":method,
+        "plant":"WP7 CoolProp condenser Q/P map + IF97 enthalpy; UNCALIBRATED"
+                " | truth-only HX/actuator-dynamics mismatch",
+        "measurement":"one sampled noisy/delayed buffer temperature; current known disturbances",
+        "equipment_verified":False,
+        "truth_model_mismatch":True,
+        "truth_parameter_ratios_to_nominal":{spec.truth_parameter:spec.truth_scale},
+        "status":"unqualified_initial_design_state",
+        "failure_reason":reason,
+        "duration_s":7200.,
+        "sample_period_s":60.,
+        "control_period_s":120.,
+        "sensor_delay_s":spec.case.sensor_delay_samples*60.,
+        "sensor_noise_sd_k":spec.case.sensor_noise_sd_k,
+        "seed":spec.case.seed,
+        "completed_time_s":0.,
+        "matched_service_gate":False,
+        "decisions":0,
+        "accepted_mpc":0,
+        "pi_fallbacks":0,
+        "solver_statuses":{},
+        "iae_Ks":None,
+        "electricity_kWh":None,
+        "process_heat_kWh":None,
+        "unserved_spec_heat_kWh":None,
+        "physical_heat_shortfall_kWh":None,
+        "qualified_fraction":None,
+        "final_header_energy_delta_kWh":None,
+        "final_buffer_energy_delta_kWh":None,
+        "final_total_energy_delta_kWh":None,
+        "final_compressor_modulation":None,
+        "final_applied_command":None,
+        "max_energy_residual_J":None,
+        "max_applied_command_slew":0.,
+        "max_sensor_error_K":None,
+        "max_header_observer_error_K":None,
+        "max_modulation_observer_error":None,
+        "mean_absolute_header_observer_error_K":None,
+        "mean_absolute_modulation_observer_error":None,
+        "sensor_innovations_K":[],
+        "noise_draws":[],
+        "true_states_at_decisions":[],
+        "estimated_states_at_decisions":[],
+        "sensed_buffer_at_decisions":[],
+        "applied_commands":[],
+    }
+
+
 def main():
     source_bytes=PRIOR.read_bytes()
     old=json.loads(source_bytes)
@@ -164,9 +223,16 @@ def main():
         )
         for method in METHODS:
             setting=tuning["relay_PI"] if method=="PI_relay" else tuning["IMC_lambda_0p5tau"]
-            row=run_property_controller(model,spec.case,method,
-                pi_settings=setting,observer_backend="property",
-                truth_parameters=p_truth,benchmark_id=ID)
+            try:
+                row=run_property_controller(model,spec.case,method,
+                    pi_settings=setting,observer_backend="property",
+                    truth_parameters=p_truth,benchmark_id=ID)
+            except PointRejected as exc:
+                # The -15% UA condition cannot deliver qualified service at
+                # the fixed initial buffer temperature. The paper must report
+                # this negative feasibility result, not lower the workload
+                # or synthesize a controller performance score.
+                row=unqualified_initial_state(spec,method,str(exc))
             if spec.truth_parameter is None:
                 anchor_audits.append(strict_nominal_reproduction(by_old[("nominal",method)],row))
             if row["status"]=="complete":
