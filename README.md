@@ -2,7 +2,7 @@
 
 **Research software for the comparative study of PI/PID, model-predictive and self-optimising control of industrial high-temperature heat pumps.**
 
-**Current implementation: WP2 synthetic plant + WP3 independently tuned PI and robustness + WP4 constrained MPC and OSQP audit + WP5 scenario-wise comparative synthesis.** Two independent tuning methods, anti-windup, and reproducible noise, delay, parameter-mismatch and actuator-saturation comparisons are implemented. Physical PID tuning, genuine SOC and real-fluid calibration are **not** implemented or validated. WP4 MPC and WP5 comparative conclusions are simulation-only and lack experimental validation.
+**Current implementation: WP2 synthetic plant + WP3 independently tuned PI and robustness + WP4 constrained MPC and OSQP audit + WP5 scenario-wise comparative synthesis + WP6 synthetic SOC/active-set screening.** Two independent tuning methods, anti-windup, and reproducible noise, delay, parameter-mismatch and actuator-saturation comparisons are implemented. Physical PID tuning and real-fluid calibration are **not** implemented or validated. WP6 implements **exploratory nonlinear steady-state SOC candidate evaluation** using an explicitly hypothetical second hot-loop circulation actuator, plus a limited dynamic/noisy pilot; it is not a validated industrial SOC structure or a proof of nonlinear dynamic SOC optimality. WP4/WP5/WP6 conclusions are simulation-only.
 
 ![Example synthetic open-loop thermal response](results/wp2_illustrative_thermal_response.png)
 
@@ -12,7 +12,7 @@ The [research plan v0.5](docs/RESEARCH_PLAN_v0.5.md) is the frozen proposal; it 
 
 ## Research organisation
 
-The planned programme shares one plant model across three independently testable research studies: (I) PI/PID versus MPC; (II) self-optimising control with active-set economics; (III) fluid feasibility and thermal-storage flexibility. Study I now includes a synthetic WP5 comparative analysis; Studies II (genuine SOC) and III (real-fluid/storage) remain research stages. Their inclusion in the plan does not imply completed calculations.
+The planned programme shares one plant model across three independently testable research studies: (I) PI/PID versus MPC; (II) self-optimising control with active-set economics; (III) fluid feasibility and thermal-storage flexibility. Study I includes the synthetic WP5 comparative analysis. Study II now includes a provisional WP6 nonlinear SOC candidate study and a negative degree-of-freedom result for the one-actuator baseline; comprehensive nonlinear/dynamic/noisy-plant SOC validation remains open. Study III (real-fluid/storage) remains a research stage. Their inclusion in the plan does not imply completed calculations.
 
 ---
 
@@ -31,7 +31,7 @@ The planned programme shares one plant model across three independently testable
 - Provisional `UA(f)=UA_nominal * f^a`, with `a=0,0.6,0.7,0.8` sensitivity. This is an exploratory correlation *not validated against any HX geometry or operating regime*.
 - Separate actual physical heat, quality-qualified heat and unmet service. Any actual physical heat transfer remains inside conservation law even if below specification.
 - RK4 integration of temperature/modulation **and physical energy integrals**; independent endpoint-trapezoid energy audit and timestepping tests.
-- A pre-programmed **WP2 open-loop** disturbance experiment. WP3 adds a separate closed-loop PI experiment; **there is still no derivative/PID or SOC implementation; WP4 now adds synthetic MPC**. The active-set-crossing MPC-predictor/fallback test remains WP4 work.
+- A pre-programmed **WP2 open-loop** disturbance experiment. WP3 supplies synthetic closed-loop PI tests; WP4 implements synthetic constrained MPC, including an active-set-crossing predictor/fallback test. WP6 adds exploratory nonlinear **steady-state SOC candidate screening** in a *separate, explicitly extended two-actuator model*. No derivative/PID hardware tuning or validated industrial SOC implementation is claimed.
 
 ## Execute
 
@@ -113,3 +113,22 @@ A dedicated **optional OSQP QP backend** was added alongside SciPy SLSQP. Instal
 WP5 uses **the existing** WP4 twenty-case/five-method numerical matrix; no new plant calibration or controller tuning is introduced. All **100 runs** were numerically complete, but both 20%-lower-process-UA and severe 40%-compressor-derating cases failed specification-qualified service for every controller. In the raw unconditional IAE ranking, MPC leads **14/20** scenarios and relay PI **6/20**. When both simulated process service and physical heat transfer are required, **MPC leads 13 of the 18 scenarios with any qualified method**, relay PI 5. This is a count over deliberately selected, correlated synthetic cases—not a statistical probability or demonstration of industrial performance.
 
 The report includes 80 paired MPC–PI comparisons, quality-gated energy and Pareto analysis, two separately marked perfect-future-disturbance cases, documented fallback failures, and an optional platform-specific end-to-end runtime pilot. It does **not** establish energy-cost savings, model predictive control stability, or a calibrated commercial HTHP operating envelope. Run `python scripts/run_wp5.py` after `python scripts/run_wp4_robustness.py` to regenerate every WP5 table and figure.
+
+---
+
+## WP6: active-set self-optimising control investigation (implemented, synthetic)
+
+The unchanged baseline WP2 thermal plant has one manipulated compressor command; the minimum process-service requirement eliminates its only steady economic degree of freedom in the qualifying optimum. **No nontrivial SOC candidate is justified for that baseline under these constraints.**
+
+The *separate exploratory pump-actuated extension* adds a hypothetical hot-side circulation flow ratio `r`, a first-order pump flow lag for dynamic tests, an explicit cubic synthetic pump power law and flow-dependent heat exchanger UA. Its nonlinear steady economic optimisation identifies a pump-upper-constraint region and a remaining interior flow degree of freedom. WP6 constructs constant controlled-variable candidates within these regions (including a Hessian-based first-order stationarity combination), freezes them before a separate held-out disturbance grid, and reports **J_SOC − J_opt** only when heat service is equally feasible.
+
+**Source and scope:** [WP6 standalone scientific report](results/wp6_scientific_report.md) · [Methods and limitations](docs/WP6_SOC_ACTIVE_SET.md) · [Results JSON](results/wp6_summary.json). Candidate CVs are not identical to Manum–Skogestad's steady-state/quadratic nullspace method. The dynamic/noisy-plant pilot is a separate exploratory extension, not proof that a controller self-optimises on actual equipment. Storage/tariff arbitration and fluid property anchoring remain undone.
+
+Reproduce from the repository root:
+
+```bash
+python scripts/run_wp6.py
+python -m unittest discover -s tests -v
+```
+
+The WP6 script writes an explicit training/held-out active-set ledger, the 27-row nominal loss table, 162 additional parameter-mismatch tests, matched dynamic-service runs, a JSON provenance/audit file, a technical report and two figures. **No earlier WP2–WP5 result is altered.**

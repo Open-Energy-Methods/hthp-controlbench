@@ -1,0 +1,121 @@
+[
+  {
+    "i": 0,
+    "path": "ht_hp_controlbench/soc.py",
+    "bytes": 16642,
+    "git_blob_sha": "bd960b4753ffd675e9c72242f945b454d58c01af",
+    "sha256": "d2e1e1943609f22d87b18d7387ed73b71d89bbbcd6e1fa411e9bf36c61f11fa6"
+  },
+  {
+    "i": 1,
+    "path": "ht_hp_controlbench/soc_dynamic.py",
+    "bytes": 7496,
+    "git_blob_sha": "2385fcaae5993a42f8ac29e6541588ed4111435d",
+    "sha256": "ccc4cbf72d94cb0d451cd804376ac5d0e7c262a024852133d539cbf814a88cf3"
+  },
+  {
+    "i": 2,
+    "path": "tests/test_wp6_soc.py",
+    "bytes": 9530,
+    "git_blob_sha": "f5222577b6119f0e19f62ccd300c95d5aecfd49e",
+    "sha256": "4ef3da32a62d879a232d7fd520b258d6ee7fd666c5133fe60ba68e604f30d474"
+  },
+  {
+    "i": 3,
+    "path": "scripts/run_wp6.py",
+    "bytes": 20623,
+    "git_blob_sha": "51ef07708ec757e123213d7e26604c399cfc79f2",
+    "sha256": "e4ecd4699705c902e079bd4f85789cb78f4f58385494ed55fff7cd73a73f21ba"
+  },
+  {
+    "i": 4,
+    "path": "docs/WP6_SOC_ACTIVE_SET.md",
+    "bytes": 15195,
+    "git_blob_sha": "f6ca87e26c3644882bb1d0f6f614f3f582a0d3ae",
+    "sha256": "533b8fede4b5ba7d8a933f9cdbbe26664edb7b47ba0963547542cb860cac0351"
+  },
+  {
+    "i": 5,
+    "path": "README.md",
+    "bytes": 16355,
+    "git_blob_sha": "f628ff7b33edbb4ddb0d1060708618922976b4d1",
+    "sha256": "b1c0116ac62e02e5c3cc6963f1ef707f2197982e011f2cb886b65249ce64ea44"
+  },
+  {
+    "i": 6,
+    "path": ".github/workflows/tests.yml",
+    "bytes": 1548,
+    "git_blob_sha": "4480a497afc0dd8a95f1bcc0f872fc7143c4e1d3",
+    "sha256": "77affcd2067518ee12beef91718cf541d159bfa96d3aede068a7bb754f9c1887"
+  },
+  {
+    "i": 7,
+    "path": "results/wp6_offline_optima.csv",
+    "bytes": 3382,
+    "git_blob_sha": "82c81509040b59c19c3208820a4bc98f6b35021a",
+    "sha256": "2f5bc25d9824daaee9943e78872fb895da7ba9d35f20a3d1d46309a9f515d0b8"
+  },
+  {
+    "i": 8,
+    "path": "results/wp6_heldout_losses.csv",
+    "bytes": 4640,
+    "git_blob_sha": "334839c481afc8f20aafca3bd2a3d993fa36435e",
+    "sha256": "26acaff39480666db61811680337bb2ee2a2510c59938beb48afb43ff0a33977"
+  },
+  {
+    "i": 9,
+    "path": "results/wp6_assumption_sensitivity.csv",
+    "bytes": 31611,
+    "git_blob_sha": "2b5aab22f14e05c637fe0b135f1ac293cc139267",
+    "sha256": "35769ee9ec0317bf0c72ed185413c69d9b3a53fc79908e82d9bd1482d484157b"
+  },
+  {
+    "i": 10,
+    "path": "results/wp6_dynamic_scenarios.csv",
+    "bytes": 3399,
+    "git_blob_sha": "c0cb26264c03cc7a6020b1379a8e70ee7e923c69",
+    "sha256": "79aa11eb0b0f316c19cde376a7518d6bced1301cd430859bf9e0981abf2379a3"
+  },
+  {
+    "i": 11,
+    "path": "results/wp6_summary.json",
+    "bytes": 16454,
+    "git_blob_sha": "3005721f31206b70c7157f602b2e7faeb27a66dd",
+    "sha256": "ff4ad44f60fa6fe7ced45271b818fc7d6cf6fe7bb28338286dd13a8a9ed6e186"
+  },
+  {
+    "i": 12,
+    "path": "results/wp6_scientific_report.md",
+    "bytes": 8175,
+    "git_blob_sha": "1f802efd32f0a395978c8e55d6f00ff89cb10932",
+    "sha256": "cb81a065e78d0893c5981b57ed526a677c6751f670afb0a33dba1370762dbdfa"
+  },
+  {
+    "i": 13,
+    "path": "results/wp6_active_set_map.png",
+    "bytes": 152064,
+    "git_blob_sha": "e293e40d672f28236a294f42d07da33a24ae2dca",
+    "sha256": "696400eb453bf22a956dbea6d511c91c23aa9441b18c6eb886da7b857f587dfd"
+  },
+  {
+    "i": 14,
+    "path": "results/wp6_heldout_loss.png",
+    "bytes": 39843,
+    "git_blob_sha": "8b1db476d1d567cd4e88c1463570db4eba32189c",
+    "sha256": "09db38669e5a897c268161408233ce7a7338c2ef5eb85670f91309d656addef7"
+  },
+  {
+    "i": 15,
+    "path": "results/wp6_generation_log.txt",
+    "bytes": 604,
+    "git_blob_sha": "be0bd621f80572652b0f311a4b1f5a3925aa9a9f",
+    "sha256": "c486a11639492d548fc5f80fed72f5f4ec8fb78210d929b1602b764ac79f6407"
+  },
+  {
+    "i": 16,
+    "path": "results/wp6_tests_local.txt",
+    "bytes": 13111,
+    "git_blob_sha": "5435b3b8ebe53eb287ce762a416266fb8cfbffb0",
+    "sha256": "ca20ac30db9751d0253685578ac3bdb1afdbe73444717ccf12965c198132aba9"
+  }
+]

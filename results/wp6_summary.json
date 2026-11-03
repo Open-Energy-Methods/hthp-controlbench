@@ -1,0 +1,498 @@
+{
+  "status": "synthetic offline steady-state SOC screening + exploratory dynamic noisy pilot",
+  "baseline_dof": {
+    "model": "original WP2 single-compressor-command plant",
+    "declared_manipulated_variables": [
+      "compressor_command_u"
+    ],
+    "non_manipulated_local_variables": [
+      "local_process_bypass_fraction_f"
+    ],
+    "active_constraints_at_qualifying_economic_optimum": [
+      "process_service_temperature"
+    ],
+    "unconstrained_steady_economic_dof": 0,
+    "decision": "no nontrivial free steady-state SOC degree of freedom in this tested regime; label constraint-following, not SOC",
+    "caveat": "not a global proof for all possible equipment, unconstrained operating states, or modified objectives"
+  },
+  "pump_extension": {
+    "pump_nominal_w": 2500.0,
+    "hot_film_resistance_fraction": 0.4,
+    "hot_film_flow_exponent": 0.8,
+    "r_min": 0.35,
+    "r_max": 1.02,
+    "max_r_step": 0.08,
+    "tau_r": 75.0,
+    "tb_max_k": 408.15,
+    "th_max_k": 419.15,
+    "buffer_margin_k": 1.0,
+    "active_tol": 0.003
+  },
+  "study_design": {
+    "train_d_source_c": [
+      45,
+      52.5,
+      60,
+      67.5,
+      75
+    ],
+    "train_d_return_c": [
+      85,
+      90,
+      95,
+      100
+    ],
+    "heldout_source_c": [
+      47.5,
+      57.5,
+      72.5
+    ],
+    "heldout_return_c": [
+      87.5,
+      92.5,
+      97.5
+    ],
+    "predeclared_split": true,
+    "training_points": 20,
+    "heldout_points": 9,
+    "tariff_note": "positive price scalar cannot change steady optimal r when all consumption is multiplied and no time coupling exists"
+  },
+  "CV_models": {
+    "global_constant_r": {
+      "valid": true,
+      "cv_name": "r",
+      "cv_setpoint": 0.9887549847196344,
+      "beta_per_kelvin": 0.0,
+      "training_count": 20,
+      "fitted_to_offline_optima": false
+    },
+    "piecewise_empirical_CV": {
+      "valid": true,
+      "cv_name": "r + beta_return*(T_return-363.15) + beta_source*(T_source-333.15)",
+      "cv_setpoint": 1.0243407502261492,
+      "beta_per_kelvin": 0.018050719356731894,
+      "beta_source_per_kelvin": -0.0006215254151214427,
+      "training_count": 20,
+      "interior_training_count": 12,
+      "pump_max_training_count": 8,
+      "selection": "active pump_max when unconstrained candidate exceeds pump ceiling; otherwise hold CV",
+      "trained_only_on_train": true
+    },
+    "piecewise_stationarity_CV": {
+      "valid": true,
+      "cv_name": "stationarity-derived r+beta_return*dTreturn+beta_source*dTsource",
+      "cv_setpoint": 1.0258880503552046,
+      "beta_per_kelvin": 0.01782618274465816,
+      "beta_source_per_kelvin": -0.0005968303598948763,
+      "anchor_r": 0.9367571366319137,
+      "anchor_t_return_c": 95.0,
+      "anchor_t_source_c": 60.0,
+      "H_rr_W_per_r2": 27914.22042355407,
+      "derivation": "implicit stationarity sensitivity at interior optimum",
+      "trained_only_on_train": true
+    }
+  },
+  "heldout_summary": {
+    "global_constant_r": {
+      "count": 9,
+      "failed": 0,
+      "mean_loss_w": 61.28082454433671,
+      "max_loss_w": 140.01191029517213,
+      "max_loss_pct": 0.12336065973331355
+    },
+    "piecewise_empirical_CV": {
+      "count": 9,
+      "failed": 0,
+      "mean_loss_w": 0.02481346311429257,
+      "max_loss_w": 0.10145522237871774,
+      "max_loss_pct": 8.518863743679169e-05
+    },
+    "piecewise_stationarity_CV": {
+      "count": 9,
+      "failed": 0,
+      "mean_loss_w": 0.014846095773262076,
+      "max_loss_w": 0.042512565894867294,
+      "max_loss_pct": 4.881880290201085e-05
+    }
+  },
+  "assumption_sensitivity": {
+    "variants": [
+      "pump_power_minus30pct",
+      "pump_power_plus30pct",
+      "hot_film_resistance_0.25",
+      "hot_film_resistance_0.55",
+      "hot_UA_flow_exponent_0.6",
+      "hot_UA_flow_exponent_1.0"
+    ],
+    "records": 162,
+    "max_feasible_loss_w_by_policy": {
+      "global_constant_r": 397.4810398032423,
+      "piecewise_empirical_CV": 108.1531911577622,
+      "piecewise_stationarity_CV": 112.39503729276475
+    },
+    "infeasible_policy_counts": {
+      "global_constant_r": 0,
+      "piecewise_empirical_CV": 0,
+      "piecewise_stationarity_CV": 0
+    }
+  },
+  "active_count_training": {
+    "pump_max": 8,
+    "service": 20
+  },
+  "tariff_sweep": [
+    {
+      "electricity_price_eur_per_kwh": 0.08,
+      "optimal_r": 1.02,
+      "cost_eur_per_hour": 11.151401404634958
+    },
+    {
+      "electricity_price_eur_per_kwh": 0.2,
+      "optimal_r": 1.02,
+      "cost_eur_per_hour": 27.878503511587397
+    },
+    {
+      "electricity_price_eur_per_kwh": 0.5,
+      "optimal_r": 1.02,
+      "cost_eur_per_hour": 69.69625877896848
+    }
+  ],
+  "buffer_elimination_audit": [
+    {
+      "t_source_c": 47.5,
+      "t_return_c": 87.5,
+      "J_at_min_w": 174491.11284663962,
+      "J_at_backoffs_w": [
+        174491.11284663962,
+        174851.281146057,
+        175211.0716534482,
+        175929.5220482831
+      ],
+      "positive_backoff_raises_cost": true
+    },
+    {
+      "t_source_c": 57.5,
+      "t_return_c": 87.5,
+      "J_at_min_w": 156356.37594065626,
+      "J_at_backoffs_w": [
+        156356.37594065626,
+        156726.37580584016,
+        157095.9859102976,
+        157834.03968047997
+      ],
+      "positive_backoff_raises_cost": true
+    },
+    {
+      "t_source_c": 72.5,
+      "t_return_c": 87.5,
+      "J_at_min_w": 129154.27058168118,
+      "J_at_backoffs_w": [
+        129154.27058168118,
+        129539.01779551497,
+        129923.35729557172,
+        130690.81612877529
+      ],
+      "positive_backoff_raises_cost": true
+    },
+    {
+      "t_source_c": 47.5,
+      "t_return_c": 92.5,
+      "J_at_min_w": 146491.81065825376,
+      "J_at_backoffs_w": [
+        146491.81065825376,
+        146802.00271454788,
+        147111.8765654315,
+        147730.67198156012
+      ],
+      "positive_backoff_raises_cost": true
+    }
+  ],
+  "dynamic_scope": "PI regulation + hypothetical pump-flow lag, matched initial conditions; offline RTO is current-disturbance optimiser, not future-optimal dynamic control",
+  "dynamic_results": [
+    {
+      "policy": "offline_rto",
+      "price_eur_per_kwh": 0.2,
+      "electrical_kwh": 540.2351219994447,
+      "compressor_kwh": 530.324489131962,
+      "pump_kwh": 9.91063286748269,
+      "missing_physical_kwh": 9.749783203005796e-14,
+      "spec_unserved_kwh": 9.749783203005796e-14,
+      "service_compliant_fraction": 1.0,
+      "buffer_error_integral_ks": 5521.53656247515,
+      "flow_total_variation": 0.08163293741264332,
+      "max_energy_residual_j": 7.210328476503491e-07,
+      "max_temperature_k": 406.7671552865788,
+      "saturated_flow_steps": 30,
+      "steps": 120,
+      "scenario": "mild_steps",
+      "noise_k": 0.0,
+      "delay_s": 0.0,
+      "seed": 0,
+      "status": "completed",
+      "equal_service_eligible": true,
+      "signed_dynamic_electric_delta_kwh": 0.0
+    },
+    {
+      "policy": "regime_soc",
+      "price_eur_per_kwh": 0.2,
+      "electrical_kwh": 540.2222401737804,
+      "compressor_kwh": 530.2748703401779,
+      "pump_kwh": 9.947369833602469,
+      "missing_physical_kwh": 9.431796907274814e-14,
+      "spec_unserved_kwh": 9.431796907274814e-14,
+      "service_compliant_fraction": 1.0,
+      "buffer_error_integral_ks": 5518.699440622663,
+      "flow_total_variation": 0.08324286336808606,
+      "max_energy_residual_j": 7.160488166846335e-07,
+      "max_temperature_k": 406.76046092785157,
+      "saturated_flow_steps": 30,
+      "steps": 120,
+      "scenario": "mild_steps",
+      "noise_k": 0.0,
+      "delay_s": 0.0,
+      "seed": 0,
+      "status": "completed",
+      "equal_service_eligible": true,
+      "signed_dynamic_electric_delta_kwh": -0.01288182566429441
+    },
+    {
+      "policy": "constant_soc",
+      "price_eur_per_kwh": 0.2,
+      "electrical_kwh": 539.9246811113634,
+      "compressor_kwh": 530.2534034821139,
+      "pump_kwh": 9.67127762924957,
+      "missing_physical_kwh": 1.3102113303762876e-13,
+      "spec_unserved_kwh": 1.3102113303762876e-13,
+      "service_compliant_fraction": 1.0,
+      "buffer_error_integral_ks": 6276.06246399566,
+      "flow_total_variation": 0.0,
+      "max_energy_residual_j": 7.329508662223816e-07,
+      "max_temperature_k": 406.8582836412085,
+      "saturated_flow_steps": 0,
+      "steps": 120,
+      "scenario": "mild_steps",
+      "noise_k": 0.0,
+      "delay_s": 0.0,
+      "seed": 0,
+      "status": "completed",
+      "equal_service_eligible": true,
+      "signed_dynamic_electric_delta_kwh": -0.31044088808130255
+    },
+    {
+      "policy": "offline_rto",
+      "price_eur_per_kwh": 0.2,
+      "electrical_kwh": 540.5467990071132,
+      "compressor_kwh": 530.6361661396305,
+      "pump_kwh": 9.91063286748269,
+      "missing_physical_kwh": 1.2937730557664677e-13,
+      "spec_unserved_kwh": 1.2937730557664677e-13,
+      "service_compliant_fraction": 1.0,
+      "buffer_error_integral_ks": 6113.410475655267,
+      "flow_total_variation": 0.08163293741264332,
+      "max_energy_residual_j": 7.20989191904664e-07,
+      "max_temperature_k": 406.8600076483385,
+      "saturated_flow_steps": 30,
+      "steps": 120,
+      "scenario": "mild_steps",
+      "noise_k": 0.2,
+      "delay_s": 120.0,
+      "seed": 23,
+      "status": "completed",
+      "equal_service_eligible": true,
+      "signed_dynamic_electric_delta_kwh": 0.0
+    },
+    {
+      "policy": "regime_soc",
+      "price_eur_per_kwh": 0.2,
+      "electrical_kwh": 540.535578400831,
+      "compressor_kwh": 530.5882085672285,
+      "pump_kwh": 9.947369833602469,
+      "missing_physical_kwh": 1.3053606919668343e-13,
+      "spec_unserved_kwh": 1.3053606919668343e-13,
+      "service_compliant_fraction": 1.0,
+      "buffer_error_integral_ks": 6110.872916644848,
+      "flow_total_variation": 0.08324286336808606,
+      "max_energy_residual_j": 7.211783668026328e-07,
+      "max_temperature_k": 406.85375045749396,
+      "saturated_flow_steps": 30,
+      "steps": 120,
+      "scenario": "mild_steps",
+      "noise_k": 0.2,
+      "delay_s": 120.0,
+      "seed": 23,
+      "status": "completed",
+      "equal_service_eligible": true,
+      "signed_dynamic_electric_delta_kwh": -0.011220606282222434
+    },
+    {
+      "policy": "constant_soc",
+      "price_eur_per_kwh": 0.2,
+      "electrical_kwh": 540.2106835880409,
+      "compressor_kwh": 530.5394059587913,
+      "pump_kwh": 9.67127762924957,
+      "missing_physical_kwh": 1.3061691317017433e-13,
+      "spec_unserved_kwh": 1.3061691317017433e-13,
+      "service_compliant_fraction": 1.0,
+      "buffer_error_integral_ks": 6690.04532167624,
+      "flow_total_variation": 0.0,
+      "max_energy_residual_j": 7.240705599542707e-07,
+      "max_temperature_k": 406.9540109448256,
+      "saturated_flow_steps": 0,
+      "steps": 120,
+      "scenario": "mild_steps",
+      "noise_k": 0.2,
+      "delay_s": 120.0,
+      "seed": 23,
+      "status": "completed",
+      "equal_service_eligible": true,
+      "signed_dynamic_electric_delta_kwh": -0.33611541907237097
+    },
+    {
+      "policy": "offline_rto",
+      "price_eur_per_kwh": 0.2,
+      "electrical_kwh": 529.4958956410968,
+      "compressor_kwh": 519.7203061982569,
+      "pump_kwh": 9.775589442839859,
+      "missing_physical_kwh": 8.842983300349238e-14,
+      "spec_unserved_kwh": 8.842983300349238e-14,
+      "service_compliant_fraction": 1.0,
+      "buffer_error_integral_ks": 13237.443295860076,
+      "flow_total_variation": 0.16648572673617257,
+      "max_energy_residual_j": 7.209018804132938e-07,
+      "max_temperature_k": 406.7671552865788,
+      "saturated_flow_steps": 59,
+      "steps": 120,
+      "scenario": "stress_return_jump",
+      "noise_k": 0.0,
+      "delay_s": 0.0,
+      "seed": 0,
+      "status": "completed",
+      "equal_service_eligible": true,
+      "signed_dynamic_electric_delta_kwh": 0.0
+    },
+    {
+      "policy": "regime_soc",
+      "price_eur_per_kwh": 0.2,
+      "electrical_kwh": 529.4996046138199,
+      "compressor_kwh": 519.7126652385954,
+      "pump_kwh": 9.786939375224451,
+      "missing_physical_kwh": 8.56002939313098e-14,
+      "spec_unserved_kwh": 8.56002939313098e-14,
+      "service_compliant_fraction": 1.0,
+      "buffer_error_integral_ks": 13227.40247285273,
+      "flow_total_variation": 0.16648572673617257,
+      "max_energy_residual_j": 7.371927495114505e-07,
+      "max_temperature_k": 406.76046092785157,
+      "saturated_flow_steps": 59,
+      "steps": 120,
+      "scenario": "stress_return_jump",
+      "noise_k": 0.0,
+      "delay_s": 0.0,
+      "seed": 0,
+      "status": "completed",
+      "equal_service_eligible": true,
+      "signed_dynamic_electric_delta_kwh": 0.0037089727230750213
+    },
+    {
+      "policy": "constant_soc",
+      "price_eur_per_kwh": 0.2,
+      "electrical_kwh": 530.1409063650647,
+      "compressor_kwh": 520.469628735815,
+      "pump_kwh": 9.67127762924957,
+      "missing_physical_kwh": 1.1715639158393522e-13,
+      "spec_unserved_kwh": 1.1715639158393522e-13,
+      "service_compliant_fraction": 1.0,
+      "buffer_error_integral_ks": 14712.051669883296,
+      "flow_total_variation": 0.0,
+      "max_energy_residual_j": 7.329508662223816e-07,
+      "max_temperature_k": 406.8582836412085,
+      "saturated_flow_steps": 0,
+      "steps": 120,
+      "scenario": "stress_return_jump",
+      "noise_k": 0.0,
+      "delay_s": 0.0,
+      "seed": 0,
+      "status": "completed",
+      "equal_service_eligible": true,
+      "signed_dynamic_electric_delta_kwh": 0.6450107239678573
+    },
+    {
+      "policy": "offline_rto",
+      "price_eur_per_kwh": 0.2,
+      "electrical_kwh": 529.1509641581706,
+      "compressor_kwh": 519.3753747153306,
+      "pump_kwh": 9.775589442839859,
+      "missing_physical_kwh": 1.1819388924373502e-13,
+      "spec_unserved_kwh": 1.1819388924373502e-13,
+      "service_compliant_fraction": 1.0,
+      "buffer_error_integral_ks": 14393.6059900398,
+      "flow_total_variation": 0.16648572673617257,
+      "max_energy_residual_j": 7.118214853107929e-07,
+      "max_temperature_k": 406.8600076483385,
+      "saturated_flow_steps": 59,
+      "steps": 120,
+      "scenario": "stress_return_jump",
+      "noise_k": 0.2,
+      "delay_s": 120.0,
+      "seed": 23,
+      "status": "completed",
+      "equal_service_eligible": true,
+      "signed_dynamic_electric_delta_kwh": 0.0
+    },
+    {
+      "policy": "regime_soc",
+      "price_eur_per_kwh": 0.2,
+      "electrical_kwh": 529.154862906395,
+      "compressor_kwh": 519.3679235311706,
+      "pump_kwh": 9.786939375224451,
+      "missing_physical_kwh": 1.1936612685935357e-13,
+      "spec_unserved_kwh": 1.1936612685935357e-13,
+      "service_compliant_fraction": 1.0,
+      "buffer_error_integral_ks": 14382.263165996004,
+      "flow_total_variation": 0.16648572673617257,
+      "max_energy_residual_j": 7.186499715317041e-07,
+      "max_temperature_k": 406.85375045749396,
+      "saturated_flow_steps": 59,
+      "steps": 120,
+      "scenario": "stress_return_jump",
+      "noise_k": 0.2,
+      "delay_s": 120.0,
+      "seed": 23,
+      "status": "completed",
+      "equal_service_eligible": true,
+      "signed_dynamic_electric_delta_kwh": 0.0038987482244010607
+    },
+    {
+      "policy": "constant_soc",
+      "price_eur_per_kwh": 0.2,
+      "electrical_kwh": 529.8671038128409,
+      "compressor_kwh": 520.1958261835914,
+      "pump_kwh": 9.67127762924957,
+      "missing_physical_kwh": 0.03395552810131282,
+      "spec_unserved_kwh": 60.55555555555566,
+      "service_compliant_fraction": 0.95,
+      "buffer_error_integral_ks": 15584.661436240669,
+      "flow_total_variation": 0.0,
+      "max_energy_residual_j": 7.22971890354529e-07,
+      "max_temperature_k": 406.9540109448256,
+      "saturated_flow_steps": 0,
+      "steps": 120,
+      "scenario": "stress_return_jump",
+      "noise_k": 0.2,
+      "delay_s": 120.0,
+      "seed": 23,
+      "status": "completed",
+      "equal_service_eligible": false,
+      "signed_dynamic_electric_delta_kwh": 0.7161396546703145
+    }
+  ],
+  "limitations": [
+    "No equipment pump curves or HX calibration",
+    "Hot-side pump flow actuator is hypothetical and adds new authority",
+    "Steady economic policy assumes zero storage/time coupling and positive prices",
+    "CV is based on local Hessian or training fit; not proven globally optimum",
+    "Dynamic tests use selected deterministic schedules; no dynamic/noisy SOC guarantee",
+    "Reported cost comparison only if both methods meet service specification",
+    "Hardware, fluids, pump operating envelope and economic tariffs remain synthetic"
+  ]
+}
