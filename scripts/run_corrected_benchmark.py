@@ -2,14 +2,16 @@
 
 python scripts/run_corrected_benchmark.py
 
-This never mutates the committed legacy WP3/WP4/WP5 result files. A separate
-reviewed PR must publish the v2 outputs after inspecting failures and metrics.
+This regenerates into a scratch directory without modifying published v2 or
+historic v1 results. It checks the regenerated matrix against the reviewed v2
+matrix and reports provenance; it does not claim new controller validation.
 """
 from __future__ import annotations
 
 import hashlib
 import json
 import os
+import numpy as np
 from pathlib import Path
 import platform
 import subprocess
@@ -18,7 +20,8 @@ import sys
 from ht_hp_controlbench.benchmark import BENCHMARK_ID
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "results" / BENCHMARK_ID
+OUTPUT = ROOT / "results" / ("_recomputed_" + BENCHMARK_ID)
+PUBLISHED = ROOT / "results" / BENCHMARK_ID
 PIPELINE = (
     "run_wp3.py",
     "run_wp3_robustness.py",
@@ -55,6 +58,27 @@ def manifest(out: Path) -> dict:
     if report.get("source_matrix_sha256") != checksum(matrix):
         raise RuntimeError("WP5 source hash does not match regenerated WP4 matrix")
     validated = analyze(load_matrix(matrix))
+    # Independent replay must preserve every case/method metric from the
+    # reviewed CI snapshot; timestamps, report prose and plotting files are
+    # deliberately NOT used as numerical-equivalence evidence.
+    published_matrix = PUBLISHED / "wp4_robustness_matrix.csv"
+    if not published_matrix.exists():
+        raise RuntimeError("Reviewed v2 source matrix missing: cannot verify replay")
+    expected = load_matrix(published_matrix)
+    current = load_matrix(matrix)
+    key = lambda r: (r["case"], r["method"])
+    if {key(r) for r in current} != {key(r) for r in expected}:
+        raise RuntimeError("Replayed matrix has missing or unexpected scenarios")
+    from ht_hp_controlbench.wp5_analysis import METRICS
+    original_by_key = {key(r): r for r in expected}
+    for row in current:
+        reference = original_by_key[key(row)]
+        for metric in METRICS:
+            a, b = float(row[metric]), float(reference[metric])
+            if not (np.isfinite(a) and np.isfinite(b)):
+                raise RuntimeError(f"Nonfinite replay value: {key(row)} {metric}")
+            if abs(a - b) > 1e-4 * max(1., abs(b)):
+                raise RuntimeError(f"V2 numerical replay differs: {key(row)} {metric}: {a} versus {b}")
     if validated["source_rows"] != 100:
         raise RuntimeError("incomplete 20-case x 5-method corrected benchmark")
     if report["raw_iae_wins"] != validated["raw_iae_wins"]:
@@ -97,12 +121,12 @@ def main() -> None:
         "The relay amplitude uses actual steady-cycle temperature peaks rather than relay "
         "switch values. The same fixed nominal PI gains are carried into every PI/MPC "
         "scenario, with one shared noisy/delayed buffer measurement per case.\n\n"
-        "The historical files immediately under results/ were intentionally preserved. "
+        "The historical files immediately under results/ AND the reviewed v2 snapshot were intentionally preserved. "
         "Refer to manifest.json for source hashes, gains and metric counts, and to "
         "wp5_comparative_report.md for service-gated findings. "
         "No manufacturer compressor map, real-fluid dynamic benchmark, investment saving "
         "or formal stability guarantee is established.\n")
-    print("Validated corrected benchmark:", result["benchmark_id"],
+    print("Verified independent replay of corrected benchmark:", result["benchmark_id"],
           result["scenario_runs"], "runs,", result["failed_runs"], "failures")
 
 
