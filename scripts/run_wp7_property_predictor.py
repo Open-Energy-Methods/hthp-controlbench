@@ -32,7 +32,10 @@ def _check_reproduced_pi(previous:dict,current:dict):
                 "sensor_delay_s","noise_draws","true_states_at_decisions",
                 "sensed_buffer_at_decisions","applied_commands","status",
                 "accepted_mpc","pi_fallbacks"):
-        if previous[key]!=current[key]:
+        # JSON round-trip converts Python tuple traces to arrays. Compare
+        # their actual numeric contents, not list-vs-tuple representations.
+        normalized=json.loads(json.dumps(current[key],allow_nan=False))
+        if previous[key]!=normalized:
             raise RuntimeError(f"WP7 v1 baseline changed unexpectedly: {key}")
     for key in ("iae_Ks","electricity_kWh","process_heat_kWh",
                 "unserved_spec_heat_kWh","qualified_fraction",
