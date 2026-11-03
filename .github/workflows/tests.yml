@@ -49,6 +49,9 @@ jobs:
       - name: Cross-check WP7 direct cycle in TESPy network
         if: matrix.python-version != '3.10'
         run: python scripts/run_wp7_tespy.py
+      - name: Complete WP7 system-coupled research and TESPy genuine offdesign verification
+        if: matrix.python-version != '3.10'
+        run: python scripts/run_wp7_completion.py
       - name: Upload WP7 property-generated reports
         if: matrix.python-version == '3.12'
         uses: actions/upload-artifact@v4
