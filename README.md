@@ -161,3 +161,21 @@ WP7 now includes an explicit **system-level** assessment, rather than interpreti
 `ht_hp_controlbench/tespy_offdesign.py` executes TESPy **design then offdesign**, with a fully declared **artificial** compressor-efficiency characteristic. The network uses the *same CoolProp EOS*; it checks equation implementation, not independent fluid data or a manufacturer's compressor map. `ht_hp_controlbench/fluid_dynamics.py` integrates buffer-water enthalpy and a property-derived compressor heat/power map, with the original WP3 PI gains frozen for a small sensitivity experiment. WP2–WP6 sources and previously published controller rankings are not retroactively changed.
 
 With CoolProp and TESPy installed: `python -m pip install -e '.[plots,qp,realfluid,tespy]'`, followed by `python scripts/run_wp7.py`, `python scripts/run_wp7_tespy.py`, `python scripts/run_wp7_completion.py` and the full test suite. CI publishes `results/wp7_completion_report.md`, the machine-readable `results/wp7_completion_summary.json`, the process/charge ledger, fluid-PI pilot and TESPy design/offdesign comparison. These deliver **numerical research closure under assumptions**, NOT proof of a commercially feasible 310 kW / 135°C machine. OEM displacement, pressure and discharge ratings, compressor efficiency curves, lubricant compatibility, hydraulic/pressure certification and experimental tests remain unverified.
+
+## WP8 — Temperature-qualified storage and synthetic price flexibility
+
+WP8 tests finite high-temperature water storage against the WP7 CoolProp/IF97
+cycle and WP2 finite-flow process heat exchanger. The same frozen WP3 PI gains
+run a **fixed-buffer comparator** and a **clearly labelled tariff-scheduled
+setpoint heuristic** under an identical 24-hour nonlinear plant and synthetic
+EUR/kWh schedule. Costs are credited **only** when both cases finish, satisfy
+all process samples, obey the declared operating envelope, and end within
+0.5 kWh of the same stored enthalpy. The hypothetical 24 bar(a) and 145°C
+compressor limits are *not* manufacturer ratings. There is **no OEM-verified
+storage capacity or actual electricity-market saving**.
+
+`python scripts/run_wp8.py --full` regenerates the complete WP8 scenario
+matrix, plots and scientific report when CoolProp is installed.
+See [WP8 methods](docs/WP8_STORAGE_FLEXIBILITY.md) and
+[WP8 generated report](results/wp8_scientific_report.md).
+
