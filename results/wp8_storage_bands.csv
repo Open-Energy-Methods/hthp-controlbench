@@ -1,0 +1,7 @@
+mass_kg,case,status,proposed_upper_k,lower_k,max_usable_k,conditional_storage_kwh,ideal_300kw_minutes,stopped_reason,equipment_verified
+2500.0,EOS_only__NO_OEM,conditional_full_path__EQUIPMENT_UNVERIFIED,408.15,401.5532816056434,408.15,19.549325426705604,3.9098650853411208,,False
+2500.0,hypothetical_24bar_145C,path_blocked,408.15,401.5532816056434,404.19196896338605,7.8123466003432345,1.562469320068647,hypothetical_equipment_limit_exceeded,False
+5000.0,EOS_only__NO_OEM,conditional_full_path__EQUIPMENT_UNVERIFIED,408.15,401.5532816056434,408.15,39.09865085341121,7.8197301706822415,,False
+5000.0,hypothetical_24bar_145C,path_blocked,408.15,401.5532816056434,404.19196896338605,15.624693200686469,3.124938640137294,hypothetical_equipment_limit_exceeded,False
+10000.0,EOS_only__NO_OEM,conditional_full_path__EQUIPMENT_UNVERIFIED,408.15,401.5532816056434,408.15,78.19730170682242,15.639460341364483,,False
+10000.0,hypothetical_24bar_145C,path_blocked,408.15,401.5532816056434,404.19196896338605,31.249386401372938,6.249877280274588,hypothetical_equipment_limit_exceeded,False
