@@ -1,0 +1,2 @@
+fluid,t_source_k,t_header_k,heat_w,synthetic_electrical_w,property_cycle_electrical_w,synthetic_cop,property_cycle_cop,difference_electrical_w,comparison_qualifier
+R1233zd(E),333.15,406.2,310000.0,139134.7816688284,123472.05423186488,2.2280553883202883,2.510689580152763,-15662.727436963512,different not-calibrated compressor maps at imposed same condenser duty

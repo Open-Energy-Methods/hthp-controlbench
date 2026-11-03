@@ -1,0 +1,72 @@
+{
+  "status": "TESPy network solves vs direct CoolProp cycle, SHARED EOS",
+  "comparison_count": 3,
+  "backend_version": "8.0.0",
+  "results": [
+    {
+      "fluid": "R1233zd(E)",
+      "tsource_k": 333.15,
+      "header_k": 406.2,
+      "tespy_version": "0.11.3 - Rankine's Renaissance",
+      "network_mode": "design_equations_with_fixed_mass_and_temperatures",
+      "reference_mass_kg_s": 2.7049864746648367,
+      "tespy_condenser_w": 310000.00000027416,
+      "direct_condenser_w": 310000.0,
+      "tespy_compressor_w": 123472.05423213867,
+      "direct_compressor_w": 123472.05423186488,
+      "tespy_evaporator_w": 186527.94576813545,
+      "direct_evaporator_w": 186527.94576813513,
+      "tespy_cop": 2.510689580149416,
+      "direct_cop": 2.510689580152763,
+      "condenser_fractional_disagreement": 8.843809125884887e-13,
+      "compressor_fractional_disagreement": 2.2174595435787543e-12,
+      "energy_balance_residual_w": 2.9103830456733704e-11,
+      "shared_eos": "CoolProp: TESPy uses CoolProp internally, not independent property measurement"
+    },
+    {
+      "fluid": "R1233zd(E)",
+      "tsource_k": 328.15,
+      "header_k": 403.15,
+      "tespy_version": "0.11.3 - Rankine's Renaissance",
+      "network_mode": "design_equations_with_fixed_mass_and_temperatures",
+      "reference_mass_kg_s": 2.6180302225823735,
+      "tespy_condenser_w": 310000.00000012637,
+      "direct_condenser_w": 310000.0,
+      "tespy_compressor_w": 125751.21909641757,
+      "direct_compressor_w": 125751.21909629123,
+      "tespy_evaporator_w": 184248.7809037088,
+      "direct_evaporator_w": 184248.7809037088,
+      "tespy_cop": 2.4651848485257166,
+      "direct_cop": 2.4651848485271888,
+      "condenser_fractional_disagreement": 4.076413930423798e-13,
+      "compressor_fractional_disagreement": 1.004679946012604e-12,
+      "energy_balance_residual_w": 0.0,
+      "shared_eos": "CoolProp: TESPy uses CoolProp internally, not independent property measurement"
+    },
+    {
+      "fluid": "R1233zd(E)",
+      "tsource_k": 338.15,
+      "header_k": 413.15,
+      "tespy_version": "0.11.3 - Rankine's Renaissance",
+      "network_mode": "design_equations_with_fixed_mass_and_temperatures",
+      "reference_mass_kg_s": 2.931816683390408,
+      "tespy_condenser_w": 310000.00000062253,
+      "direct_condenser_w": 310000.0,
+      "tespy_compressor_w": 131149.51416726323,
+      "direct_compressor_w": 131149.5141666407,
+      "tespy_evaporator_w": 178850.4858333593,
+      "direct_evaporator_w": 178850.4858333593,
+      "tespy_cop": 2.3637144366791936,
+      "direct_cop": 2.363714436685667,
+      "condenser_fractional_disagreement": 2.0081643015146257e-12,
+      "compressor_fractional_disagreement": 4.746726950726909e-12,
+      "energy_balance_residual_w": 0.0,
+      "shared_eos": "CoolProp: TESPy uses CoolProp internally, not independent property measurement"
+    }
+  ],
+  "limitations": [
+    "TESPy model uses CoolProp EOS, hence not an independent property validation",
+    "Parametric steady design-mode checks only, NOT calibrated TESPy offdesign component characteristic curves",
+    "No manufacturer compressor characteristic, oil safety, or real HTHP rig evidence"
+  ]
+}

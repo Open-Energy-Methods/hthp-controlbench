@@ -1,0 +1,46 @@
+fluid,t_source_k,t_header_k,status,reason,t_evap_sat_k,t_cond_sat_k,t_suction_k,t_discharge_k,t_cond_out_k,t_critical_k,p_evap_pa,p_cond_pa,pressure_ratio,rho_suction_kg_m3,h1_j_kg,h2s_j_kg,h2_j_kg,h_discharge_sat_vapor_j_kg,discharge_vapor_enthalpy_margin_j_kg,h3_j_kg,throttle_quality,compressor_specific_j_kg,condenser_specific_j_kg,evaporator_specific_j_kg,cop_heating,cop_carnot_refrigerant,second_law_ratio,volumetric_heat_capacity_j_m3,property_origin
+R1233zd(E),328.15,403.15,property_cycle_pass,,323.15,408.15,328.15,412.9161659335699,404.15,438.860000000042,293883.92401597585,2098742.181543876,7.1413983890789,15.341635709010312,441360.5535583017,477385.12405741133,489393.3142237812,482618.6217819373,6774.692441843916,370983.6803983084,0.628273125227109,48032.76066547952,118409.63382547285,70376.87315999332,2.4651848485271888,4.801764705882353,0.5133914299272597,1816597.4665877095,CoolProp HEOS property-calculated; uncalibrated assumed compressor parameters
+R1233zd(E),328.15,406.2,property_cycle_pass,,323.15,411.2,328.15,416.1122783056726,407.2,438.860000000042,293883.92401597585,2218883.3820459503,7.550203331044843,15.341635709010312,441360.5535583017,478246.7058308026,490542.0899216363,483245.08242525294,7297.007496383332,375815.7976514758,0.6554895075365641,49181.53636333457,114726.29227016045,65544.75590682589,2.3327106217789955,4.6700738216922195,0.4995018731703322,1760088.9822542474,CoolProp HEOS property-calculated; uncalibrated assumed compressor parameters
+R1233zd(E),328.15,413.15,property_cycle_pass,,323.15,418.15,328.15,423.5492482737279,414.15,438.860000000042,293883.92401597585,2512680.9459347893,8.549909473095905,15.341635709010312,441360.5535583017,480105.8310650407,493020.92356728704,483948.6507160208,9072.272851266258,387150.73877088225,0.7193323480137293,51660.37000898534,105870.18479640479,54209.814787419455,2.0493501068225157,4.401578947368421,0.4655943086168576,1624221.8075920444,CoolProp HEOS property-calculated; uncalibrated assumed compressor parameters
+R1233zd(E),333.15,403.15,property_cycle_pass,,328.15,408.15,333.15,412.82121694567826,404.15,438.860000000042,340018.6934695983,2098742.181543876,6.172431756995526,17.65998643267353,444772.8691618785,478140.21180191095,489262.65934858844,482618.6217819373,6644.0375666511245,370983.6803983084,0.6029334217235072,44489.79018670996,118278.97895028006,73789.1887635701,2.6585645482682563,5.101875,0.521095587067158,2088805.163532424,CoolProp HEOS property-calculated; uncalibrated assumed compressor parameters
+R1233zd(E),333.15,406.2,property_cycle_pass,,328.15,411.2,333.15,416.025969365783,407.2,438.860000000042,340018.6934695983,2218883.3820459503,6.525768802309526,17.65998643267353,444772.8691618785,479007.4361518568,490418.9584818496,483245.08242525294,7173.876056596637,375815.7976514758,0.6306042232663162,45646.0893199711,114603.16083037376,68957.07151040266,2.510689580152763,4.951234196267308,0.5070835837346473,2023890.265405903,CoolProp HEOS property-calculated; uncalibrated assumed compressor parameters
+R1233zd(E),333.15,413.15,property_cycle_pass,,328.15,418.15,333.15,423.4815913360686,414.15,438.860000000042,340018.6934695983,2512680.9459347893,7.389831777468002,17.65998643267353,444772.8691618785,480879.41906053876,492914.93569342553,483948.6507160208,8966.28497740475,387150.73877088225,0.6955130178550492,48142.066531547054,105764.19692254328,57622.13039099623,2.196918506878739,4.646111111111111,0.47285104775579706,1867794.282714726,CoolProp HEOS property-calculated; uncalibrated assumed compressor parameters
+R1233zd(E),338.15,403.15,property_cycle_pass,,333.15,408.15,338.15,412.7820063752939,404.15,438.860000000042,391481.53870154225,2098742.181543876,5.361024656500891,20.250467676448473,448154.0364349549,478945.0039909759,489208.6598429829,482618.6217819373,6590.038061045576,370983.6803983084,0.5766889041002332,41054.62340802798,118224.9794446745,77170.35603664652,2.8796995229910287,5.441999999999999,0.5291619851141178,2394111.1247931663,CoolProp HEOS property-calculated; uncalibrated assumed compressor parameters
+R1233zd(E),338.15,406.2,property_cycle_pass,,333.15,411.2,338.15,415.99376632510086,407.2,438.860000000042,391481.53870154225,2218883.3820459503,5.667913203277723,20.250467676448473,448154.0364349549,479818.2423460097,490372.97764969466,483245.08242525294,7127.895224441716,375815.7976514758,0.6048456390413329,42218.94121473975,114557.17999821884,72338.23878347909,2.7134072220225147,5.268417680973734,0.5150326694524741,2319836.47065902,CoolProp HEOS property-calculated; uncalibrated assumed compressor parameters
+R1233zd(E),338.15,413.15,property_cycle_pass,,333.15,418.15,338.15,423.4639192916596,414.15,438.860000000042,391481.53870154225,2512680.9459347893,6.418389368420275,20.250467676448473,448154.0364349549,481703.9292990724,492887.2269204449,483948.6507160208,8938.576204424142,387150.73877088225,0.6708943121075528,44733.19048549002,105736.48814956268,61003.297664072656,2.363714436685667,4.919411764705882,0.48048721061408994,2141213.335493896,CoolProp HEOS property-calculated; uncalibrated assumed compressor parameters
+R1336mzz(Z),328.15,403.15,rejected,compressor_discharge_wet_or_not_superheated_vapor,,,,,,,,,,,,,,,,,,,,,,,,,
+R1336mzz(Z),328.15,406.2,rejected,compressor_discharge_wet_or_not_superheated_vapor,,,,,,,,,,,,,,,,,,,,,,,,,
+R1336mzz(Z),328.15,413.15,rejected,compressor_discharge_wet_or_not_superheated_vapor,,,,,,,,,,,,,,,,,,,,,,,,,
+R1336mzz(Z),333.15,403.15,rejected,compressor_discharge_wet_or_not_superheated_vapor,,,,,,,,,,,,,,,,,,,,,,,,,
+R1336mzz(Z),333.15,406.2,rejected,compressor_discharge_wet_or_not_superheated_vapor,,,,,,,,,,,,,,,,,,,,,,,,,
+R1336mzz(Z),333.15,413.15,rejected,compressor_discharge_wet_or_not_superheated_vapor,,,,,,,,,,,,,,,,,,,,,,,,,
+R1336mzz(Z),338.15,403.15,rejected,compressor_discharge_wet_or_not_superheated_vapor,,,,,,,,,,,,,,,,,,,,,,,,,
+R1336mzz(Z),338.15,406.2,rejected,compressor_discharge_wet_or_not_superheated_vapor,,,,,,,,,,,,,,,,,,,,,,,,,
+R1336mzz(Z),338.15,413.15,rejected,compressor_discharge_wet_or_not_superheated_vapor,,,,,,,,,,,,,,,,,,,,,,,,,
+R134a,328.15,403.15,rejected,subcritical_condensing_temperature_above_critical_guard,,,,,,,,,,,,,,,,,,,,,,,,,
+R134a,328.15,406.2,rejected,subcritical_condensing_temperature_above_critical_guard,,,,,,,,,,,,,,,,,,,,,,,,,
+R134a,328.15,413.15,rejected,subcritical_condensing_temperature_above_critical_guard,,,,,,,,,,,,,,,,,,,,,,,,,
+R134a,333.15,403.15,rejected,subcritical_condensing_temperature_above_critical_guard,,,,,,,,,,,,,,,,,,,,,,,,,
+R134a,333.15,406.2,rejected,subcritical_condensing_temperature_above_critical_guard,,,,,,,,,,,,,,,,,,,,,,,,,
+R134a,333.15,413.15,rejected,subcritical_condensing_temperature_above_critical_guard,,,,,,,,,,,,,,,,,,,,,,,,,
+R134a,338.15,403.15,rejected,subcritical_condensing_temperature_above_critical_guard,,,,,,,,,,,,,,,,,,,,,,,,,
+R134a,338.15,406.2,rejected,subcritical_condensing_temperature_above_critical_guard,,,,,,,,,,,,,,,,,,,,,,,,,
+R134a,338.15,413.15,rejected,subcritical_condensing_temperature_above_critical_guard,,,,,,,,,,,,,,,,,,,,,,,,,
+Ammonia,328.15,403.15,rejected,subcritical_condensing_temperature_above_critical_guard,,,,,,,,,,,,,,,,,,,,,,,,,
+Ammonia,328.15,406.2,rejected,subcritical_condensing_temperature_above_critical_guard,,,,,,,,,,,,,,,,,,,,,,,,,
+Ammonia,328.15,413.15,rejected,subcritical_condensing_temperature_above_critical_guard,,,,,,,,,,,,,,,,,,,,,,,,,
+Ammonia,333.15,403.15,rejected,subcritical_condensing_temperature_above_critical_guard,,,,,,,,,,,,,,,,,,,,,,,,,
+Ammonia,333.15,406.2,rejected,subcritical_condensing_temperature_above_critical_guard,,,,,,,,,,,,,,,,,,,,,,,,,
+Ammonia,333.15,413.15,rejected,subcritical_condensing_temperature_above_critical_guard,,,,,,,,,,,,,,,,,,,,,,,,,
+Ammonia,338.15,403.15,rejected,subcritical_condensing_temperature_above_critical_guard,,,,,,,,,,,,,,,,,,,,,,,,,
+Ammonia,338.15,406.2,rejected,subcritical_condensing_temperature_above_critical_guard,,,,,,,,,,,,,,,,,,,,,,,,,
+Ammonia,338.15,413.15,rejected,subcritical_condensing_temperature_above_critical_guard,,,,,,,,,,,,,,,,,,,,,,,,,
+CarbonDioxide,328.15,403.15,rejected,transcritical_CO2_requires_different_cycle_topology,,,,,,,,,,,,,,,,,,,,,,,,,
+CarbonDioxide,328.15,406.2,rejected,transcritical_CO2_requires_different_cycle_topology,,,,,,,,,,,,,,,,,,,,,,,,,
+CarbonDioxide,328.15,413.15,rejected,transcritical_CO2_requires_different_cycle_topology,,,,,,,,,,,,,,,,,,,,,,,,,
+CarbonDioxide,333.15,403.15,rejected,transcritical_CO2_requires_different_cycle_topology,,,,,,,,,,,,,,,,,,,,,,,,,
+CarbonDioxide,333.15,406.2,rejected,transcritical_CO2_requires_different_cycle_topology,,,,,,,,,,,,,,,,,,,,,,,,,
+CarbonDioxide,333.15,413.15,rejected,transcritical_CO2_requires_different_cycle_topology,,,,,,,,,,,,,,,,,,,,,,,,,
+CarbonDioxide,338.15,403.15,rejected,transcritical_CO2_requires_different_cycle_topology,,,,,,,,,,,,,,,,,,,,,,,,,
+CarbonDioxide,338.15,406.2,rejected,transcritical_CO2_requires_different_cycle_topology,,,,,,,,,,,,,,,,,,,,,,,,,
+CarbonDioxide,338.15,413.15,rejected,transcritical_CO2_requires_different_cycle_topology,,,,,,,,,,,,,,,,,,,,,,,,,

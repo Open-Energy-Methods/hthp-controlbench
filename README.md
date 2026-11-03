@@ -12,7 +12,7 @@ The [research plan v0.5](docs/RESEARCH_PLAN_v0.5.md) is the frozen proposal; it 
 
 ## Research organisation
 
-The planned programme shares one plant model across three independently testable research studies: (I) PI/PID versus MPC; (II) self-optimising control with active-set economics; (III) fluid feasibility and thermal-storage flexibility. Study I includes the synthetic WP5 comparative analysis. Study II now includes a provisional WP6 nonlinear SOC candidate study and a negative degree-of-freedom result for the one-actuator baseline; comprehensive nonlinear/dynamic/noisy-plant SOC validation remains open. Study III (real-fluid/storage) remains a research stage. Their inclusion in the plan does not imply completed calculations.
+The planned programme shares one plant model across three independently testable research studies: (I) PI/PID versus MPC; (II) self-optimising control with active-set economics; (III) fluid feasibility and thermal-storage flexibility. Study I includes the synthetic WP5 comparative analysis. Study II now includes a provisional WP6 nonlinear SOC candidate study and a negative degree-of-freedom result for the one-actuator baseline; comprehensive nonlinear/dynamic/noisy-plant SOC validation remains open. Study III now includes uncalibrated WP7 CoolProp thermodynamic screening and a same-EOS TESPy component-network comparison; practical storage flexibility, measured compressor maps and manufacturer validation remain outstanding. Their inclusion in the plan does not imply completed experimental validation.
 
 ---
 
@@ -63,7 +63,7 @@ With buffer fixed at 130°C and service duty held at 300 kW, the UA exponent aff
 
 ## Verification boundary
 
-The original 13 WP2 executable tests check the nominated synthetic algebra, high-precision HX stability, equilibria for both modes, flow degrees of freedom, physical service classification, the bypass active-set kink, command/actual lag, slew, analytic heat-loss-only decay, timestep convergence, energy integrals and an independently computed trapezoidal energy audit. Tests do **not** establish measured plant fidelity or temperature/pressure/refrigerant validity. All parameter values are assumed, not equipment specifications; real-fluid WP7 is outstanding.
+The original 13 WP2 executable tests check the nominated synthetic algebra, high-precision HX stability, equilibria for both modes, flow degrees of freedom, physical service classification, the bypass active-set kink, command/actual lag, slew, analytic heat-loss-only decay, timestep convergence, energy integrals and an independently computed trapezoidal energy audit. Tests do **not** establish measured plant fidelity or temperature/pressure/refrigerant validity. All WP2 plant parameters remain assumed, not equipment specifications; WP7 adds separate real-fluid property screening but does not recalibrate this synthetic plant.
 
 ## Project organization
 
@@ -85,8 +85,8 @@ The original 13 WP2 executable tests check the nominated synthetic algebra, high
 1. Confirm a complete WP2 operating-envelope test matrix beyond the single nominal point; consider numeric stiffness and adaptive solver cross-check.
 2. Define sensor/measurement noise in a separate observation layer (not injected into conservation equations).
 3. WP3 follow-up: evaluate wider uncertainty distributions, noise correlation, actuator wear models and formal robustness margins; the initial 20-scenario simulation screening is implemented.
-4. WP4 now includes the LTV/QP baseline, explicit trust region, nonlinear rollout check, PI fallback, and a mid-horizon bypass active-set crossing test. Extend the MPC comparison to noisy/delayed measurements, broader uncertainty envelopes and solvers before declaring the control study complete.
-5. WP7: replace assumed compressor/fluid map with real-fluid property and pressure-feasibility work; parameter identification or hardware validation are separate requirements.
+4. WP4 now includes the LTV/QP baseline, nonlinear rollout checks, PI fallback and a noisy/delayed 100-run robustness comparison. Extend to broader hardware-relevant operating envelopes and formal robustness margins before declaring the control study complete.
+5. WP7: build on the property-cycle screen with manufacturer compressor performance data, hardware constraints and true offdesign calibration, then assess whether previously synthetic controller conclusions transfer.
 
 ## Licence and citation
 
@@ -140,7 +140,7 @@ The WP6 script writes an explicit training/held-out active-set ledger, the 27-ro
 
 [WP7 thermodynamic assumptions, tests and limitations](docs/WP7_REALFLUID.md). A new **separate** CoolProp HEOS four-point subcritical cycle evaluates fluid phase limits, evaporating/condensing saturation pressure, compressor discharge, enthalpy-defined COP and modelled mass flow at an **imposed synthetic 310 kW duty**. IF97 water is used for saturation pressure and hypothetical water enthalpy storage; the water HEOS backend provides a cross-backend check.
 
-No WP2–WP6 controller results are silently modified. The reference offdesign map uses an assumed equivalent suction volume-flow relation, not equipment manufacturer displacement, and rejects out-of-range states instead of extrapolating. Real-device compressor efficiency, discharge/pressure limits, working-fluid safety, A separate TESPy network-equation cross-check is now included on Python >=3.11, but independently sourced property data, calibrated offdesign compressor maps and measured validation remain outstanding.
+No WP2–WP6 controller results are silently modified. The reference offdesign map uses an assumed equivalent suction volume-flow relation, not equipment manufacturer displacement, and rejects out-of-range states instead of extrapolating. A separate TESPy network-equation cross-check is included on Python >=3.11, using the same CoolProp EOS. Real-device compressor efficiency, displacement, discharge/pressure limitations, refrigerant safety, independently sourced property validation, calibrated offdesign maps and measured equipment performance remain outstanding.
 
 To run with actual property values:
 
@@ -152,3 +152,13 @@ python scripts/run_wp7.py
 GitHub Actions executes the property model and uploads generated `results/wp7_*` CSV, JSON, Markdown and plot as a downloadable workflow artifact (Python 3.12 job). Missing CoolProp is a hard error in the numeric runner, never replaced with fabricated outputs.
 
 For the separately reproduced TESPy network checks on Python >=3.11: `pip install -e ".[tespy,realfluid]"` and run `python scripts/run_wp7_tespy.py`. TESPy shares CoolProp EOS and this does not validate manufacturer hardware.
+
+**WP7 verified property results (CoolProp 8.0.0, TESPy 0.11.3):**
+[nominal fluid screen](results/wp7_nominal_fluid_screen.csv) ·
+[full 3×3 source/header grid](results/wp7_envelope.csv) ·
+[IF97 water pressure](results/wp7_water_if97.csv) ·
+[offdesign hold-out errors](results/wp7_map_holdout.csv) ·
+[TESPy component-network check](results/wp7_tespy_crosscheck.csv) ·
+[technical report](results/wp7_scientific_report.md) ·
+[precise CI source provenance](results/wp7_cigenerated_provenance.json).
+The verified baseline R1233zd(E) cycle gives COP ~2.511; the specified R1336mzz(Z) case fails the explicit compressor dry-vapour screen. **These are idealized property-equation results, not equipment feasibility or validated controller performance.**

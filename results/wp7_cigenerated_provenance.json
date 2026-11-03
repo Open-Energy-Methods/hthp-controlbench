@@ -1,0 +1,86 @@
+{
+  "artifact_source": "GitHub Actions CoolProp/TESPy generated outputs \u2014 not manually copied values",
+  "repository": "abhijith-sivaprasadan/hthp-controlbench",
+  "source_head_sha": "e77c0aa640db88daa1e2ca4cc4eb2c8113e3a285",
+  "workflow_run_id": 41593366222,
+  "workflow_run_url": "https://github.com/abhijith-sivaprasadan/hthp-controlbench/actions/runs/41593366222",
+  "artifact_id": 13211187676,
+  "artifact_digest_sha256": "b61a9d246e6470922d049947c6a61d7059a492d81bddcb98e0b158f4167458f1",
+  "coolprop_version": "8.0.0",
+  "tespy_version": "0.11.3",
+  "scope": "synthetic assumptions; component-network crosscheck uses the SAME CoolProp EOS; no hardware or manufacturer calibration",
+  "files": [
+    {
+      "path": "results/wp7_cop_temperature.png",
+      "size_bytes": 58501,
+      "sha256": "1903e388c90e3388f284e42ebe555541ae7984b57b6a977acbe485adc8e7c1db",
+      "git_blob_sha": "46636e352721e886ffe2d6da0ea986ccb9db459a"
+    },
+    {
+      "path": "results/wp7_efficiency_approach_sensitivity.csv",
+      "size_bytes": 829,
+      "sha256": "cc6ff627f313643d8620391ada20a653704325a61bf3a242f61738247b000ef7",
+      "git_blob_sha": "fb7f5f59cf1973e9ad7c7a5ffba6b20c86777c24"
+    },
+    {
+      "path": "results/wp7_envelope.csv",
+      "size_bytes": 9155,
+      "sha256": "5dc74f99051ee0a388bac3c425695324c012d1577494d5d73fae0551f6fc8862",
+      "git_blob_sha": "bf06c2224741277650dc0b8840066817f4d6ca5b"
+    },
+    {
+      "path": "results/wp7_map_holdout.csv",
+      "size_bytes": 706,
+      "sha256": "a57055343ba9b742abdd0ec270140192dff7ae3ed29b9eb68e969e565c762d04",
+      "git_blob_sha": "48e277f754be968ed832cb472fe888522c020421"
+    },
+    {
+      "path": "results/wp7_map_reference.csv",
+      "size_bytes": 406,
+      "sha256": "7243eb0f51e65d61463dc376451f9fee04c1a031de61bc688fc452347b594317",
+      "git_blob_sha": "240f70e333b34ade1c5c1fb9dead0bf149aebb5c"
+    },
+    {
+      "path": "results/wp7_nominal_fluid_screen.csv",
+      "size_bytes": 1418,
+      "sha256": "4d937e2741b24fd8c2f59abbfd00e2b14aca22a1a3df56cece4f7f46fd3b9fed",
+      "git_blob_sha": "60d92b728e2778bcc9313dde2cbea893b8f8341a"
+    },
+    {
+      "path": "results/wp7_scientific_report.md",
+      "size_bytes": 3749,
+      "sha256": "1d6eec89d77328a31bd941ec08d0eb04d643fc5783217e21fd5e5376179dcb08",
+      "git_blob_sha": "23fc991154de7f28178842f7a4d4f5682f2ece87"
+    },
+    {
+      "path": "results/wp7_summary.json",
+      "size_bytes": 2266,
+      "sha256": "40a3a17ea7cef73399b9dc32c60d4ba843ad9265199b44d41fef07c967cef784",
+      "git_blob_sha": "6aa002d791bd58553fdf223ae6fa50343dbe5011"
+    },
+    {
+      "path": "results/wp7_synthetic_vs_cycle.csv",
+      "size_bytes": 365,
+      "sha256": "6420d75fe05f10c4ffea0b01b5aa2ce4672fc4c4b3319b851ac36a4833554224",
+      "git_blob_sha": "39a6022027aa4222380c27dcb1755700b3707c58"
+    },
+    {
+      "path": "results/wp7_tespy_crosscheck.csv",
+      "size_bytes": 1517,
+      "sha256": "ecb5c54f329512df100e292e5faceab695dd682bcf160713f25a4320537db022",
+      "git_blob_sha": "dbbb7a08bc9511737662ad79ecfde4565bed5abf"
+    },
+    {
+      "path": "results/wp7_tespy_crosscheck.json",
+      "size_bytes": 3192,
+      "sha256": "a0a095bd5f9edb12dd2440973af19b984043aa2bf4e393edc4bb849cec485ffc",
+      "git_blob_sha": "fb8441a2886445bd5a85534071f1507dfb09a34f"
+    },
+    {
+      "path": "results/wp7_water_if97.csv",
+      "size_bytes": 1174,
+      "sha256": "0860f4bb0ae9dae4969f078a6f543a6177593586c06a4823988c3231cb7dae95",
+      "git_blob_sha": "f6f49bf13dceab511cb5de53fd854ccaab0c9aa8"
+    }
+  ]
+}
