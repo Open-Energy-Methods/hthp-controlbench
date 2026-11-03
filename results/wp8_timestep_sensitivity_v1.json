@@ -1,0 +1,133 @@
+{
+  "benchmark_id": "WP8_Timestep_Sensitivity_v1",
+  "records": [
+    {
+      "dt_s": 60.0,
+      "comparison_status": "conditional_model_comparison_eligible__NOT_EQUIPMENT_VERIFIED",
+      "base_status": "complete",
+      "flex_status": "complete",
+      "creditable_at_this_step": true,
+      "ineligibility_reasons": [],
+      "raw_cost_difference_eur": 0.10674507003642475,
+      "eligible_cost_saving_eur": 0.10674507003642475,
+      "baseline": {
+        "cost_eur": 456.84543464636357,
+        "electricity_kwh": 2963.322097647683,
+        "spec_unserved_kwh": 6.092401842276256e-13,
+        "service_qualified_fraction": 1.0,
+        "residual_energy_j": 6.335601210594177e-05,
+        "final_storage_delta_kwh": -0.08683295718769336,
+        "final_header_energy_delta_kwh": 0.0,
+        "final_total_thermal_energy_delta_kwh": -0.08683295718769336,
+        "final_modulation": 0.7500000000000066,
+        "final_applied_command": 0.7500000000000066
+      },
+      "flexibility": {
+        "cost_eur": 456.73868957632715,
+        "electricity_kwh": 2983.8615932015114,
+        "spec_unserved_kwh": 7.955046991507213e-13,
+        "service_qualified_fraction": 1.0,
+        "residual_energy_j": -2.192944521084428e-05,
+        "final_storage_delta_kwh": -0.08683295714387593,
+        "final_header_energy_delta_kwh": 1.6816178079655703e-11,
+        "final_total_thermal_energy_delta_kwh": -0.08683295712705975,
+        "final_modulation": 0.7500000000014839,
+        "final_applied_command": 0.7500000000014385
+      },
+      "equipment_verified": false
+    },
+    {
+      "dt_s": 30.0,
+      "comparison_status": "conditional_model_comparison_eligible__NOT_EQUIPMENT_VERIFIED",
+      "base_status": "complete",
+      "flex_status": "complete",
+      "creditable_at_this_step": true,
+      "ineligibility_reasons": [],
+      "raw_cost_difference_eur": 0.10677486132368585,
+      "eligible_cost_saving_eur": 0.10677486132368585,
+      "baseline": {
+        "cost_eur": 456.8454356096975,
+        "electricity_kwh": 2963.322103711304,
+        "spec_unserved_kwh": 5.951733328402042e-13,
+        "service_qualified_fraction": 1.0,
+        "residual_energy_j": 4.391110269352794e-05,
+        "final_storage_delta_kwh": -0.08683295718769336,
+        "final_header_energy_delta_kwh": 7.894919286223335e-14,
+        "final_total_thermal_energy_delta_kwh": -0.08683295718761441,
+        "final_modulation": 0.7500000000000262,
+        "final_applied_command": 0.7500000000000261
+      },
+      "flexibility": {
+        "cost_eur": 456.73866074837383,
+        "electricity_kwh": 2983.8616601838266,
+        "spec_unserved_kwh": 8.090864866971969e-13,
+        "service_qualified_fraction": 1.0,
+        "residual_energy_j": -1.4699413441121578e-05,
+        "final_storage_delta_kwh": -0.08683295714355255,
+        "final_header_energy_delta_kwh": 1.6895127272517938e-11,
+        "final_total_thermal_energy_delta_kwh": -0.08683295712665742,
+        "final_modulation": 0.7500000000014855,
+        "final_applied_command": 0.7500000000014415
+      },
+      "equipment_verified": false
+    },
+    {
+      "dt_s": 15.0,
+      "comparison_status": "conditional_model_comparison_eligible__NOT_EQUIPMENT_VERIFIED",
+      "base_status": "complete",
+      "flex_status": "complete",
+      "creditable_at_this_step": true,
+      "ineligibility_reasons": [],
+      "raw_cost_difference_eur": 0.10677597906271785,
+      "eligible_cost_saving_eur": 0.10677597906271785,
+      "baseline": {
+        "cost_eur": 456.84543563679125,
+        "electricity_kwh": 2963.322103881821,
+        "spec_unserved_kwh": 5.551555659621954e-13,
+        "service_qualified_fraction": 1.0,
+        "residual_energy_j": -6.090151146054268e-05,
+        "final_storage_delta_kwh": -0.08683295718769336,
+        "final_header_energy_delta_kwh": 2.368475785867001e-13,
+        "final_total_thermal_energy_delta_kwh": -0.08683295718745652,
+        "final_modulation": 0.7500000000000687,
+        "final_applied_command": 0.7500000000000684
+      },
+      "flexibility": {
+        "cost_eur": 456.73865965772853,
+        "electricity_kwh": 2983.8616620750554,
+        "spec_unserved_kwh": 7.959897629916668e-13,
+        "service_qualified_fraction": 1.0,
+        "residual_energy_j": -1.5978002920746803e-07,
+        "final_storage_delta_kwh": -0.08683295714403762,
+        "final_header_energy_delta_kwh": 1.6816178079655703e-11,
+        "final_total_thermal_energy_delta_kwh": -0.08683295712722143,
+        "final_modulation": 0.7500000000014868,
+        "final_applied_command": 0.7500000000014417
+      },
+      "equipment_verified": false
+    }
+  ],
+  "all_comparisons_creditable": true,
+  "hardware_evidence": "NONE: assumed compressor and water/source/sink limits",
+  "numerical_test": "three nested time steps on the same 24-hour scenario",
+  "model_status": "WP7 map property-calculated, uncalibrated",
+  "numerical_screen": "NUMERICAL_SIGNAL_SCREEN_PASSED__NOT_ECONOMIC_VALIDATION",
+  "savings_deltas_eur": [
+    2.9791287261105026e-05,
+    1.1177390319971892e-06
+  ],
+  "smallest_saving_eur": 0.10674507003642475,
+  "finest_saving_eur": 0.10677597906271785,
+  "shrinking_resolution_differences": true,
+  "conditional_numerical_resolution": true,
+  "mathematical_convergence_order_established": false,
+  "equipment_financial_saving_claim": false,
+  "coolprop_version": "8.0.0",
+  "fluid": "R1233zd(E)",
+  "tariff_eur_per_kwh": {
+    "low": 0.06,
+    "high": 0.4,
+    "regular": 0.16
+  },
+  "description": "Actual IF97/CoolProp numerical time-step sensitivity; no OEM data"
+}

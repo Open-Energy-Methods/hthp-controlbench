@@ -1,0 +1,45 @@
+name: Audit WP8 timestep sensitivity (real property calculation)
+
+on:
+  push:
+    branches:
+      - audit-a08-wp8-timestep-sensitivity
+    paths:
+      - .github/workflows/audit-wp8-timestep.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: audit-wp8-timestep
+  cancel-in-progress: false
+
+jobs:
+  three-level-coolprop:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install real-fluid dependencies
+        run: python -m pip install -e '.[realfluid]'
+      - name: Validate numerical-screen failure modes
+        run: python -m unittest discover -s tests -p 'test_wp8_timestep.py' -v
+      - name: Recompute 24h at 60, 30 and 15 second time steps
+        run: python scripts/run_wp8_timestep.py
+      - name: Commit actual generated study results
+        shell: bash
+        run: |
+          test -s results/wp8_timestep_sensitivity_v1.json
+          test -s results/wp8_timestep_sensitivity_v1.md
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -f results/wp8_timestep_sensitivity_v1.json results/wp8_timestep_sensitivity_v1.md
+          git diff --cached --quiet && { echo 'Numerical study already identical'; exit 0; }
+          git commit -m 'data: publish WP8 time-step sensitivity with actual CoolProp runs'
+          git push origin HEAD:audit-a08-wp8-timestep-sensitivity
