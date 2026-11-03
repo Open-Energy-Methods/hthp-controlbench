@@ -93,7 +93,7 @@ def manifest(out: Path) -> dict:
         "note": "Historical flat results/wp3*, wp4*, wp5* remain the uncorrected L1 benchmark v1.",
         "source_sha256": {p: checksum(ROOT / p) for p in SOURCE_FILES},
         "result_sha256": {p.name: checksum(p) for p in sorted(out.iterdir()) if p.is_file()
-                          and p.name != "manifest.json"},
+                          and p.name not in ("manifest.json", "BENCHMARK_README.md")},
         "environment": {"python": platform.python_version(), "numpy": version("numpy"),
                         "scipy": version("scipy")},
         "scenario_runs": validated["source_rows"],
