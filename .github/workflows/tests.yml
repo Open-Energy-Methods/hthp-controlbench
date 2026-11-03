@@ -64,3 +64,19 @@ jobs:
             results/wp7_*.png
           if-no-files-found: error
           retention-days: 90
+
+      - name: Reproduce WP8 storage feasibility and tariff scenarios
+        if: matrix.python-version == '3.12'
+        run: python scripts/run_wp8.py --full
+      - name: Upload WP8 generated reports
+        if: matrix.python-version == '3.12'
+        uses: actions/upload-artifact@v4
+        with:
+          name: wp8-thermal-storage-flexibility
+          path: |
+            results/wp8_*.csv
+            results/wp8_*.json
+            results/wp8_*.md
+            results/wp8_*.png
+          if-no-files-found: error
+          retention-days: 90

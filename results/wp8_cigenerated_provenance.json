@@ -1,0 +1,69 @@
+{
+  "artifact_digest": "sha256:76cd3c8f8777bf14f8906b9ecb00f097ae2cc067fa8afc994e1f74067e706d06",
+  "artifact_id": 13232381358,
+  "artifacts": [
+    {
+      "bridge_index": 0,
+      "bytes": 60633,
+      "git_blob_sha": "f7db57bdd9f8b733d89e58a64e6d44079d425d40",
+      "path": "results/wp8_buffer_trace.png",
+      "sha256": "83b50ff475ec2c0bdbbe02cf4fa9d468fea13763555930d36187f78b184a0444"
+    },
+    {
+      "bridge_index": 1,
+      "bytes": 43106,
+      "git_blob_sha": "62a0a4efeb92d06ed10b51e8dfef4bec09d6d43e",
+      "path": "results/wp8_cost_comparison.png",
+      "sha256": "795cdf3b382bb0b78794382370289ddaa1d13264971b58b5bb4a90a035b31908"
+    },
+    {
+      "bridge_index": 2,
+      "bytes": 3231,
+      "git_blob_sha": "73425fca892ca2c3b5b1996221f81976385fec76",
+      "path": "results/wp8_price_scenarios.csv",
+      "sha256": "9823e029c576c50e1de4b42caced831a61a43df2ac5d2d9795f7a8fa4521a3b2"
+    },
+    {
+      "bridge_index": 3,
+      "bytes": 185333,
+      "git_blob_sha": "8f007e21807ae673a12cf787aa0393fa810325b5",
+      "path": "results/wp8_reference_trace.csv",
+      "sha256": "2e8b0150a3065369183961791325154ab9d1a5c1ea047619d90a4c5e527f20dd"
+    },
+    {
+      "bridge_index": 4,
+      "bytes": 70006,
+      "git_blob_sha": "e77f9406d67e72dc08b089dcb3e18d7fdaa3f71d",
+      "path": "results/wp8_scenario_savings.png",
+      "sha256": "9a135f7afc07cc916347d46bb19091c805bfe8c599a454e97d32d0eb139b8c89"
+    },
+    {
+      "bridge_index": 5,
+      "bytes": 4144,
+      "git_blob_sha": "3d0c45cfc5530f32258af24fd7c182182604fa87",
+      "path": "results/wp8_scientific_report.md",
+      "sha256": "06253442a470764915c7a8360760285885ab8f3014fdbeec688059ccde1e65b6"
+    },
+    {
+      "bridge_index": 6,
+      "bytes": 1085,
+      "git_blob_sha": "e519ae33f922a601c208a2967518e329a8ef0251",
+      "path": "results/wp8_storage_bands.csv",
+      "sha256": "fb9fb3035973178fae13648a0b750416164a2cc57867a5d97bb587a6320af1cd"
+    },
+    {
+      "bridge_index": 7,
+      "bytes": 13684,
+      "git_blob_sha": "abfdb979647897a07750025e2a7baa33df3468e8",
+      "path": "results/wp8_summary.json",
+      "sha256": "e6e16f4ac3f0e261bd9524623e091085cae6168376eff4e7bfffabb951779d6e"
+    }
+  ],
+  "head_sha": "5260fa247e75b592607b4d076ba218d066f9652e",
+  "reported_savings": "conditional model-only; reject incomplete, physical service loss or terminal inventory mismatch",
+  "repository": "abhijith-sivaprasadan/hthp-controlbench",
+  "result_kind": "GitHub Actions generated CoolProp/IF97 results; not manually transcribed",
+  "scope": "WP8 synthetic tariff and WP7 property-based finite storage; no equipment calibration",
+  "workflow_run_id": 41639238973,
+  "workflow_run_url": "https://github.com/abhijith-sivaprasadan/hthp-controlbench/actions/runs/41639238973"
+}
