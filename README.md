@@ -7,9 +7,12 @@
 > amplitude estimator has been corrected to use settled oscillation peaks,
 > rather than the relay switching thresholds. Historic committed WP3–WP5
 > controller comparisons were generated with the *previous* relay tune;
-> they are **legacy results and must not be cited as current corrected
-> comparisons** until the versioned WP3–WP5 regeneration is published.
-> See [the A01 methods note](docs/AUDIT_A01_RELAY_CORRECTION.md).
+> the root-level files remain **legacy results**. The corrected, CI-replayed
+> [L1_RelayPeak_v2 benchmark](results/L1_RelayPeak_v2/manifest.json) is now
+> published separately (100 WP4 runs, 0 numerical failures, relay Kp ≈ 0.20117).
+> Only that versioned matrix supports corrected L1 comparisons; it is still
+> **synthetic**, not an equipment or real-fluid-control benchmark. See
+> [the A01 methods note](docs/AUDIT_A01_RELAY_CORRECTION.md).
 
 **Current implementation: WP2 synthetic plant + WP3 independently tuned PI and robustness + WP4 constrained MPC and OSQP audit + WP5 scenario-wise comparative synthesis + WP6 synthetic SOC/active-set screening + WP7 real-fluid property-cycle screening (uncalibrated).** Two independent tuning methods, anti-windup, and reproducible noise, delay, parameter-mismatch and actuator-saturation comparisons are implemented. Physical PID tuning and real-fluid **equipment calibration** are **not** implemented or validated. WP6 implements **exploratory nonlinear steady-state SOC candidate evaluation** using an explicitly hypothetical second hot-loop circulation actuator, plus a limited dynamic/noisy pilot; it is not a validated industrial SOC structure or a proof of nonlinear dynamic SOC optimality. WP4/WP5/WP6 conclusions are simulation-only.
 
@@ -58,9 +61,9 @@ Outputs: `results/wp2_illustrative_timeseries.csv`, `results/ua_sensitivity.csv`
 
 ## WP3 simulation-only PI baseline (implemented)
 
-[Read the WP3 methods, tuning and limitations](docs/WP3_PI_CONTROL.md). WP3 implements bounded PI with anti-windup and bumpless initialization on the unchanged WP2 plant; it estimates gains independently from a simulated FOPDT step response and relay oscillation, with three IMC lambda settings and a relay-derived PI. The 4-hour synthetic comparison and transfer to bypass-controlled operation are reported in [results/wp3_pi_comparison.csv](results/wp3_pi_comparison.csv) and [results/wp3_identification.txt](results/wp3_identification.txt). This is **not** experimental PI/PID tuning or validated control of heat-pump hardware.
+[Read the WP3 methods, tuning and limitations](docs/WP3_PI_CONTROL.md). WP3 implements bounded PI with anti-windup and bumpless initialization on the unchanged WP2 plant; it estimates gains independently from a simulated FOPDT step response and relay oscillation, with three IMC lambda settings and a relay-derived PI. The corrected four-hour comparison and transfer to bypass-controlled operation are in [the versioned WP3 table](results/L1_RelayPeak_v2/wp3_pi_comparison.csv) and [identification report](results/L1_RelayPeak_v2/wp3_identification.txt). Root-level equivalents are legacy v1. This is **not** experimental PI/PID tuning or validated control of heat-pump hardware.
 
-**WP3 robustness extension:** [Methods and limitations](docs/WP3_ROBUSTNESS.md) · [full 80-run matrix](results/wp3_robustness_matrix.csv) · [machine-readable summary](results/wp3_robustness_summary.json). Four tuning variants were compared across 20 predeclared synthetic scenarios covering paired sensor noise, 60/180-s measurement delays, ±20% plant perturbations, combined uncertainties, severe capacity saturation, temporary setpoint-excursion recovery, and transfer to bypass mode. In this particular synthetic suite the relay-derived PI had lower tracking IAE in 17/20 scenarios, but was more sensitive to delayed/noisy measurements and produced substantially greater command movement. This is **not** an equipment performance or controller robustness certification.
+**WP3 robustness extension:** [Methods and limitations](docs/WP3_ROBUSTNESS.md) · [corrected 80-run matrix](results/L1_RelayPeak_v2/wp3_robustness_matrix.csv) · [machine-readable summary](results/L1_RelayPeak_v2/wp3_robustness_summary.json). Four tuning variants were compared across 20 predeclared synthetic scenarios covering paired sensor noise, 60/180-s measurement delays, ±20% plant perturbations, combined uncertainties, severe capacity saturation, temporary setpoint-excursion recovery, and transfer to bypass mode. In the corrected v2 synthetic suite the relay-derived PI had lower tracking IAE in 19/20 scenarios, but was more sensitive to delayed/noisy measurements and produced substantially greater command movement. This is **not** an equipment performance or controller robustness certification.
 
 **Caution:** The WP2 example simulates scripted changes at 20 min (process return), 30 min (open-loop compressor command), and 40 min (source temperature). It does not establish tracking, stability under a real controller, or comparative controller performance.
 
@@ -105,11 +108,11 @@ Code is published under the MIT License; see [LICENSE](LICENSE). Citation metada
 
 [Read the MPC methods, fairness protocol, results and limits](docs/WP4_MPC.md). WP4 constructs a new locally linearized plant and affine **joint electrical-power** model every 120 seconds, solves a convex-QP-structured constrained receding-horizon problem with SciPy SLSQP, checks the solution against a nonlinear model rollout, and retries/returns to bounded PI when a model or solver check fails. This is **not** a certified MPC safety controller.
 
-Reproduce with `python scripts/run_wp4.py` after installing dependencies. Results: [full study CSV](results/wp4_control_comparison.csv), [JSON summary](results/wp4_control_summary.json), [plot](results/wp4_control_comparison.png). The fair persistence case and the artificially perfect future-forecast case are labelled separately. PI can outperform MPC under model mismatch; no real-world heat-pump advantage has been established.
+Reproduce with `python scripts/run_wp4.py` after installing dependencies. The existing [full study CSV](results/wp4_control_comparison.csv), [JSON summary](results/wp4_control_summary.json) and [plot](results/wp4_control_comparison.png) remain legacy v1; the source script now identifies the corrected relay gain dynamically, but these short-study artifacts must be separately regenerated. The fair persistence case and the artificially perfect future-forecast case are labelled separately. PI can outperform MPC under model mismatch; no real-world heat-pump advantage has been established.
 
 ## WP4 robustness + solver audit (new extension)
 
-[WP4 robustness and QP audit methods](docs/WP4_ROBUSTNESS_AND_QP_AUDIT.md) · [20-case/5-method matrix](results/wp4_robustness_matrix.csv) · [summary](results/wp4_robustness_summary.json) · [figure](results/wp4_robustness_comparison.png).
+[WP4 robustness and QP audit methods](docs/WP4_ROBUSTNESS_AND_QP_AUDIT.md) · [corrected 20-case/5-method matrix](results/L1_RelayPeak_v2/wp4_robustness_matrix.csv) · [summary](results/L1_RelayPeak_v2/wp4_robustness_summary.json) · [figure](results/L1_RelayPeak_v2/wp4_robustness_comparison.png).
 The robustness comparison now runs all PI and MPC methods with one identical noisy/delayed buffer-temperature sensor, an identical 120-second controller update period, a nominal-model-based estimate for MPC's unmeasured states, and independently reported perfect-forecast scenarios. On the synthetic predeclared set, MPC has lower IAE in 14 of 20 cases; relay-derived PI leads the other six. Severe physical compressor derating causes service failure under every controller. **No experiment or robust-stability proof is implied.**
 
 A dedicated **optional OSQP QP backend** was added alongside SciPy SLSQP. Install `pip install -e '.[plots,qp]'` and run `python scripts/run_wp4_solver_audit.py`; GitHub Actions executes both solver checks and the full robustness matrix. Backend equivalence is a numerical check, not a hardware/real-time guarantee.
@@ -117,7 +120,7 @@ A dedicated **optional OSQP QP backend** was added alongside SciPy SLSQP. Instal
 
 ## WP5 — service-gated PI/MPC comparative analysis (implemented)
 
-[WP5 research methods and limitations](docs/WP5_COMPARATIVE_STUDY.md) · [generated full comparative report](results/wp5_comparative_report.md) · [paired comparison CSV](results/wp5_paired_comparisons.csv) · [case-level quality screening](results/wp5_case_comparison.csv) · [synthetic IAE contrasts](results/wp5_paired_tracking.png) · [energy contrasts only for service-compliant pairs](results/wp5_eligible_energy.png).
+[WP5 research methods and limitations](docs/WP5_COMPARATIVE_STUDY.md) · [corrected full comparative report](results/L1_RelayPeak_v2/wp5_comparative_report.md) · [paired comparison CSV](results/L1_RelayPeak_v2/wp5_paired_comparisons.csv) · [case-level quality screening](results/L1_RelayPeak_v2/wp5_case_comparison.csv) · [synthetic IAE contrasts](results/L1_RelayPeak_v2/wp5_paired_tracking.png) · [energy contrasts only for service-compliant pairs](results/L1_RelayPeak_v2/wp5_eligible_energy.png).
 
 WP5 uses **the existing** WP4 twenty-case/five-method numerical matrix; no new plant calibration or controller tuning is introduced. All **100 runs** were numerically complete, but both 20%-lower-process-UA and severe 40%-compressor-derating cases failed specification-qualified service for every controller. In the raw unconditional IAE ranking, MPC leads **14/20** scenarios and relay PI **6/20**. When both simulated process service and physical heat transfer are required, **MPC leads 13 of the 18 scenarios with any qualified method**, relay PI 5. This is a count over deliberately selected, correlated synthetic cases—not a statistical probability or demonstration of industrial performance.
 
