@@ -107,9 +107,9 @@ def main():
         lines.append(f"| {r['case']} | {r['controller']} | {r['status']} | {fmt('iae_Ks')} | "
                      f"{fmt('electricity_kWh')} | {fmt('unserved_spec_heat_kWh')} | {r['pi_fallbacks']} |")
     lines.extend(["","## Matched paired interpretations","",
-                  "Electricity comparisons are reported only when both runs are numerically complete and meet the full simulated service gate. No tariff, OEM capacity or statistical confidence claim is made.","",
-                  "| Scenario | PI baseline | Both service eligible? | ΔIAE (K s) | Conditional Δelectricity (kWh) |",
-                  "|---|---|---|---:|---:|"])
+                  "Electricity comparisons require complete simulations, qualified service, independently matched final thermal inventories and matched final actuator states. Raw electricity differences outside these gates remain diagnostics only. No tariff, OEM capacity or statistical confidence claim is made.","",
+                  "| Scenario | PI baseline | Both service eligible? | Terminal equivalent? | Electricity comparable? | ΔIAE (K s) | Conditional Δelectricity (kWh) |",
+                  "|---|---|---|---|---:|---:|"])
     for row in pairs:
         da=row["delta_IAE_Ks"];de=row["delta_electricity_kWh"]
         lines.append(f"| {row['case']} | {row['baseline']} | {row['both_service_eligible']} | {row['terminal_equivalent']} | {row['eligible_for_conditional_electricity_comparison']} | "
