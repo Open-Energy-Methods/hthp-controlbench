@@ -2,7 +2,7 @@
 
 **Research software for the comparative study of PI/PID, model-predictive and self-optimising control of industrial high-temperature heat pumps.**
 
-**Start here for an external research review:** [concise research snapshot](docs/INDUSTRIAL_HTHP_CONTROL_RESEARCH_SNAPSHOT.md) · [WP7 model-mismatch stress test](results/wp7_model_mismatch_v3_report.md) · [independent empirical-evidence audit](results/wp7_external_empirical_evidence_v1.md). These are computational research studies **without pilot-scale or OEM validation**; the reports preserve failures and negative electricity results.
+**Read the researcher's limitations first:** [critical self-audit](docs/RESEARCHER_RED_TEAM_AUDIT_2026_11_03.md) · [terminal-inventory sensitivity](results/wp7_comparability_claim_audit_v4.md). The original 0.5 kWh thermal-equivalence gate admits 4/10 v3 electricity comparisons; tightening it to 0.1 kWh admits only 1/10. This is a software/model research sample, **not validated industrial evidence**.\n\n**Start here for an external research review:** [concise research snapshot](docs/INDUSTRIAL_HTHP_CONTROL_RESEARCH_SNAPSHOT.md) · [WP7 model-mismatch stress test](results/wp7_model_mismatch_v3_report.md) · [independent empirical-evidence audit](results/wp7_external_empirical_evidence_v1.md). These are computational research studies **without pilot-scale or OEM validation**; the reports preserve failures and negative electricity results.
 
 
 > **Verification correction (audit A01, 2026-11-03):** The WP3 relay
