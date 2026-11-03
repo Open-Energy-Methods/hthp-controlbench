@@ -182,12 +182,36 @@
         "minimum_flow_kg_s_ideal_no_pinches": 2.960761043938653,
         "interpretation": "ARITHMETIC_ONLY; actual fluid/flow/approaches unknown"
       }
+    },
+    "sink_temperature_rise_sensitivity": {
+      "sink_delta_10K": {
+        "water_cp_assumed_j_kgK": 4200.0,
+        "minimum_flow_kg_s_ideal_no_pinches": 7.380952380952381,
+        "interpretation": "ARITHMETIC_ONLY; actual sink inlet/outlet/pressure/UA unknown"
+      },
+      "sink_delta_20K": {
+        "water_cp_assumed_j_kgK": 4200.0,
+        "minimum_flow_kg_s_ideal_no_pinches": 3.6904761904761907,
+        "interpretation": "ARITHMETIC_ONLY; actual sink inlet/outlet/pressure/UA unknown"
+      },
+      "sink_delta_30K": {
+        "water_cp_assumed_j_kgK": 4200.0,
+        "minimum_flow_kg_s_ideal_no_pinches": 2.4603174603174605,
+        "interpretation": "ARITHMETIC_ONLY; actual sink inlet/outlet/pressure/UA unknown"
+      }
     }
   },
   "finite_source_test": {
     "status": "UNVERIFIED_SOURCE_FLOW_OR_TEMPERATURE",
     "required_evaporator_w": 186527.94576813513,
     "necessary_source_heat_upper_bound_w": null,
+    "minimum_flow_kg_s_given_temperature_range": null,
+    "heat_exchanger_verified": false
+  },
+  "finite_sink_test": {
+    "status": "UNVERIFIED_SINK_FLOW_OR_TEMPERATURE",
+    "required_condenser_w": 310000.0,
+    "necessary_sink_heat_upper_bound_w": null,
     "minimum_flow_kg_s_given_temperature_range": null,
     "heat_exchanger_verified": false
   },

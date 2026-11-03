@@ -32,12 +32,22 @@ rows are copied into the repository. License CC BY 4.0; give attribution.
 | 10 K | 4.441 kg/s |
 | 15 K | 2.961 kg/s |
 
+The separate heat-sink capacity screen is also **UNVERIFIED**.
+Illustrative water-based required condenser-side flows are only
+necessary enthalpy arithmetic (not measured or pressure/HX qualified):
+
+| Assumed available sink temperature rise | Ideal necessary sink flow |
+|---:|---:|
+| 10 K | 7.381 kg/s |
+| 20 K | 3.690 kg/s |
+| 30 K | 2.460 kg/s |
+
 ## What blocks actual equipment and observer acceptance
 
 - **14/14 required asset-matched evidence sections missing**: no nominated OEM compressor,
 independent efficiency/displacement/pressure envelope, source/sink mass
 flow and heat-exchanger capacities, instrument calibration, safety basis.
-- Independent source/sink flow was **not supplied**, so the necessary
+- Independent source **and sink** flows were **not supplied**, so the necessary
 energy bound itself is UNVERIFIED, despite the illustrative flow table.
 - No independent, time-aligned HEADER-temperature and ACTUAL modulation
 trace from a configured matching HTHP; v2 observer validation currently
