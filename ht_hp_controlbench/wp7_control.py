@@ -84,6 +84,8 @@ def run_property_controller(
     sensor_period_s: float = 60.0, control_period_s: float = 120.0,
     props=None, force_mpc_failure: bool = False,
     observer_backend: str = "auto",
+    truth_parameters: Parameters | None = None,
+    benchmark_id: str = BENCHMARK,
 ) -> dict:
     """Run a fixed-gain PI or MPC against the exact same property-map dynamic truth.
 
@@ -91,8 +93,13 @@ def run_property_controller(
     sensor sample/noise/delay. The open-loop WP2 observer predicts header and
     actuator states from known commands. Initial state is a common design prior
     and is the only point where the experiment grants both true unmeasured states.
+    Optional truth_parameters changes only the physical truth balances and HX,
+    while the observer/controller retain nominal p. This tests declared
+    synthetic model/plant mismatch, not equipment-identified uncertainty.
     Unreachable property states fail closed and disqualify the ENTIRE run.
     """
+    if not isinstance(benchmark_id,str) or not benchmark_id.strip():
+        raise ValueError("nonempty benchmark identifier required")
     if method not in ("PI_IMC", "PI_relay", "MPC_persistence", "MPC_property"):
         raise ValueError("unknown WP7 controller")
     if observer_backend not in ("auto","synthetic","property"):
@@ -118,6 +125,15 @@ def run_property_controller(
     p = replace(Parameters(hx_mode="duty_limiter"),
                 n_min=max(0., model.modulations[0]),
                 n_max=min(1., model.modulations[-1]))
+    p_truth = truth_parameters if truth_parameters is not None else p
+    # Keep the actual compressor command, rate limits and declared map domain
+    # identical across the nominal observer and perturbed truth plant.
+    # This extension tests dynamics/HX model errors, NOT actuator/OEM limits.
+    if (p_truth.hx_mode != p.hx_mode or
+        p_truth.n_min != p.n_min or p_truth.n_max != p.n_max or
+        p_truth.max_command_step != p.max_command_step or
+        p_truth.flow_mode != p.flow_mode):
+        raise ValueError("WP7 mismatch experiment cannot alter actuator, flow mode, or service architecture")
     props = props if props is not None else coolprop_backend()
     if pi_settings is not None:
         setting = pi_settings
@@ -126,7 +142,7 @@ def run_property_controller(
         setting = (nominal_tunings_dict["relay_PI"] if method == "PI_relay"
                    else nominal_tunings_dict["IMC_lambda_0p5tau"])
     d0 = _disturbance(0., case)
-    initial = hold_service_at_buffer(403.15, model, p, d0, props=props)
+    initial = hold_service_at_buffer(403.15, model, p_truth, d0, props=props)
     if not initial["status"].startswith("same_service_property_feasible"):
         raise PointRejected("no_property_backed_initial_equilibrium:" + initial["status"])
     x0 = State(initial["t_header_k"],403.15,initial["required_modulation"])
@@ -181,19 +197,19 @@ def run_property_controller(
 
     def stage(v, u, d):
         header, enthalpy, n = v[:3]
-        if n < p.n_min-1e-8 or n > p.n_max+1e-8:
+        if n < p_truth.n_min-1e-8 or n > p_truth.n_max+1e-8:
             raise PointRejected("physical_modulation_outside_declared_grid")
         tb = tb_of(v)
         # Enforce IF97 liquid margin at each physical integrator stage.
         water_loop_state(tb,model.assumptions,props)
         qhp,pel,_ = model.evaluate(float(n),d.t_source,float(header))
-        hx = heat_exchanger(tb,p,d)
-        qhb = p.khb*(header-tb)
-        lh = p.ua_h*(header-d.t_ambient)
-        lb = p.ua_b*(tb-d.t_ambient)
-        return np.array([(qhp-qhb-lh)/p.c_h,
+        hx = heat_exchanger(tb,p_truth,d)
+        qhb = p_truth.khb*(header-tb)
+        lh = p_truth.ua_h*(header-d.t_ambient)
+        lb = p_truth.ua_b*(tb-d.t_ambient)
+        return np.array([(qhp-qhb-lh)/p_truth.c_h,
                          (qhb-hx.q_transferred-lb)/WATER_MASS_KG,
-                         (u-n)/p.tau_n,
+                         (u-n)/p_truth.tau_n,
                          qhp,pel,hx.q_transferred,lh,lb],float)
 
     times = int(round(duration_s/step_s))
@@ -240,7 +256,7 @@ def run_property_controller(
                     max_slew = max(max_slew,abs(next_applied-applied))
                     applied = next_applied
                     decisions.append((t,applied))
-            hx = heat_exchanger(true_tb,p,d)
+            hx = heat_exchanger(true_tb,p_truth,d)
             k1=stage(y,applied,d)
             k2=stage(y+.5*step_s*k1,applied,d)
             k3=stage(y+.5*step_s*k2,applied,d)
@@ -265,7 +281,7 @@ def run_property_controller(
             statuses[decision.status] = statuses.get(decision.status,0)+1
     complete = failure is None and finished_steps == times
     # Full-horizon metrics must be null on failure; partial runs cannot win.
-    residual = (p.c_h*(y[0]-x0.th) + WATER_MASS_KG*(y[1]-h0)
+    residual = (p_truth.c_h*(y[0]-x0.th) + WATER_MASS_KG*(y[1]-h0)
                 - y[3] + y[5] + y[6] + y[7])
     if complete and abs(residual)>1.0:
         complete = False
@@ -274,8 +290,15 @@ def run_property_controller(
                     and energy_spec_unserved <= 3.6
                     and energy_physical_shortfall <= 3.6)
     return {
-        "benchmark_id": BENCHMARK, "case":case.name, "controller":method,
-        "plant":"WP7 CoolProp condenser Q/P map + IF97 enthalpy; UNCALIBRATED",
+        "benchmark_id": benchmark_id, "case":case.name, "controller":method,
+        "plant":("WP7 CoolProp condenser Q/P map + IF97 enthalpy; UNCALIBRATED" +
+                 (" | truth-only HX/actuator-dynamics mismatch" if p_truth != p else "")),
+        "truth_model_mismatch":p_truth != p,
+        "truth_parameter_ratios_to_nominal":{
+            key:float(getattr(p_truth,key)/getattr(p,key))
+            for key in ("ua_proc","khb","tau_n","c_h","ua_h","ua_b","c_hot")
+            if getattr(p_truth,key)!=getattr(p,key)
+        },
         "mpc_predictor":("WP7 CoolProp/IF97 enthalpy and condenser map" if method=="MPC_property"
                          else "WP2 synthetic nominal model (not WP7 property-derived)"), 
         "observer_model":("WP7 property enthalpy state predictor" if use_property_observer
@@ -303,9 +326,9 @@ def run_property_controller(
         "matched_service_gate":eligible,
         # Final inventories MUST be matched for a valid paired energy claim:
         # an identical process service alone can consume stored heat instead.
-        "final_header_energy_delta_kWh":float(p.c_h*(y[0]-x0.th)/3.6e6) if complete else None,
+        "final_header_energy_delta_kWh":float(p_truth.c_h*(y[0]-x0.th)/3.6e6) if complete else None,
         "final_buffer_energy_delta_kWh":float(WATER_MASS_KG*(y[1]-h0)/3.6e6) if complete else None,
-        "final_total_energy_delta_kWh":float((p.c_h*(y[0]-x0.th)+WATER_MASS_KG*(y[1]-h0))/3.6e6) if complete else None,
+        "final_total_energy_delta_kWh":float((p_truth.c_h*(y[0]-x0.th)+WATER_MASS_KG*(y[1]-h0))/3.6e6) if complete else None,
         "final_compressor_modulation":float(y[2]) if complete else None,
         "final_applied_command":float(applied) if complete else None,
         "max_energy_residual_J":float(abs(residual)) if complete else None,
@@ -335,6 +358,8 @@ def compare_property_pair(pi: dict, mpc: dict,
     """
     if pi["case"] != mpc["case"] or pi["controller"] not in ("PI_IMC","PI_relay") or mpc["controller"] not in ("MPC_persistence","MPC_property"):
         raise ValueError("invalid WP7 paired comparison identity")
+    if pi.get("truth_parameter_ratios_to_nominal",{}) != mpc.get("truth_parameter_ratios_to_nominal",{}):
+        raise ValueError("different truth-plant parameter scenarios cannot be compared")
     for key in ("duration_s","sample_period_s","control_period_s","sensor_delay_s",
                 "sensor_noise_sd_k","seed","plant","measurement","benchmark_id"):
         if pi[key] != mpc[key]:
