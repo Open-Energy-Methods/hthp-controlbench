@@ -7,11 +7,12 @@ from __future__ import annotations
 from pathlib import Path
 import csv
 import json
+import os
 
 from ht_hp_controlbench.wp5_analysis import analyze, load_matrix, METHODS, MPC, RELAY
 
 ROOT=Path(__file__).resolve().parents[1]
-RESULTS=ROOT/'results'
+RESULTS=Path(os.environ.get('HTHP_RESULTS_DIR',str(ROOT/'results')))
 SOURCE=RESULTS/'wp4_robustness_matrix.csv'
 
 
@@ -29,15 +30,20 @@ def fmt(value, digits=2):
 def report(data):
     cs={r['method']:r for r in data['controller_summary']}
     n=len(data['cases']);miss=len(data['failed_runs'])
+    idx={r['case']:r for r in data['per_case']}
+    nominal=idx['nominal']
+    severe=idx['severe_actuator_capacity_minus40pct']
+    energy_delta=nominal.get('MPC_minus_relay_electricity_kWh')
+    benchmark=data.get('benchmark_id','legacy L1 benchmark v1 (unverified historical data)')
     lines=['# WP5 — Comparative assessment: PI versus constrained MPC', '',
-      '**Scope:** synthetic, uncalibrated HTHP-shaped thermal plant; versioned WP4 scenario matrix. No industrial validation, real-fluid-cycle calibration or formal stability certificate.', '',
+      f'**Benchmark:** `{benchmark}`. Synthetic, uncalibrated HTHP-shaped plant; versioned WP4 scenario matrix. No industrial validation, real-fluid-cycle calibration or formal stability certificate.', '',
       '## Protocol and scope of the comparison','',
       '- **Input:** exactly 20 declared WP3/WP4 scenarios × 5 fixed controllers, with a common nonlinear truth plant, one noisy/delayed buffer-temperature observation, 60-s sensing and 120-s command interval. MPC uses a nominal-model predictor for unmeasured states; PI does not need this additional model.',
       '- **Future information:** this primary 100-run dataset uses disturbance persistence for MPC, not perfect future disturbance forecasts. Perfect-forecast sensitivity belongs in a separate analysis.',
       '- **Tuning:** the four PI gains and MPC weights are carried over from WP3/WP4. They are *not* retuned or re-optimised using the cases here.',
       '- **Primary outcome:** IAE in K·s; secondary outcomes are electrical energy (kWh), total command variation, specification-qualified service, physical thermal shortfall, actual MPC fallback events and solver acceptance.',
       '- **Predeclared service gate for conditional electricity comparison:** quality fraction ≥ 1−10⁻⁹, unserved specification energy ≤10⁻⁶ kWh and physical heat shortfall ≤10⁻⁶ kWh for **both** controllers. These are analytical bookkeeping tolerances, not industrial process or safety acceptance limits.',
-      '- **Missing/failing runs:** failures are preserved and explicitly reported. No finite-error comparison is imputed for an incomplete case. There are no such failures in this saved matrix.',
+      f'- **Missing/failing runs:** {miss} failed numerical runs; failures remain in the ledger and never receive imputed comparisons.',
       '- **Statistical status:** this is a deliberately selected, correlated set of deterministic scenarios and three noise seeds per noise level. Case counts and group medians are descriptive, **not** empirical probabilities, confidence intervals or significance tests.',
       '- **Energy is not cost:** no measured tariffs, emission factors, or equivalent service-value accounting exist in the matrix. No economic ranking is claimed.',
       '', '## Headline results', '',
@@ -67,10 +73,10 @@ def report(data):
         lines.append(f'| `{name}` | {fmt(r["MPC_minus_relay_iae_pct"],1)} | {fmt(r["MPC_minus_relay_electricity_kWh"],2)} | {fmt(r["MPC_minus_relay_command_variation"],2)} | {"yes" if r["MPC_qualified_for_energy_comparison"] else "NO — noncompliant"} | {r["MPC_pi_fallbacks"]} |')
     lines += ['', '### Failure modes and conditional interpretation', '',
       '1. **Loss of process heat-transfer UA (`process_UA_minus20pct`):** despite successful numerical completion, process service fails across the controller set. Lower electricity would be uninterpretable as an efficiency improvement. Temperature tracking (buffer setpoint IAE) and process service are different objectives; a controller may achieve one without the other.',
-      '2. **Severe compressor derating (`severe_actuator_capacity_minus40pct`):** physical supply is insufficient. The MPC reports 48 PI fallback events out of 120 decisions; other methods also fail required service. This is an equipment-feasibility limit, not controller success.',
-      '3. **Moderate capacity model mismatch:** relay PI outperforms MPC in IAE for ±20% compressor-capacity cases. No claim of globally superior predictive control is supported.',
-      '4. **Measurement delay/noise:** MPC performs better on IAE in the isolated delay and seeded noise cases, but it is not universally superior under combined noise, delay and capacity mismatch.',
-      '5. **Actuator effort and electrical energy:** nominal MPC consumes approximately 0.67 kWh more than relay PI over the simulated four-hour horizon. Lower IAE does not establish electricity savings. The actuator TV proxy is not a calibrated wear metric.',
+      f'2. **Severe compressor derating (`severe_actuator_capacity_minus40pct`):** MPC reports {severe.get("MPC_pi_fallbacks", "n/a")} PI fallback events in this case. Service compliance must be evaluated from the case-level ledger; this synthetic scenario is not a certified equipment-feasibility claim.',
+      '3. **Moderate capacity model mismatch:** compare the individually reported ±20% capacity cases before asserting a winner. No claim of globally superior predictive control is supported.',
+      '4. **Measurement delay/noise:** isolated and combined noise/delay cases appear in the paired results; evaluate each actual result rather than assuming a fixed ordering.',
+      f'5. **Actuator effort and electrical energy:** nominal MPC minus relay PI electricity is {fmt(energy_delta,3)} kWh in the current benchmark (positive = MPC uses more). Lower IAE does not establish electricity savings. The actuator TV proxy is not a calibrated wear metric.',
       '6. **Prediction/observer limits:** model-state reconstruction is open-loop nominal propagation with sampled buffer-temperature correction, not a statistically consistent estimator or proof of detection of bias, outage or drifting noise.',
       '', '### Scenario categories (unweighted, descriptive only)', '',
       '| Category | Cases | Paired qualified MPC vs relay | MPC lower IAE (raw) | Median paired ΔIAE (%) |',
@@ -85,7 +91,7 @@ def report(data):
     lines += ['', 'This is a **two-case information sensitivity**, not a different entry in the equal-information 100-run benchmark. Perfect future disturbances are extra information unavailable to the PI baselines. Better forecasts do not guarantee better tracking when the internal plant model is inaccurate.', '']
     lines+=['', '## Complexity and reproducibility', '',
       '- The simulated plant has **3 physical states** (`T_h`, `T_b`, `n`) and one commanded input `u`; nominal MPC uses a six-step prediction horizon, **6 command variables + 6 service-slack variables = 12 QP variables** per update. The PI baseline uses proportional/integral feedback with documented gains and anti-windup.',
-      '- The 100-run matrix contains **2,400 MPC update decisions** in total, with 48 actual fallbacks. Controller solve times are **not** contained in the saved robustness CSV; the optional `scripts/benchmark_wp5_runtime.py` measures wall-clock *end-to-end simulation runtime* on an explicitly identified machine, not QP solve latency.',
+      f'- The {data["source_rows"]}-run matrix contains **{data["MPC_total_decisions"]} MPC update decisions** and **{data["MPC_total_fallback_events"]} actual fallbacks**. Controller solve times are **not** contained in the saved robustness CSV; the optional `scripts/benchmark_wp5_runtime.py` measures wall-clock *end-to-end simulation runtime* on an explicitly identified machine, not QP solve latency.',
       '- OSQP/SLSQP agreement at three predeclared QP operating points is verified in `scripts/run_wp4_solver_audit.py`. That check is not a general execution-time, optimality or industrial real-time proof.',
       '- The Pareto set is computed only among service-eligible methods using (IAE, electricity, command TV) in each case. A controller is Pareto-undominated if no eligible controller is at least as good in all three and strictly better in one. This is **not** an economic optimum.',
       '- Run `python scripts/run_wp4_robustness.py` then `python scripts/run_wp5.py` to reconstruct the input matrix and report. One version-pinned commit must bind the source, parameters and derived outputs; changes to the WP4 matrix invalidate the previously generated WP5 report.',
@@ -154,6 +160,8 @@ def main():
     import hashlib
     data['source_matrix_sha256']=hashlib.sha256(SOURCE.read_bytes()).hexdigest()
     source_summary=json.loads((RESULTS/'wp4_robustness_summary.json').read_text(encoding='utf-8'))
+    data['benchmark_id']=source_summary.get('benchmark_id','legacy L1 benchmark v1')
+    data['source_nominal_tuning']=source_summary.get('nominal_tuning')
     extras=source_summary['forecast_assisted_extras']
     if len(extras)!=2 or {e['case'] for e in extras}!={'nominal','heatpump_capacity_minus20pct'}:
         raise ValueError('changed forecast-assisted evidence: update review before reporting')
