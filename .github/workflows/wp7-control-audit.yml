@@ -7,11 +7,16 @@ on:
       - '.github/workflows/wp7-control-audit.yml'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   focused-thermodynamic-control-audit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -22,6 +27,20 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_wp7_control.py' -v
       - name: Generate service- and terminal-gated property-control ledger
         run: python scripts/run_wp7_control.py
+      - name: Publish exact CI-vetted WP7 numeric ledger to this PR
+        shell: bash
+        run: |
+          test -s results/wp7_control_pilot.json
+          test -s results/wp7_control_pilot.csv
+          test -s results/wp7_control_pairs.csv
+          test -s results/wp7_control_pilot_report.md
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add results/wp7_control_pilot.json results/wp7_control_pilot.csv results/wp7_control_pairs.csv results/wp7_control_pilot_report.md
+          if ! git diff --cached --quiet; then
+            git commit -m 'data: publish verified WP7 property controller pilot'
+            git push origin HEAD:wp7-matched-property-controller-pilot
+          fi
       - name: Archive WP7 control outputs
         uses: actions/upload-artifact@v4
         with:
