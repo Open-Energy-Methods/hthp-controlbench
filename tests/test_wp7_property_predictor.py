@@ -26,7 +26,7 @@ class PropertyPredictorStructuralTests(unittest.TestCase):
         cls.cfg=MPCConfig(horizon=2,period_s=120.,integration_step_s=20.)
         cls.predictor=PropertyPredictor(cls.model,cls.props)
 
-    def run(self,method="PI_IMC",observer="auto",case=None,**kwargs):
+    def run_case(self,method="PI_IMC",observer="auto",case=None,**kwargs):
         return run_property_controller(self.model,case or PropertyControlCase(),
                    method,pi_settings=self.settings,cfg=self.cfg,
                    duration_s=360.,step_s=20.,props=self.props,
@@ -47,8 +47,8 @@ class PropertyPredictorStructuralTests(unittest.TestCase):
             self.predictor.advance(x,.75,replace(self.p,n_min=.2),d,120.,20.)
 
     def test_observer_backend_does_not_change_pi_truth_or_sensing(self):
-        old=self.run(observer="synthetic")
-        new=self.run(observer="property")
+        old=self.run_case(observer="synthetic")
+        new=self.run_case(observer="property")
         self.assertEqual(old["status"],"complete",old["failure_reason"])
         self.assertEqual(new["status"],"complete",new["failure_reason"])
         self.assertEqual(old["true_states_at_decisions"],new["true_states_at_decisions"])
@@ -62,8 +62,8 @@ class PropertyPredictorStructuralTests(unittest.TestCase):
     def test_noisy_delayed_holdout_matched_noise_and_truth(self):
         case=PropertyControlCase("heldout",sensor_noise_sd_k=.20,
                sensor_delay_samples=1,seed=83)
-        old=self.run(observer="synthetic",case=case)
-        new=self.run(observer="property",case=case)
+        old=self.run_case(observer="synthetic",case=case)
+        new=self.run_case(observer="property",case=case)
         self.assertEqual(old["status"],"complete",old["failure_reason"])
         self.assertEqual(new["status"],"complete",new["failure_reason"])
         self.assertEqual(old["noise_draws"],new["noise_draws"])
@@ -75,7 +75,7 @@ class PropertyPredictorStructuralTests(unittest.TestCase):
         self.assertEqual(len(new["sensor_innovations_K"]),6)
 
     def test_property_mpc_solver_failure_falls_back_bounded(self):
-        row=self.run("MPC_property",force_mpc_failure=True)
+        row=self.run_case("MPC_property",force_mpc_failure=True)
         self.assertEqual(row["status"],"complete",row["failure_reason"])
         self.assertEqual(row["accepted_mpc"],0)
         self.assertEqual(row["pi_fallbacks"],row["decisions"])
@@ -96,8 +96,8 @@ class PropertyPredictorStructuralTests(unittest.TestCase):
         self.assertIn("injected_property_test_failure",sol.status)
 
     def test_same_resource_gate_includes_property_candidate(self):
-        base=self.run("PI_IMC",observer="property")
-        mpc=self.run("MPC_property",force_mpc_failure=True)
+        base=self.run_case("PI_IMC",observer="property")
+        mpc=self.run_case("MPC_property",force_mpc_failure=True)
         comparison=compare_property_pair(base,mpc)
         self.assertEqual(comparison["candidate"],"MPC_property")
         self.assertIn("eligible_for_conditional_electricity_comparison",comparison)
