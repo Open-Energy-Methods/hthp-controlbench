@@ -35,6 +35,7 @@ class MPCConfig:
     t_buffer_max_k: float = 409.15  # 136 C synthetic constraint
     min_service_slack_k: float = 20.0  # max tolerated hypothetical service deficit in QP
     maxiter: int = 120
+    solver_backend: str = "slsqp"  # optional: "osqp", same QP matrices
 
     def __post_init__(self):
         if self.horizon < 2 or self.period_s <= 0 or self.integration_step_s <= 0:
@@ -50,6 +51,8 @@ class MPCConfig:
             raise ValueError('invalid nonlinear-rollout tolerances')
         if self.maxiter < 1:
             raise ValueError('maxiter must be positive')
+        if self.solver_backend not in ('slsqp', 'osqp'):
+            raise ValueError('unknown QP backend')
 
 
 def _vec(x: State) -> np.ndarray:
@@ -97,7 +100,16 @@ def linearize(x: State, u: float, p: Parameters, d: Disturbance, cfg: MPCConfig)
     A=np.zeros((3,3))
     for i in range(3):
         delta=np.zeros(3);delta[i]=h[i]
-        A[:,i]=(f(x0+delta,u,d)-f(x0-delta,u,d))/(2*h[i])
+        if i==2:
+            # Use a feasible one-sided/central secant at 0<=n<=1.
+            # Central differencing previously evaluated n>1 at saturation
+            # and caused a spurious "modulation state out of bounds" fallback.
+            lo=max(p.n_min,x0[i]-h[i]);hi=min(p.n_max,x0[i]+h[i])
+            if hi-lo<1e-12:raise ValueError('cannot difference modulation state')
+            xlo=x0.copy();xhi=x0.copy();xlo[i]=lo;xhi[i]=hi
+            A[:,i]=(f(xhi,u,d)-f(xlo,u,d))/(hi-lo)
+        else:
+            A[:,i]=(f(x0+delta,u,d)-f(x0-delta,u,d))/(2*h[i])
     hu=0.0002
     if u-hu < p.n_min or u+hu > p.n_max:
         # Only evaluate feasible perturbed commands.
@@ -113,7 +125,12 @@ def linearize(x: State, u: float, p: Parameters, d: Disturbance, cfg: MPCConfig)
     p0=float(power(x0,d));px=np.zeros(3)
     for i in range(3):
         dd=np.zeros(3);dd[i]=h[i]
-        px[i]=(power(x0+dd,d)-power(x0-dd,d))/(2*h[i])
+        if i==2:
+            lo=max(p.n_min,x0[i]-h[i]);hi=min(p.n_max,x0[i]+h[i])
+            xlo=x0.copy();xhi=x0.copy();xlo[i]=lo;xhi[i]=hi
+            px[i]=(power(xhi,d)-power(xlo,d))/(hi-lo)
+        else:
+            px[i]=(power(x0+dd,d)-power(x0-dd,d))/(2*h[i])
     ps=(power(x0,_change_disturbance(d,source_delta=0.02))-
         power(x0,_change_disturbance(d,source_delta=-0.02)))/0.04
     return Linearization(x0,float(u),d0,nx,A,B,E,p0,px,float(ps))
@@ -218,18 +235,43 @@ def solve_mpc(x: State, previous: float, p: Parameters, d: Disturbance,
         z0=np.concatenate((np.full(N,previous),np.full(N,1.0)))
         z0=np.maximum(lb,np.minimum(ub,z0))
         z0=np.array(z0,float)
-        res=minimize(lambda z:float(.5*z@H@z+g@z),z0,
-              jac=lambda z:H@z+g,method='SLSQP',
-              bounds=Bounds(lb,ub),
-              constraints=[LinearConstraint(np.array(rows),low,high)],
-              options={'maxiter':cfg.maxiter,'ftol':1e-8,'disp':False})
-        if not res.success or not np.all(np.isfinite(res.x)):
-            return MPCSolution(False,previous,'qp_'+str(res.message),l,None,None,np.inf,np.inf,None,N,int(res.nit))
-        z=res.x
+        if cfg.solver_backend == 'slsqp':
+            res=minimize(lambda z:float(.5*z@H@z+g@z),z0,
+                  jac=lambda z:H@z+g,method='SLSQP',
+                  bounds=Bounds(lb,ub),
+                  constraints=[LinearConstraint(np.array(rows),low,high)],
+                  options={'maxiter':cfg.maxiter,'ftol':1e-8,'disp':False})
+            if not res.success or not np.all(np.isfinite(res.x)):
+                return MPCSolution(False,previous,'qp_'+str(res.message),l,None,None,np.inf,np.inf,None,N,int(res.nit))
+            z=np.asarray(res.x,float)
+            iterations=int(res.nit)
+        else:
+            # Exact same finite-horizon quadratic programme; OSQP receives
+            # upper-triangular sparse Hessian, constraints and variable bounds.
+            # OSQP is optional, and its availability is checked by CI.
+            import osqp
+            from scipy import sparse
+            matrix=np.vstack((np.array(rows,float),np.eye(dim)))
+            lbound=np.concatenate((np.array(low,float),lb))
+            ubound=np.concatenate((np.array(high,float),ub))
+            qp=osqp.OSQP()
+            qp.setup(P=sparse.triu(sparse.csc_matrix(H),format='csc'),q=g,
+                     A=sparse.csc_matrix(matrix),l=lbound,u=ubound,
+                     verbose=False,eps_abs=1e-6,eps_rel=1e-6,max_iter=max(4000,cfg.maxiter*40),
+                     adaptive_rho=True)
+            res=qp.solve()
+            iterations=int(res.info.iter)
+            if res.x is None or str(res.info.status).lower()!='solved' or not np.all(np.isfinite(res.x)):
+                return MPCSolution(False,previous,'qp_osqp_'+str(res.info.status),l,None,None,np.inf,np.inf,None,N,iterations)
+            z=np.asarray(res.x,float)
+        # A successful solver status is not accepted without *our own* primal
+        # box and general linear constraint audit; no backend is privileged.
+        if np.max(np.maximum(lb-z,z-ub)) > 1e-5:
+            return MPCSolution(False,previous,'qp_variable_bound_violation',l,None,None,np.inf,np.inf,None,N,iterations)
         linear=np.array([c[j]+m[j]@z[:N] for j in range(N+1)])
         check=np.array(rows)@z
         if np.min(check-np.array(low))<-1e-5 or np.min(np.array(high)-check)<-1e-5:
-            return MPCSolution(False,previous,'qp_constraint_violation',l,linear,None,np.inf,np.inf,None,N,int(res.nit))
+            return MPCSolution(False,previous,'qp_constraint_violation',l,linear,None,np.inf,np.inf,None,N,iterations)
         truth=[x];actual_p=[];affine_p=[]
         for j in range(N):
             real=output(truth[-1],p,forecast[j]).p_el
@@ -240,11 +282,11 @@ def solve_mpc(x: State, previous: float, p: Parameters, d: Disturbance,
         err=float(np.max(abs(true[:,0:2]-linear[:,0:2])))
         perr=float(np.max(abs(np.array(actual_p)-np.array(affine_p))/np.maximum(np.abs(np.array(actual_p)),1000.)))
         if np.any(true[1:,0] > cfg.t_header_max_k+1e-6) or np.any(true[1:,1]>cfg.t_buffer_max_k+1e-6):
-            return MPCSolution(False,previous,'nonlinear_state_constraint_violation',l,linear,true,err,perr,None,N,int(res.nit))
+            return MPCSolution(False,previous,'nonlinear_state_constraint_violation',l,linear,true,err,perr,None,N,iterations)
         if err>cfg.nonlinear_temp_tolerance_k or perr>cfg.nonlinear_power_relative_tolerance:
-            return MPCSolution(False,previous,'nonlinear_rollout_mismatch',l,linear,true,err,perr,None,N,int(res.nit))
-        return MPCSolution(True,float(z[0]),'accepted',l,linear,true,err,perr,float(res.fun),N,int(res.nit))
-    except (ValueError,RuntimeError,OverflowError,FloatingPointError) as exc:
+            return MPCSolution(False,previous,'nonlinear_rollout_mismatch',l,linear,true,err,perr,None,N,iterations)
+        return MPCSolution(True,float(z[0]),'accepted',l,linear,true,err,perr,float(.5*z@H@z+g@z),N,iterations)
+    except (ValueError,RuntimeError,OverflowError,FloatingPointError,ImportError) as exc:
         return MPCSolution(False,previous,'prediction_error:'+str(exc),None,None,None,np.inf,np.inf,None,0,0)
 
 

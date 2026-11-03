@@ -16,7 +16,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
       - name: Install package and plotting dependencies
-        run: python -m pip install -e '.[plots]'
+        run: python -m pip install -e '.[plots,qp]'
       - name: Run physics and numerical tests
         run: python -m unittest discover -s tests -v
       - name: Run scripted simulation
@@ -29,3 +29,8 @@ jobs:
         run: python scripts/run_wp3_robustness.py
       - name: Reproduce WP4 constrained MPC and baseline comparison
         run: python scripts/run_wp4.py
+      - name: Audit QP backends with OSQP
+        run: python scripts/run_wp4_solver_audit.py
+      - name: Reproduce WP4 partial-observation robustness matrix
+        if: matrix.python-version == '3.12'
+        run: python scripts/run_wp4_robustness.py
