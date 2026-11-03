@@ -72,7 +72,22 @@ def strict_nominal_reproduction(old:dict, new:dict):
         # v2 stored nested tuples as JSON arrays.
         normalized=json.loads(json.dumps(new[key],allow_nan=False))
         if old[key]!=normalized:
-            raise RuntimeError("WP7 v2 nominal baseline drift: "+key)
+            diff = ""
+            if key in ("true_states_at_decisions","estimated_states_at_decisions",
+                       "sensed_buffer_at_decisions","applied_commands"):
+                a=old[key]; b=normalized
+                if len(a)==len(b):
+                    try:
+                        import numpy as np
+                        av=np.asarray(a,dtype=float)
+                        bv=np.asarray(b,dtype=float)
+                        if av.shape==bv.shape:
+                            delta=np.abs(av-bv)
+                            idx=np.unravel_index(int(np.argmax(delta)),delta.shape)
+                            diff=f" max_abs={np.max(delta)} index={idx} old={av[idx]} new={bv[idx]}"
+                    except (ValueError,TypeError):
+                        pass
+            raise RuntimeError(f"WP7 v2 nominal baseline drift method={new['controller']} key={key}"+diff)
     for key in ("iae_Ks","electricity_kWh","process_heat_kWh",
                 "unserved_spec_heat_kWh","final_total_energy_delta_kWh",
                 "final_header_energy_delta_kWh","final_buffer_energy_delta_kWh",
