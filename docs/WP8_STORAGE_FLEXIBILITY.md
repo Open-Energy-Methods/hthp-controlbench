@@ -65,7 +65,7 @@ Prices must align with the integration time grid. 24 h is used to allow the term
 3. Terminal enthalpy inventories of the policies differ by at most **0.5 kWh**; a smaller energy bill obtained by emptying the tank is never credited;
 4. The declared high price is strictly above the low price; a flat price cannot be counted as tariff arbitrage.
 
-Failed runs, partial service, source/EOS interpolation failures or terminal mismatches produce `cost_saving_not_creditable` and `eligible_cost_saving_eur=null`; the raw cost and kWh deltas remain visible for diagnosis but may **not** be presented as savings. Even an eligible saving is explicitly named **`conditional_model_comparison_eligible__NOT_EQUIPMENT_VERIFIED`**, never real equipment acceptance. The absence of measured prices, taxes, OEM maps and hard hardware limits prohibits real financial conclusions.
+Partial-run cost and electricity differences are **null rather than falsely subtracting unequal durations**. Failed runs, partial service, source/EOS interpolation failures or terminal mismatches produce `cost_saving_not_creditable` and `eligible_cost_saving_eur=null`; the raw cost and kWh deltas remain visible for diagnosis but may **not** be presented as savings. Even an eligible saving is explicitly named **`conditional_model_comparison_eligible__NOT_EQUIPMENT_VERIFIED`**, never real equipment acceptance. The absence of measured prices, taxes, OEM maps and hard hardware limits prohibits real financial conclusions.
 
 ## Planned sensitivity matrix and possible negative results
 

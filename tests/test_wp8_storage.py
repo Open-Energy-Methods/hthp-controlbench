@@ -107,6 +107,8 @@ class TestWP8(unittest.TestCase):
         x=compare_flexibility(self.map,self.cfg,props=self.props,limits=lim)
         self.assertIsNone(x['eligible_cost_saving_eur'])
         self.assertIn('simulation_or_envelope_failed',x['reasons'])
+        self.assertIsNone(x['raw_cost_difference_eur'])
+        self.assertIsNone(x['raw_electricity_difference_kwh'])
 
     def test_cost_eligible_case_distinguishes_euros_and_kwh(self):
         r=compare_flexibility(self.map,self.cfg,props=self.props)

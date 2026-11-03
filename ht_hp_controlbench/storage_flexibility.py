@@ -272,12 +272,15 @@ def compare_flexibility(model:CycleMap,settings:FlexSettings|None=None,
     else:reasons.append('terminal_inventory_unavailable')
     if not(tariff.high_eur_kwh>tariff.low_eur_kwh):reasons.append('no_strict_high_low_price_spread')
     eligible=not reasons
-    delta_cost=(base['cost_eur']-flex['cost_eur']) if eligible else None
+    complete_horizon=(base['status']=='complete' and flex['status']=='complete')
+    raw_cost_delta=(base['cost_eur']-flex['cost_eur']) if complete_horizon else None
+    raw_elec_delta=(base['electricity_kwh']-flex['electricity_kwh']) if complete_horizon else None
+    delta_cost=raw_cost_delta if eligible else None
     return dict(status=('conditional_model_comparison_eligible__NOT_EQUIPMENT_VERIFIED' if eligible else
                         'cost_saving_not_creditable'),reasons=reasons,
                 baseline=base,flexibility=flex,
                 eligible_cost_saving_eur=delta_cost,
-                raw_cost_difference_eur=base.get('cost_eur',0)-flex.get('cost_eur',0),
-                raw_electricity_difference_kwh=base.get('electricity_kwh',0)-flex.get('electricity_kwh',0),
+                raw_cost_difference_eur=raw_cost_delta,
+                raw_electricity_difference_kwh=raw_elec_delta,
                 price_schedule=asdict(tariff),equipment_verified=False,
                 policy_is_SOC=False)

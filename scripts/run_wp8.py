@@ -90,6 +90,29 @@ def plot_cost(base,flex,path):
     fig.tight_layout();fig.savefig(path,dpi=160);plt.close(fig)
 
 
+def plot_case_savings(rows,path):
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    names=[x['case'].replace('_',' ') for x in rows]
+    savings=[x['cost_saving_eligible_eur'] for x in rows]
+    fig,ax=plt.subplots(figsize=(9,max(3,0.55*len(rows)+1)))
+    y=list(range(len(rows)))
+    ax.barh(y,[0 if v is None else v for v in savings])
+    for i,v in enumerate(savings):
+        ax.text(0.04 if v is None else v + (0.03 if v>=0 else -0.03),i,
+                'Not creditable' if v is None else f'€{v:+.2f}',
+                ha=('left' if v is None or v>=0 else 'right'),va='center',fontsize=8)
+    ax.set_yticks(y,names);ax.invert_yaxis();ax.axvline(0,color='0.4',linewidth=.8)
+    ax.set(xlabel='Conditional 24-h cost saving (EUR); negative = extra cost',
+           title='Same-service, terminal-matched cases only')
+    ax.grid(axis='x',alpha=.2)
+    all_valid=[v for v in savings if v is not None]
+    rng=max((abs(v) for v in all_valid),default=.5)
+    ax.set_xlim(-max(.6,rng*.6),max(.8,rng*1.4))
+    fig.tight_layout();fig.savefig(path,dpi=160);plt.close(fig)
+
+
 def main(full=False):
     RESULTS.mkdir(exist_ok=True)
     model=build_cycle_map('R1233zd(E)',[328.15,333.15,338.15],
@@ -109,6 +132,8 @@ def main(full=False):
                                   stopped_reason=b['stopped_reason'],equipment_verified=False))
     rows=[]
     pair,record=collect(model,nominal,tariff,'reference_15min_event',plot=True)
+    if pair['baseline']['status']!='complete':
+        raise RuntimeError('WP8 baseline reference did not complete 24 hours; no reference comparison possible')
     rows.append(record)
     if full:
         cases=[
@@ -130,6 +155,7 @@ def main(full=False):
         (('baseline_PI',pair['baseline']),('scheduled_PI',pair['flexibility']))
         for r in (result.get('trajectory') or [])])
     plot_trace(pair['baseline'],pair['flexibility'],RESULTS/'wp8_buffer_trace.png')
+    plot_case_savings(rows,RESULTS/'wp8_scenario_savings.png')
     if pair['baseline']['status']=='complete' and pair['flexibility']['status']=='complete':
         plot_cost(pair['baseline'],pair['flexibility'],RESULTS/'wp8_cost_comparison.png')
     summary=dict(work_package='WP8',status='conditional_numerical_research__NOT_EQUIPMENT_VALIDATED',
@@ -166,6 +192,7 @@ def main(full=False):
            f'- Outcome: **{pair["status"]}**; reasons: {pair["reasons"]}.',
            f'- Baseline electricity: **{pair["baseline"].get("electricity_kwh",float("nan")):.3f} kWh**; scheduled: **{pair["flexibility"].get("electricity_kwh",float("nan")):.3f} kWh**.',
            f'- Baseline synthetic cost: **€{pair["baseline"].get("cost_eur",float("nan")):.3f}**; scheduled: **€{pair["flexibility"].get("cost_eur",float("nan")):.3f}**.',
+           f'- Additional scheduled electricity versus baseline: **{-pair["raw_electricity_difference_kwh"]:.3f} kWh** (positive means more kWh) if both runs completed.',
            f'- Conditionally creditable saving: **{pair["eligible_cost_saving_eur"]} EUR**, if eligible; otherwise NONE.',
            '- Neither a reduced bill nor an acceptable service fraction constitutes an *actual industrial* saving.',
            '', '## Disclosed scenarios','',
@@ -193,7 +220,7 @@ def main(full=False):
        '- Previous WP7 physical-service, CoolProp compressor and TESPy offdesign results: docs/WP7_RESEARCH_CLOSEOUT.md',
        '', '### Reproduction','',
        '`python scripts/run_wp8.py --full` (requires `pip install -e ".[plots,realfluid]"`).',
-       'Generated figures: `results/wp8_buffer_trace.png` and `results/wp8_cost_comparison.png`.','']
+       'Generated figures: `results/wp8_buffer_trace.png`, `results/wp8_cost_comparison.png`, and `results/wp8_scenario_savings.png`.','']
     (RESULTS/'wp8_scientific_report.md').write_text('\n'.join(lines))
     print('WP8 reference:',pair['status'],'creditable_saving_eur=',pair['eligible_cost_saving_eur'],flush=True)
     print('WP8 inventory mass/limit combinations',len(inventory),'tariff scenarios',len(rows),flush=True)
