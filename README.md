@@ -197,6 +197,37 @@ instrumented controller validation**. Reproduce with
 `python scripts/run_wp7_property_predictor.py` after installing
 `.[qp,realfluid,plots]`.
 
+## WP7 independent experimental evidence and physical validation gate
+
+[Independent empirical-data protocol](docs/WP7_INDEPENDENT_EMPIRICAL_EVIDENCE.md) ·
+[checksum-verified evidence and nonvalidation report](results/wp7_external_empirical_evidence_v1.md) ·
+[provenance ledger (JSON)](results/wp7_external_empirical_evidence_v1.json).
+
+The WP7 external-evidence audit checks public R1233zd(E) compressor
+measurements using raw-file checksums and *separates genuine measurements
+from EN12900-generated manufacturer-polynomial rows*. The
+[Widmaier et al. experimental/computational dataset](https://doi.org/10.5281/zenodo.17599603)
+has 32,073 records: 31,702 generated, 371 experimental and only 22
+experimental pure-R1233zd(E). The
+[Leclercq two-phase R1233zd(E) scroll dataset](https://doi.org/10.5281/zenodo.20445833)
+contains 67 measured records but has a different oil/wet-inlet operating
+domain. **Neither validates the assumed 310 kW compressor or 133°C system**.
+A [more directly relevant 37 kW experimental HTHP dataset](https://doi.org/10.17632/56m3dd55zf.1)
+is identified, but has not been ingested for numerical comparison.
+The public [BITZER CSH2T family information](https://www.bitzer.de/mv/en/products/screw-compressors/csh2t/)
+states useful output temperatures up to 120°C, not proof of the 133°C
+reference machine.
+
+The audit explicitly reports **missing OEM and measured finite-source/sink
+feasibility** and **no independent instrumented observer-validation dataset**;
+it rejects claims based on a different rig, generated performance rows,
+model-derived displacement or internally consistent simulation. It
+computes only conditional necessary source-flow arithmetic, not
+HX/pump/pressure-equipment approval. Reproduce with
+`python scripts/run_wp7_external_empirical_audit.py` after installing
+`.[realfluid]`. The original experimental files are not committed to
+the repository; hashes, DOIs and aggregated evidence are preserved.
+
 ## WP8 — Temperature-qualified storage and synthetic price flexibility
 
 WP8 tests finite high-temperature water storage against the WP7 CoolProp/IF97
