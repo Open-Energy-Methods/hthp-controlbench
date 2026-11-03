@@ -1,0 +1,93 @@
+name: WP7 independently sourced empirical equipment/observer evidence audit
+
+on:
+  push:
+    branches: [audit-wp7-independent-empirical-evidence-v1]
+    paths:
+      - '.github/workflows/wp7-external-evidence.yml'
+      - 'ht_hp_controlbench/wp7_external_evidence.py'
+      - 'scripts/run_wp7_external_empirical_audit.py'
+      - 'tests/test_wp7_external_evidence.py'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  external-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-wp7-independent-empirical-evidence-v1
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install realfluid numerical dependencies
+        run: python -m pip install -e '.[realfluid]'
+      - name: Verify no fabricated measurements or self-certification
+        run: python -m unittest discover -s tests -p 'test_wp7_external_evidence.py' -v
+      - name: Retrieve published independent experimental files and verify MD5
+        run: python scripts/run_wp7_external_empirical_audit.py
+      - name: Audit remote source provenance and target asset refusal
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r=json.loads(Path('results/wp7_external_empirical_evidence_v1.json').read_text())
+          a=r['external_datasets']['widmaier_2026']['observations']
+          b=r['external_datasets']['leclercq_2026']['observations']
+          assert r['status']=='EXTERNAL_DATA_VERIFIED__TARGET_EQUIPMENT_AND_OBSERVER_NOT_VALIDATED'
+          assert all(x['source']['data_content_verified'] for x in r['external_datasets'].values())
+          assert (a['all_records'],a['generated_EN12900_records_not_measured'],
+                  a['experimentally_measured_records'],
+                  a['pure_R1233zd_experimental_records'])==(32073,31702,371,22)
+          assert b['experimentally_measured_records']==67
+          assert b['model_compatibility']=='OUT_OF_DOMAIN_TWO_PHASE_WITH_OIL'
+          assert not a['asset_matching_reference_WP7'] and not b['asset_matching_reference_WP7']
+          assert r['equipment_evidence_gate']['status']=='NOT_EQUIPMENT_VALIDATED'
+          assert r['observer_evidence_gate']['status']=='NO_MATCHED_INSTRUMENTED_OBSERVER_DATA'
+          assert r['finite_source_test']['status']=='UNVERIFIED_SOURCE_FLOW_OR_TEMPERATURE'
+          assert r['finite_sink_test']['status']=='UNVERIFIED_SINK_FLOW_OR_TEMPERATURE'
+          assert r['finite_source_test']['heat_exchanger_verified'] is False
+          assert r['finite_sink_test']['heat_exchanger_verified'] is False
+          print('PASS: external records verified; all physical and observer claims withheld')
+          PY
+      - name: Commit only provenance-checked evidence summaries
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add results/wp7_external_empirical_evidence_v1.json \
+                  results/wp7_external_empirical_evidence_v1.md \
+                  results/wp7_external_empirical_source_counts_v1.csv
+          if ! git diff --cached --quiet; then
+            git commit -m 'WP7: publish independently sourced experimental provenance and unknown equipment evidence gates'
+            git fetch origin audit-wp7-independent-empirical-evidence-v1
+            # Do not publish results generated against stale scientific sources.
+            # A concurrent README edit is harmless; changes to equations,
+            # data acquisition or audit code force a new workflow execution.
+            for path in ht_hp_controlbench/wp7_external_evidence.py \
+                        ht_hp_controlbench/realfluid.py \
+                        scripts/run_wp7_external_empirical_audit.py \
+                        tests/test_wp7_external_evidence.py; do
+              if [ "$(git rev-parse "HEAD~1:$path")" != "$(git rev-parse "origin/audit-wp7-independent-empirical-evidence-v1:$path")" ]; then
+                echo "Scientific source changed during audit; refusing stale numerical publication: $path" >&2
+                exit 1
+              fi
+            done
+            git rebase origin/audit-wp7-independent-empirical-evidence-v1
+            git push origin HEAD:audit-wp7-independent-empirical-evidence-v1
+          fi
+      - name: Archive original-source-provenance report without redistributing raw files
+        uses: actions/upload-artifact@v4
+        with:
+          name: wp7-independent-empirical-evidence-v1
+          path: |
+            results/wp7_external_empirical_evidence_v1.json
+            results/wp7_external_empirical_evidence_v1.md
+            results/wp7_external_empirical_source_counts_v1.csv
+          if-no-files-found: error
+          retention-days: 90
