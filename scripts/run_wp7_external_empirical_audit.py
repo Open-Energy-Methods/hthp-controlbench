@@ -18,7 +18,7 @@ from ht_hp_controlbench.realfluid import CycleAssumptions,cycle_point,build_cycl
 from ht_hp_controlbench.wp7_external_evidence import (
     WIDMAIER,LECLERCQ,REQUIRED_ASSET_EVIDENCE,
     get_public_bytes,parse_verified_csv,audit_widmaier,audit_leclercq,
-    evidence_gate,observer_record_gate,finite_source_bound,
+    evidence_gate,observer_record_gate,finite_source_bound,finite_sink_bound,
 )
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -75,12 +75,20 @@ def main():
     equipment=evidence_gate(None,asset_id=None)
     observer=observer_record_gate(None,asset_id=None,evidence=None)
     source_bound=finite_source_bound(source)
+    sink_bound=finite_sink_bound(qcond)
     illustrative_flow={}
     for delta_k in (5,10,15):
         illustrative_flow[f"source_delta_{delta_k}K"] = {
             "water_cp_assumed_j_kgK":4200.,
             "minimum_flow_kg_s_ideal_no_pinches":source/(4200*delta_k),
             "interpretation":"ARITHMETIC_ONLY; actual fluid/flow/approaches unknown",
+        }
+    illustrative_sink={}
+    for delta_k in (10,20,30):
+        illustrative_sink[f"sink_delta_{delta_k}K"]={
+            "water_cp_assumed_j_kgK":4200.,
+            "minimum_flow_kg_s_ideal_no_pinches":qcond/(4200*delta_k),
+            "interpretation":"ARITHMETIC_ONLY; actual sink inlet/outlet/pressure/UA unknown",
         }
     out={
         "audit_id":EXPERIMENT,
@@ -125,8 +133,10 @@ def main():
             "potential_external_comparison":"not direct: model eta_is reflects internal idealization; measured overall eta_is uses electric input",
             "reference_capacity_not_independently_validated":True,
             "source_temperature_drop_sensitivity":illustrative_flow,
+            "sink_temperature_rise_sensitivity":illustrative_sink,
         },
         "finite_source_test":source_bound,
+        "finite_sink_test":sink_bound,
         "equipment_evidence_gate":equipment,
         "observer_evidence_gate":observer,
         "unmet_evidence_requirements":REQUIRED_ASSET_EVIDENCE,
@@ -195,12 +205,20 @@ def main():
     for delta in (5,10,15):
         v=illustrative_flow[f"source_delta_{delta}K"]
         lines.append(f"| {delta} K | {v['minimum_flow_kg_s_ideal_no_pinches']:.3f} kg/s |")
+    lines.extend(["","The separate heat-sink capacity screen is also **UNVERIFIED**.",
+        "Illustrative water-based required condenser-side flows are only",
+        "necessary enthalpy arithmetic (not measured or pressure/HX qualified):","",
+        "| Assumed available sink temperature rise | Ideal necessary sink flow |",
+        "|---:|---:|"])
+    for delta in (10,20,30):
+        v=illustrative_sink[f"sink_delta_{delta}K"]
+        lines.append(f"| {delta} K | {v['minimum_flow_kg_s_ideal_no_pinches']:.3f} kg/s |")
     lines.extend(["","## What blocks actual equipment and observer acceptance","",
         f"- **{len(equipment['missing_sections'])}/{equipment['section_count']} required "
         "asset-matched evidence sections missing**: no nominated OEM compressor,",
         "independent efficiency/displacement/pressure envelope, source/sink mass",
         "flow and heat-exchanger capacities, instrument calibration, safety basis.",
-        "- Independent source/sink flow was **not supplied**, so the necessary",
+        "- Independent source **and sink** flows were **not supplied**, so the necessary",
         "energy bound itself is UNVERIFIED, despite the illustrative flow table.",
         "- No independent, time-aligned HEADER-temperature and ACTUAL modulation",
         "trace from a configured matching HTHP; v2 observer validation currently",
