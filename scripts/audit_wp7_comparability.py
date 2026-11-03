@@ -39,7 +39,13 @@ def audited_pair(pi:dict,mpc:dict,*,inventory_kwh:float,actuator_tol:float) -> d
             raise ValueError("mismatched physical or sensing experiment: "+key)
     if pi["controller"] not in ("PI_IMC","PI_relay") or mpc["controller"]!="MPC_property":
         raise ValueError("invalid paired controller labels")
+    if pi.get("noise_draws")!=mpc.get("noise_draws"):
+        raise ValueError("unequal realized sensor noise invalidates matched comparison")
     full=(pi["status"]=="complete" and mpc["status"]=="complete")
+    if full and (not pi.get("true_states_at_decisions") or
+                 not mpc.get("true_states_at_decisions") or
+                 pi["true_states_at_decisions"][0]!=mpc["true_states_at_decisions"][0]):
+        raise ValueError("unequal actual initial plant states invalidate matched comparison")
     service=bool(full and pi["matched_service_gate"] and mpc["matched_service_gate"])
     reasons=[]
     if not full:reasons.append("incomplete_or_unqualified_initial_state")
