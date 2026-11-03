@@ -36,6 +36,20 @@ class PhysicsTests(unittest.TestCase):
             self.assertAlmostEqual(actual,expected,delta=5e-13)
         self.assertAlmostEqual(counterflow_effectiveness(10000,10000,16000),1.6/2.6,13)
 
+    def test_disconnected_and_off_modes_are_explicitly_rejected_by_equilibrium(self):
+        # Audit A03: offline dynamic plant is valid (analytic loss test), but
+        # the steady solver cannot divide through zero khb / compressor rating.
+        for settings in ({'khb':0},{'q_hp_rated':0}):
+            with self.assertRaisesRegex(ValueError,'steady equilibrium undefined'):
+                equilibrium(replace(self.p,**settings))
+
+    def test_numerical_parameter_domain_rejects_nonfinite_or_negative_inputs(self):
+        for kwargs in ({'q_hp_rated':-1},{'c_hot':-1},{'ua_proc':-1},
+                       {'c_proc':-1},{'khb':float('nan')},
+                       {'q_hp_rated':float('inf')},{'max_command_step':0},
+                       {'capacity_factor_min':0}):
+            with self.assertRaises(ValueError):replace(self.p,**kwargs)
+
     def test_nominal_equilibria_both_modes(self):
         for mode in ('duty_limiter','no_bypass'):
             p=replace(self.p,hx_mode=mode)

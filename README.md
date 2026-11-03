@@ -2,6 +2,15 @@
 
 **Research software for the comparative study of PI/PID, model-predictive and self-optimising control of industrial high-temperature heat pumps.**
 
+
+> **Verification correction (audit A01, 2026-11-03):** The WP3 relay
+> amplitude estimator has been corrected to use settled oscillation peaks,
+> rather than the relay switching thresholds. Historic committed WP3–WP5
+> controller comparisons were generated with the *previous* relay tune;
+> they are **legacy results and must not be cited as current corrected
+> comparisons** until the versioned WP3–WP5 regeneration is published.
+> See [the A01 methods note](docs/AUDIT_A01_RELAY_CORRECTION.md).
+
 **Current implementation: WP2 synthetic plant + WP3 independently tuned PI and robustness + WP4 constrained MPC and OSQP audit + WP5 scenario-wise comparative synthesis + WP6 synthetic SOC/active-set screening + WP7 real-fluid property-cycle screening (uncalibrated).** Two independent tuning methods, anti-windup, and reproducible noise, delay, parameter-mismatch and actuator-saturation comparisons are implemented. Physical PID tuning and real-fluid **equipment calibration** are **not** implemented or validated. WP6 implements **exploratory nonlinear steady-state SOC candidate evaluation** using an explicitly hypothetical second hot-loop circulation actuator, plus a limited dynamic/noisy pilot; it is not a validated industrial SOC structure or a proof of nonlinear dynamic SOC optimality. WP4/WP5/WP6 conclusions are simulation-only.
 
 ![Example synthetic open-loop thermal response](results/wp2_illustrative_thermal_response.png)

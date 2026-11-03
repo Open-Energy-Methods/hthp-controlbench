@@ -65,6 +65,20 @@ class Parameters:
             raise ValueError('controlled process flow is not implemented')
         if self.ua_flow_exponent < 0 or self.ua_flow_exponent > 1:
             raise ValueError('ua_flow_exponent must be in [0, 1]')
+        if not all(isfinite(getattr(self, field)) for field in (
+                'c_h','c_b','khb','ua_proc','c_proc','c_hot','ua_h','ua_b',
+                't_ambient','t_required','q_hp_rated','tau_n','n_min','n_max',
+                't_src_reference','t_header_reference','capacity_source_slope',
+                'capacity_header_slope','capacity_factor_min','capacity_factor_max',
+                'eta_second_law','approach_evap','approach_cond','ua_flow_exponent',
+                'max_command_step')):
+            raise ValueError('plant parameters must all be finite')
+        if any(x<0 for x in (self.ua_proc,self.c_proc,self.c_hot,self.q_hp_rated)):
+            raise ValueError('negative HX capacities, UA or heat-pump rating')
+        if not (0 < self.capacity_factor_min <= self.capacity_factor_max):
+            raise ValueError('invalid heat-pump capacity-factor interval')
+        if self.max_command_step<=0:
+            raise ValueError('positive command slew limit required')
         if self.c_h <= 0 or self.c_b <= 0 or self.tau_n <= 0:
             raise ValueError('positive thermal capacities and compressor time constant required')
         if self.khb < 0 or self.ua_h < 0 or self.ua_b < 0:
@@ -224,6 +238,14 @@ def equilibrium(p: Parameters, mode: str | None=None, t_buffer: float=403.15,
     if mode is not None:
         p=replace(p,hx_mode=mode)
     d=d or Disturbance()
+    # The transient model supports an explicitly disconnected khb=0 heater/
+    # buffer and q_hp_rated=0 compressor-off test. Their usual equilibrium is
+    # NOT defined by this algebraic solver. Reject them with a useful error,
+    # instead of accidentally dividing by zero downstream.
+    if p.khb <= 0:
+        raise ValueError('steady equilibrium undefined for zero header-buffer conductance')
+    if p.q_hp_rated <= 0:
+        raise ValueError('steady equilibrium undefined for zero rated heat-pump capacity')
     hx=heat_exchanger(t_buffer,p,d)
     qhb=hx.q_transferred+p.ua_b*(t_buffer-d.t_ambient)
     th=t_buffer+qhb/p.khb
