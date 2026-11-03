@@ -136,6 +136,44 @@ class TestWP8(unittest.TestCase):
         self.assertIsNone(x['raw_cost_difference_eur'])
         self.assertIsNone(x['raw_electricity_difference_kwh'])
 
+    def test_final_header_energy_mismatch_cannot_be_called_a_saving(self):
+        # Audit A02: equal buffer enthalpy does not mean equal total resources.
+        base=dict(status='complete',service_qualified_fraction=1.,
+                  spec_unserved_kwh=0.,cost_eur=100.,electricity_kwh=1000.,
+                  final_storage_delta_kwh=0.,final_header_energy_delta_kwh=0.,
+                  final_total_thermal_energy_delta_kwh=0.,final_modulation=.75,
+                  final_applied_command=.75)
+        flex=base.copy()
+        flex.update(cost_eur=90.,final_header_energy_delta_kwh=5e6*7/3.6e6,
+                    final_total_thermal_energy_delta_kwh=5e6*7/3.6e6)
+        with patch.object(flexmod,'simulate_24h',side_effect=[base,flex]):
+            comparison=compare_flexibility(self.map,self.cfg,props=self.props)
+        self.assertIsNone(comparison['eligible_cost_saving_eur'])
+        self.assertIn('terminal_header_inventory_mismatch',comparison['reasons'])
+        self.assertIn('terminal_total_thermal_energy_mismatch',comparison['reasons'])
+        self.assertAlmostEqual(comparison['raw_cost_difference_eur'],10.)
+
+    def test_terminal_compressor_modulation_mismatch_prevents_saving(self):
+        base=dict(status='complete',service_qualified_fraction=1.,
+                  spec_unserved_kwh=0.,cost_eur=100.,electricity_kwh=1000.,
+                  final_storage_delta_kwh=0.,final_header_energy_delta_kwh=0.,
+                  final_total_thermal_energy_delta_kwh=0.,final_modulation=.75,
+                  final_applied_command=.75)
+        flex=dict(base,cost_eur=90.,final_modulation=.91)
+        with patch.object(flexmod,'simulate_24h',side_effect=[base,flex]):
+            comparison=compare_flexibility(self.map,self.cfg,props=self.props)
+        self.assertIsNone(comparison['eligible_cost_saving_eur'])
+        self.assertIn('terminal_final_modulation_mismatch',comparison['reasons'])
+
+    def test_equal_price_windows_still_have_distinct_energy_buckets(self):
+        tariff=replace(SyntheticTariff(),low_eur_kwh=.16,
+                       high_eur_kwh=.16,regular_eur_kwh=.16)
+        run=simulate_24h(self.map,'baseline_pi',self.cfg,tariff,self.props)
+        self.assertEqual(run['status'],'complete')
+        e=run['tariff_bucket_electricity_kwh']
+        self.assertTrue(all(e[x]>0 for x in ('low','high','regular')))
+        self.assertAlmostEqual(sum(e.values()),run['electricity_kwh'],places=7)
+
     def test_cost_eligible_case_distinguishes_euros_and_kwh(self):
         r=compare_flexibility(self.map,self.cfg,props=self.props)
         if r['status'].startswith('conditional_model_comparison_eligible'):

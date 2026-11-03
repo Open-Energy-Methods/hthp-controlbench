@@ -219,7 +219,12 @@ def simulate_24h(model:CycleMap, policy:str='baseline_pi',settings:FlexSettings|
             y+=increment
             # Price is piecewise constant and aligned to dt.
             e_kwh=increment[4]/3.6e6;cash+=pr*e_kwh
-            key=('low' if pr==tariff.low_eur_kwh else 'high' if pr==tariff.high_eur_kwh else 'regular')
+            # Bucket by the declared *time interval*, not floating-point price.
+            # Flat or repeated numerical tariff values must retain distinct
+            # low/high/regular time-window energy accounting.
+            hour=t/3600.
+            key=('low' if tariff.low_start_h<=hour<tariff.high_start_h else
+                 'high' if tariff.high_start_h<=hour<tariff.high_end_h else 'regular')
             price_elec[key]+=e_kwh
             steps_ok+=1
             qual_count+=qualified_this_step
@@ -250,6 +255,13 @@ def simulate_24h(model:CycleMap, policy:str='baseline_pi',settings:FlexSettings|
                 initial_buffer_k=cfg.initial_buffer_k,initial_header_k=float(start[0]),
                 final_header_k=float(y[0]),final_buffer_k=float(_prop(props,'T','IF97::Water','P',pressure,'H',end_h)),
                 final_storage_delta_kwh=cfg.mass_kg*(end_h-start_h)/3.6e6,
+                # Header and buffer are distinct thermal stores. Equal buffer
+                # enthalpy alone does not guarantee equal terminal resources.
+                final_header_energy_delta_kwh=p.c_h*(y[0]-start[0])/3.6e6,
+                final_total_thermal_energy_delta_kwh=(cfg.mass_kg*(end_h-start_h)+
+                                                       p.c_h*(y[0]-start[0]))/3.6e6,
+                initial_modulation=float(start[2]),final_modulation=float(y[2]),
+                final_applied_command=float(u),
                 max_buffer_k=max_tb,min_buffer_k=min_tb,
                 max_command_slew=max_slew,saturation_updates=sat_count,
                 residual_energy_j=float(energy_deviation_j),
@@ -265,6 +277,8 @@ def compare_flexibility(model:CycleMap,settings:FlexSettings|None=None,
     """Strict gate: matched service, model feasibility and terminal inventory.
 
     Cost savings are *conditional simulated only* (never equipment-verified).
+    Final header and buffer energy inventories AND compressor lag/command must
+    be comparable; false savings from unmatched terminal states are rejected.
     A lower electricity bill from missed process duty is expressly not a saving.
     """
     cfg=settings or FlexSettings();tariff=tariff or SyntheticTariff()
@@ -277,10 +291,33 @@ def compare_flexibility(model:CycleMap,settings:FlexSettings|None=None,
         reasons.append('process_service_failed')
     if base.get('spec_unserved_kwh',1)>1e-7 or flex.get('spec_unserved_kwh',1)>1e-7:
         reasons.append('some_specification_heat_unserved')
-    if 'final_storage_delta_kwh' in base and 'final_storage_delta_kwh' in flex:
-        if abs(base['final_storage_delta_kwh']-flex['final_storage_delta_kwh'])>0.5:
-            reasons.append('terminal_storage_inventory_mismatch')
-    else:reasons.append('terminal_inventory_unavailable')
+    # A matched buffer end-state is not enough: the header stores C_h*T_h,
+    # and the lagged compressor state can differ even when thermal inventories
+    # happen to match. Compare both *components* and their sum, so compensating
+    # header/buffer changes cannot pass an energy-only equality check.
+    thermal_keys=('final_storage_delta_kwh','final_header_energy_delta_kwh',
+                  'final_total_thermal_energy_delta_kwh')
+    if all(k in base and k in flex and isfinite(base[k]) and isfinite(flex[k])
+           for k in thermal_keys):
+        buffer_delta=base['final_storage_delta_kwh']-flex['final_storage_delta_kwh']
+        header_delta=base['final_header_energy_delta_kwh']-flex['final_header_energy_delta_kwh']
+        total_delta=base['final_total_thermal_energy_delta_kwh']-flex['final_total_thermal_energy_delta_kwh']
+        if abs(buffer_delta)>0.5:
+            reasons.append('terminal_buffer_inventory_mismatch')
+        if abs(header_delta)>0.5:
+            reasons.append('terminal_header_inventory_mismatch')
+        if abs(total_delta)>0.5:
+            reasons.append('terminal_total_thermal_energy_mismatch')
+    else:
+        reasons.append('terminal_inventory_unavailable')
+    # Explicitly guard hidden compressor lag/command differences. Tolerances
+    # are synthetic benchmark eligibility choices, not physical certification.
+    for field in ('final_modulation','final_applied_command'):
+        if field not in base or field not in flex or not (isfinite(base[field]) and isfinite(flex[field])):
+            reasons.append('terminal_actuator_state_unavailable')
+            break
+        if abs(base[field]-flex[field])>0.02:
+            reasons.append('terminal_'+field+'_mismatch')
     if not(tariff.high_eur_kwh>tariff.low_eur_kwh):reasons.append('no_strict_high_low_price_spread')
     eligible=not reasons
     complete_horizon=(base['status']=='complete' and flex['status']=='complete')
