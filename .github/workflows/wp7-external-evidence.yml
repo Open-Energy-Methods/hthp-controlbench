@@ -51,6 +51,9 @@ jobs:
           assert r['equipment_evidence_gate']['status']=='NOT_EQUIPMENT_VALIDATED'
           assert r['observer_evidence_gate']['status']=='NO_MATCHED_INSTRUMENTED_OBSERVER_DATA'
           assert r['finite_source_test']['status']=='UNVERIFIED_SOURCE_FLOW_OR_TEMPERATURE'
+          assert r['finite_sink_test']['status']=='UNVERIFIED_SINK_FLOW_OR_TEMPERATURE'
+          assert r['finite_source_test']['heat_exchanger_verified'] is False
+          assert r['finite_sink_test']['heat_exchanger_verified'] is False
           print('PASS: external records verified; all physical and observer claims withheld')
           PY
       - name: Commit only provenance-checked evidence summaries
