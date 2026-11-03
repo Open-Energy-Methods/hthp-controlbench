@@ -15,8 +15,10 @@ estimated at hysteresis switching values. The A01 fix changed the identification
   difference and failed-run count from the current run rather than fixed
   historical numbers.
 - `HTHP_RESULTS_DIR` redirects all five WP3–WP5 output scripts. Running
-  `python scripts/run_corrected_benchmark.py` writes a separate
-  `results/L1_RelayPeak_v2/` result set, preserving historical root-level files.
+  `python scripts/run_corrected_benchmark.py` writes an independent
+  `results/_recomputed_L1_RelayPeak_v2/` replay, compares every physics metric
+  with the reviewed `results/L1_RelayPeak_v2/` snapshot, and leaves both
+  published v2 and historical root-level files unchanged.
   This requires the optional QP and plotting dependencies for full coverage.
 - The manifest records source checksums, dependency versions, exact nominal PI
   gain values, source matrix checksum and independently regenerated WP5 counts.
@@ -24,8 +26,8 @@ estimated at hysteresis switching values. The A01 fix changed the identification
 
 ## Scientific interpretation
 
-Until generated v2 outputs are reviewed and published, all pre-existing WP5
-rankings remain legacy historical results. Even after regeneration, all WP3–WP5
+The reviewed corrected `L1_RelayPeak_v2` snapshot is published via PR #11.
+Unversioned root-level output files remain legacy historical results. Even after regeneration, all WP3–WP5
 comparisons remain conditional on an uncalibrated, synthetic compressor model.
 A separate matched benchmark against the **WP7 property-backed dynamic plant**
 is required before transferring controller rankings to that model. There is no
