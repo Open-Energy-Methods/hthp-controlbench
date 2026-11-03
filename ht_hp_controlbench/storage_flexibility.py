@@ -149,6 +149,28 @@ def _stage(y:np.ndarray,u:float,model:CycleMap, mass:float,p:Parameters,
                      qhp,pel,hx.q_transferred,lh,lb],float)
 
 
+def _validate_accepted_storage_endpoint(y:np.ndarray,model:CycleMap,
+                                        d:Disturbance,props,limits=None)->None:
+    """Validate the actual RK4 ACCEPTED endpoint, not just its substages.
+
+    Four physically valid intermediate RK4 stages can produce a weighted
+    endpoint outside the refrigerant Q/P interpolation grid, the declared
+    liquid water/pressure envelope or the optional hypothetical limits.
+    Such a step must not commit state, electricity, tariff cash or service.
+    """
+    if not np.all(np.isfinite(y)):
+        raise PointRejected("nonfinite_storage_accepted_endpoint")
+    th,hb,n=map(float,y[:3])
+    if not model.modulations[0]-1e-9<=n<=model.modulations[-1]+1e-9:
+        raise PointRejected("storage_accepted_modulation_outside_declared_map")
+    tb=_prop(props,'T','IF97::Water','P',
+             model.assumptions.service_header_pressure_pa,'H',hb)
+    water_loop_state(max(th,tb),model.assumptions,props)
+    model.evaluate(n,d.t_source,th)
+    if limits is not None and _limit_status(model,d.t_source,th,n,limits,props):
+        raise PointRejected("storage_accepted_hypothetical_equipment_constraint_failed")
+
+
 def simulate_24h(model:CycleMap, policy:str='baseline_pi',settings:FlexSettings|None=None,
                  tariff:SyntheticTariff|None=None, props=None,
                  limits:HypotheticalEquipmentLimits|None=None,
@@ -216,7 +238,11 @@ def simulate_24h(model:CycleMap, policy:str='baseline_pi',settings:FlexSettings|
             k3=_stage(y+0.5*cfg.dt_s*k2,u,model,cfg.mass_kg,p,d,props,limits)
             k4=_stage(y+cfg.dt_s*k3,u,model,cfg.mass_kg,p,d,props,limits)
             increment=cfg.dt_s*(k1+2*k2+2*k3+k4)/6.
-            y+=increment
+            candidate=y+increment
+            _validate_accepted_storage_endpoint(candidate,model,d,props,limits)
+            # Only a fully accepted RK4 endpoint may add electricity,
+            # monetary cost, heat, physical inventory or qualified service.
+            y=candidate
             # Price is piecewise constant and aligned to dt.
             e_kwh=increment[4]/3.6e6;cash+=pr*e_kwh
             # Bucket by the declared *time interval*, not floating-point price.
