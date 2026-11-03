@@ -85,6 +85,7 @@ def run_property_controller(
     props=None, force_mpc_failure: bool = False,
     observer_backend: str = "auto",
     truth_parameters: Parameters | None = None,
+    benchmark_id: str = BENCHMARK,
 ) -> dict:
     """Run a fixed-gain PI or MPC against the exact same property-map dynamic truth.
 
@@ -97,6 +98,8 @@ def run_property_controller(
     synthetic model/plant mismatch, not equipment-identified uncertainty.
     Unreachable property states fail closed and disqualify the ENTIRE run.
     """
+    if not isinstance(benchmark_id,str) or not benchmark_id.strip():
+        raise ValueError("nonempty benchmark identifier required")
     if method not in ("PI_IMC", "PI_relay", "MPC_persistence", "MPC_property"):
         raise ValueError("unknown WP7 controller")
     if observer_backend not in ("auto","synthetic","property"):
@@ -287,7 +290,7 @@ def run_property_controller(
                     and energy_spec_unserved <= 3.6
                     and energy_physical_shortfall <= 3.6)
     return {
-        "benchmark_id": BENCHMARK, "case":case.name, "controller":method,
+        "benchmark_id": benchmark_id, "case":case.name, "controller":method,
         "plant":("WP7 CoolProp condenser Q/P map + IF97 enthalpy; UNCALIBRATED" +
                  (" | truth-only HX/actuator-dynamics mismatch" if p_truth != p else "")),
         "truth_model_mismatch":p_truth != p,
@@ -355,6 +358,8 @@ def compare_property_pair(pi: dict, mpc: dict,
     """
     if pi["case"] != mpc["case"] or pi["controller"] not in ("PI_IMC","PI_relay") or mpc["controller"] not in ("MPC_persistence","MPC_property"):
         raise ValueError("invalid WP7 paired comparison identity")
+    if pi.get("truth_parameter_ratios_to_nominal",{}) != mpc.get("truth_parameter_ratios_to_nominal",{}):
+        raise ValueError("different truth-plant parameter scenarios cannot be compared")
     for key in ("duration_s","sample_period_s","control_period_s","sensor_delay_s",
                 "sensor_noise_sd_k","seed","plant","measurement","benchmark_id"):
         if pi[key] != mpc[key]:
