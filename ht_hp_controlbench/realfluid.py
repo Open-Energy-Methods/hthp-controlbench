@@ -99,6 +99,8 @@ class CyclePoint:
     h1_j_kg: float
     h2s_j_kg: float
     h2_j_kg: float
+    h_discharge_sat_vapor_j_kg: float
+    discharge_vapor_enthalpy_margin_j_kg: float
     h3_j_kg: float
     throttle_quality: float
     compressor_specific_j_kg: float
@@ -149,6 +151,11 @@ def cycle_point(fluid: str, t_source_k: float, t_header_k: float,
     rho = _prop(props, 'D', fluid, 'T', t1, 'P', p1)
     h2s = _prop(props, 'H', fluid, 'P', p2, 'S', s1)
     h2 = h1 + (h2s-h1)/a.eta_isentropic
+    # A P,H flash can return T=T_sat even for a *wet* discharge.
+    # Check enthalpy against saturated vapour explicitly before interpreting T2.
+    h_g_cond = _prop(props, 'H', fluid, 'P', p2, 'Q', 1)
+    if h2 <= h_g_cond + 1.0:  # explicit 1 J/kg dry-vapour numerical guard
+        raise PointRejected('compressor_discharge_wet_or_not_superheated_vapor')
     t2 = _prop(props, 'T', fluid, 'P', p2, 'H', h2)
     if t2 >= tmax - 0.1:
         raise PointRejected('compressor_discharge_above_EOS_maximum')
@@ -171,7 +178,7 @@ def cycle_point(fluid: str, t_source_k: float, t_header_k: float,
     if abs(qh-w-qe)>max(1e-5,abs(qh)*1e-9):
         raise PointRejected('energy_balance_inconsistent')
     return CyclePoint(fluid,t_source_k,t_header_k,te,tc,t1,t2,t3,tcrit,p1,p2,p2/p1,
-                      rho,h1,h2s,h2,h3,x4,w,qh,qe,cop,carnot,cop/carnot,rho*qh)
+                      rho,h1,h2s,h2,h_g_cond,h2-h_g_cond,h3,x4,w,qh,qe,cop,carnot,cop/carnot,rho*qh)
 
 
 def water_loop_state(t_hot_k: float, assumptions: CycleAssumptions | None = None,

@@ -35,6 +35,9 @@ class FakeProperties:
         if key=='S' and v1=='T' and v2=='P':return 1200.
         if key=='D' and v1=='T' and v2=='P':return 16.*(300/x1)
         if key=='H' and v1=='P' and v2=='S':return self.h1+130000
+        if key=='H' and v1=='P' and v2=='Q':
+            tsat=300+60*log(x1/50000.)
+            return 200000+1500*(tsat-273.15)
         if key=='T' and v1=='P' and v2=='H':return (x2-200000.)/1500+273.15
         if key=='Q' and v1=='P' and v2=='H':return .4
         raise AssertionError((key,args))
@@ -55,9 +58,19 @@ class TestWP7Structure(unittest.TestCase):
                                x.compressor_specific_j_kg+x.evaporator_specific_j_kg,places=8)
         self.assertAlmostEqual(x.pressure_ratio,x.p_cond_pa/x.p_evap_pa)
         self.assertGreater(x.t_discharge_k,x.t_cond_sat_k)
+        self.assertGreater(x.discharge_vapor_enthalpy_margin_j_kg,0)
         self.assertGreater(x.volumetric_heat_capacity_j_m3,0.)
         self.assertAlmostEqual(x.t_evap_sat_k,328.15)
         self.assertAlmostEqual(x.t_cond_sat_k,411.2)
+
+    def test_wet_compressor_discharge_rejected_even_if_temperature_flash_misleads(self):
+        class FakeWet(FakeProperties):
+            def __call__(self,key,*args):
+                if len(args)==5 and key=='H' and args[0]=='P' and args[2]=='Q':
+                    return 1e6  # Above actual compressor discharge enthalpy
+                return super().__call__(key,*args)
+        with self.assertRaisesRegex(PointRejected,'discharge_wet'):
+            cycle_point('Fake',333.15,406.2,self.a,FakeWet())
 
     def test_critical_gate_rejects_and_never_extrapolates(self):
         a=replace(self.a,critical_margin_k=70.)

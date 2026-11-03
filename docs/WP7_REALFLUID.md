@@ -24,7 +24,7 @@ Four-point single-stage **subcritical** vapour-compression cycle, refrigerant wi
 - Specific compressor energy `w=h2−h1`; condenser specific heat `q_cond=h2−h3`; evaporator specific heat `q_ev=h1−h3`; energy test `q_cond = w+q_ev`.
 - `COP_heating=q_cond/w` must satisfy `1<COP≤T_cond/(T_cond−T_evap)`. This compares against the **refrigerant-side** Carnot limit, not reservoir Carnot. Volumetric condenser heating capacity at compressor suction is `rho1*q_cond` (J/m³), a thermophysical metric, not manufacturer-rated displacement.
 
-Tcrit, Tmax, Tmin, saturation pressures, discharge temperature and permitted quality are queried from CoolProp, not hardcoded. A voluntary `T_cond ≤ Tcrit−5 K` property-screening guard is applied. It is **not** a refrigerant manufacturer's safe design envelope. The model rejects absent EOS states, invalid phase, zero/negative work or heat, and attempts to treat transcritical CO₂ as a subcritical drop-in.
+Tcrit, Tmax, Tmin, saturation pressures, discharge temperature, **discharge saturated-vapor enthalpy at condensing pressure**, and permitted throttle quality are queried from CoolProp, not hardcoded. A voluntary `T_cond ≤ Tcrit−5 K` property-screening guard is applied. It is **not** a refrigerant manufacturer's safe design envelope. A `P,H` discharge-temperature flash **alone** cannot identify a wet compressor discharge: the explicit guard requires `h2 > h_sat,vapor(p2)+1 J/kg` to exclude liquid-vapour mixtures. The model rejects absent EOS states, invalid phase, zero/negative work or heat, and attempts to treat transcritical CO₂ as a subcritical drop-in.
 
 ### Investigated fluids
 
