@@ -6,7 +6,6 @@ Gains use dimensionless compressor command per kelvin and per kelvin-second.
 from __future__ import annotations
 from dataclasses import dataclass
 from math import log, pi, isfinite
-from statistics import mean
 import numpy as np
 
 from .core import Parameters, State, Disturbance, equilibrium
@@ -158,18 +157,22 @@ def identify_relay(p: Parameters, amplitude_u: float=0.045,
     if amplitude_u>p.max_command_step or u0-amplitude_u<p.n_min or u0+amplitude_u>p.n_max:
         raise ValueError('relay command would violate actuator limits')
     state=1
-    high_times=[]; low_times=[]; high_out=[]; low_out=[]
+    high_times=[]; low_times=[]
+    # Track the *actual* process excursions, not the values sampled at the
+    # hysteresis thresholds where the relay changes sign. A full high-to-high
+    # period includes both a maximum and a minimum after actuation dynamics.
+    trajectory_time=[]; trajectory_error=[]
     steps=int(round(run_s/step_s)); ns=int(round(sample_s/step_s))
     for k in range(steps):
+        e=x.tb-setpoint
+        trajectory_time.append(k*step_s)
+        trajectory_error.append(e)
         if k%ns==0:
-            e=x.tb-setpoint
             if state==1 and e>=hysteresis_k:
                 high_times.append(k*step_s)
-                high_out.append(e)
                 state=-1
             elif state==-1 and e<=-hysteresis_k:
                 low_times.append(k*step_s)
-                low_out.append(e)
                 state=1
         x,_=_rk4_step(x,u0+state*amplitude_u,p,Disturbance(),step_s)
     if len(high_times)<6 or len(low_times)<6:
@@ -177,10 +180,25 @@ def identify_relay(p: Parameters, amplitude_u: float=0.045,
     periods=np.diff(high_times[-6:]); period=float(np.mean(periods))
     if np.std(periods)>0.05*period:
         raise ValueError('relay oscillation has not reached stationary period')
-    a=(float(mean(high_out[-5:]))-float(mean(low_out[-5:])))/2
-    if a<=0:
-        raise ValueError('non-positive relay oscillation amplitude')
-    # For hysteresis the standard ideal-relay Ku estimate is only approximate.
+    trace_t=np.asarray(trajectory_time, dtype=float)
+    trace_e=np.asarray(trajectory_error, dtype=float)
+    # Use the last five *complete* high-to-high periods. The relay may switch
+    # after crossing a threshold, so switch values are systematically smaller
+    # than true peaks and must never be used for the describing-function gain.
+    amplitudes=[]
+    for t_start,t_end in zip(high_times[-6:-1],high_times[-5:]):
+        within=(trace_t>=t_start)&(trace_t<t_end)
+        cycle=trace_e[within]
+        if len(cycle)<4:
+            raise ValueError('relay period underresolved by integration step')
+        amplitudes.append(0.5*(float(np.max(cycle))-float(np.min(cycle))))
+    a=float(np.mean(amplitudes))
+    if not np.isfinite(a) or a<=hysteresis_k:
+        raise ValueError('relay limit cycle insufficiently resolved beyond hysteresis')
+    if float(np.std(amplitudes))>0.05*a:
+        raise ValueError('relay amplitude has not reached stationary period')
+    # Finite hysteresis and compressor lag mean Ku is an approximate describing-
+    # function estimate, NOT a certified stability margin or a hardware tune.
     ku=4*amplitude_u/(pi*a)
     return RelayIdentification(ku,period,a,amplitude_u,min(len(high_times),len(low_times)))
 

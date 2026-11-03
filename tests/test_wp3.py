@@ -45,6 +45,23 @@ class PIControlTests(unittest.TestCase):
         self.assertAlmostEqual(self.relay_pi.ki,self.relay_pi.kp/(2.2*r.period_s))
         self.assertNotAlmostEqual(self.relay_pi.kp,self.imc.kp,delta=.1)
 
+    def test_relay_amplitude_is_limit_cycle_peak_not_switch_threshold(self):
+        # Regression for audit A01: finite compressor lag produces peaks beyond
+        # the hysteresis switching threshold. The old implementation reported
+        # approximately 0.052 K using only values at switching instants.
+        measured = self.relay.temperature_amplitude_k
+        self.assertGreater(measured, 0.075)
+        self.assertLess(measured, 0.12)
+        self.assertGreater(measured, 1.7*0.04)
+        self.assertLess(self.relay_pi.kp, 0.25)
+        self.assertGreater(self.relay_pi.kp, 0.15)
+
+    def test_relay_peak_estimate_stable_to_halved_integration_step(self):
+        finer = identify_relay(self.p, step_s=5., sample_s=30.)
+        self.assertAlmostEqual(finer.temperature_amplitude_k,
+                               self.relay.temperature_amplitude_k, delta=0.008)
+        self.assertAlmostEqual(finer.period_s, self.relay.period_s, delta=60.)
+
     def test_invalid_control_parameters_rejected(self):
         for kp,ki,tracking in [(-.1,.01,360),(.1,0,360),(.1,.01,0),(.1,float('nan'),360)]:
             with self.assertRaises(ValueError):PISettings(kp,ki,'invalid',tracking)
