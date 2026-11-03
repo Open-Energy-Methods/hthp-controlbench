@@ -1,0 +1,257 @@
+{
+  "audit_id": "WP7_Independent_Experimental_Evidence_Screen_v1",
+  "audit_date_utc": "2026-11-03",
+  "status": "EXTERNAL_DATA_VERIFIED__TARGET_EQUIPMENT_AND_OBSERVER_NOT_VALIDATED",
+  "external_datasets": {
+    "widmaier_2026": {
+      "source": {
+        "doi": "10.5281/zenodo.17599603",
+        "source_url": "https://zenodo.org/records/17599603",
+        "file_url": "https://zenodo.org/api/records/17599603/files/compressor_performance_data.csv/content",
+        "filename": "compressor_performance_data.csv",
+        "license": "CC BY 4.0",
+        "source_description": "Widmaier et al.; 31,702 manufacturer-polynomial GENERATED + 371 measured compressor records",
+        "published_md5": "680dd400cfb39b2fa0a1dd22a09c731f",
+        "raw_sha256": "a5a782e60ce066750ac2cfd0457c456abce962797adac64798fb855ba3139ccb",
+        "bytes": 3411195,
+        "data_content_verified": true
+      },
+      "observations": {
+        "source_doi": "10.5281/zenodo.17599603",
+        "all_records": 32073,
+        "generated_EN12900_records_not_measured": 31702,
+        "experimentally_measured_records": 371,
+        "pure_R1233zd_experimental_records": 22,
+        "source_counts": {
+          "Bitzer EN12900": 30906,
+          "Bock EN12900": 796,
+          "Experimental OST (London 2023)": 228,
+          "Experimental OST (Purdue 2024 HFO)": 44,
+          "Experimental OST (Purdue 2024 Natural)": 60,
+          "Experimental Milano (D'Ignazi & Molinaroli 2026)": 39
+        },
+        "pure_refrigerant_eta_is_overall_electrical": {
+          "n": 22,
+          "min": 0.3019,
+          "median": 0.59965,
+          "max": 0.6782
+        },
+        "pure_refrigerant_eta_vol": {
+          "n": 22,
+          "min": 0.4792,
+          "median": 0.7743500000000001,
+          "max": 0.9329
+        },
+        "pure_refrigerant_suction_pressure_bar": {
+          "n": 22,
+          "min": 0.4726,
+          "median": 2.57045,
+          "max": 4.4723
+        },
+        "pure_refrigerant_discharge_pressure_bar": {
+          "n": 22,
+          "min": 2.1003,
+          "median": 10.050899999999999,
+          "max": 25.5352
+        },
+        "pure_refrigerant_T_ev_C": {
+          "n": 22,
+          "min": -0.4,
+          "median": 45.355000000000004,
+          "max": 64.94
+        },
+        "pure_refrigerant_T_suc_C": {
+          "n": 22,
+          "min": 17.97,
+          "median": 68.58,
+          "max": 95.14
+        },
+        "pure_refrigerant_T_co_C": null,
+        "pure_refrigerant_superheat_K": {
+          "n": 22,
+          "min": 13.01,
+          "median": 17.72,
+          "max": 46.45
+        },
+        "asset_matching_reference_WP7": false,
+        "model_compatibility": "EXTERNAL_COMPRESSOR_CONTEXT_ONLY",
+        "why_not_direct_validation": "Different compressor and reference displacement; experimental overall isentropic efficiency is defined using ELECTRICAL input, while WP7 idealized h2s-h1/eta uses assumed internal compression efficiency and omits motor and auxiliary power. Measured pressure/speed/geometry and heat-pump system topology are not matched. EN12900 rows are generated."
+      }
+    },
+    "leclercq_2026": {
+      "source": {
+        "doi": "10.5281/zenodo.20445833",
+        "source_url": "https://zenodo.org/records/20445833",
+        "file_url": "https://zenodo.org/api/records/20445833/files/proto.csv/content",
+        "filename": "proto.csv",
+        "license": "CC BY 4.0",
+        "source_description": "Leclercq; 200 cm^3 two-phase/oil-mixed R1233zd(E) scroll compressor laboratory data",
+        "published_md5": "ad79afb7265de1c3ee954d5ce2e094c3",
+        "raw_sha256": "d2e2a08002b3af8634f604e8b8aefa3dcb82ca95acd207ded93936dafa78544b",
+        "bytes": 88654,
+        "data_content_verified": true
+      },
+      "observations": {
+        "source_doi": "10.5281/zenodo.20445833",
+        "experimentally_measured_records": 67,
+        "inlet_refrigerant_vapour_quality": {
+          "n": 67,
+          "min": 0.310472672,
+          "median": 0.952401236,
+          "max": 1.0
+        },
+        "reported_isentropic_efficiency": {
+          "n": 67,
+          "min": 0.341684233,
+          "median": 0.559474631,
+          "max": 0.782775345
+        },
+        "reported_volumetric_efficiency": {
+          "n": 67,
+          "min": 0.584276021,
+          "median": 0.799949577,
+          "max": 0.977537087
+        },
+        "pressure_ratio": {
+          "n": 67,
+          "min": 1.812213674,
+          "median": 3.426687115,
+          "max": 5.633841698
+        },
+        "speed_rpm": {
+          "n": 67,
+          "min": 770.473913,
+          "median": 1539.541322,
+          "max": 2309.836653
+        },
+        "asset_matching_reference_WP7": false,
+        "model_compatibility": "OUT_OF_DOMAIN_TWO_PHASE_WITH_OIL",
+        "why_not_direct_validation": "Two-phase inlet and lubricating oil mixture in 200cm3 scroll unit; WP7 assumes dry superheated suction and a separate implied compressor displacement. Use only for conditional context on variability, not 310kW design calibration."
+      }
+    }
+  },
+  "independent_sources_not_automatically_ingested": [
+    {
+      "doi": "10.17632/56m3dd55zf.1",
+      "url": "https://data.mendeley.com/datasets/56m3dd55zf/1",
+      "title": "Jeßberger et al. 2026 measured 37kW R1233zd(E) full HTHP",
+      "value": "More applicable to complete heat-pump calibration than bare compressor tests",
+      "availability": "META_VERIFIED; raw Mendeley API returned 401 without authorization",
+      "status": "NOT_INGESTED__NO_NUMERIC_VALIDATION"
+    },
+    {
+      "url": "https://www.bitzer.de/mv/en/products/screw-compressors/csh2t/",
+      "title": "BITZER CSH2T published product family",
+      "scope": "R1233zd(E) compressor; published useful output up to 120C",
+      "reference_WP7_nominal_header_C": 133.05,
+      "status": "NOT_A_133C_MACHINE_PROOF__SPECIFIC_OEM_MAP_UNAVAILABLE"
+    },
+    {
+      "doi": "10.1016/j.applthermaleng.2024.122961",
+      "title": "Ramirez et al. 2024 R1233zd(E) prototype measured 38.6kW at 148.5C",
+      "status": "LITERATURE_PROOF_OF_OTHER_RIG_OPERATION__NOT_TARGET_ASSET"
+    }
+  ],
+  "reference_model": {
+    "origin": "same unchanged hypothetical WP7 nominal calculation; NOT measured",
+    "fluid": "R1233zd(E)",
+    "source_K": 333.15,
+    "header_K": 406.2,
+    "condensing_duty_w_requested": 310000.0,
+    "compressor_efficiency_is_assumed": 0.75,
+    "cop_ideal_compression_eos": 2.510689580152763,
+    "electrical_input_w_ideal_without_motor_losses": 123472.05423186488,
+    "required_evaporator_w": 186527.94576813513,
+    "implied_fullspeed_suction_volume_m3_s_NOT_OEM": 0.20422714630253777,
+    "coolprop_version": "8.0.0",
+    "potential_external_comparison": "not direct: model eta_is reflects internal idealization; measured overall eta_is uses electric input",
+    "reference_capacity_not_independently_validated": true,
+    "source_temperature_drop_sensitivity": {
+      "source_delta_5K": {
+        "water_cp_assumed_j_kgK": 4200.0,
+        "minimum_flow_kg_s_ideal_no_pinches": 8.882283131815958,
+        "interpretation": "ARITHMETIC_ONLY; actual fluid/flow/approaches unknown"
+      },
+      "source_delta_10K": {
+        "water_cp_assumed_j_kgK": 4200.0,
+        "minimum_flow_kg_s_ideal_no_pinches": 4.441141565907979,
+        "interpretation": "ARITHMETIC_ONLY; actual fluid/flow/approaches unknown"
+      },
+      "source_delta_15K": {
+        "water_cp_assumed_j_kgK": 4200.0,
+        "minimum_flow_kg_s_ideal_no_pinches": 2.960761043938653,
+        "interpretation": "ARITHMETIC_ONLY; actual fluid/flow/approaches unknown"
+      }
+    }
+  },
+  "finite_source_test": {
+    "status": "UNVERIFIED_SOURCE_FLOW_OR_TEMPERATURE",
+    "required_evaporator_w": 186527.94576813513,
+    "necessary_source_heat_upper_bound_w": null,
+    "minimum_flow_kg_s_given_temperature_range": null,
+    "heat_exchanger_verified": false
+  },
+  "equipment_evidence_gate": {
+    "status": "NOT_EQUIPMENT_VALIDATED",
+    "asset_id": null,
+    "matched_evidence_sections": [],
+    "missing_sections": [
+      "asset_identity",
+      "manufacturer_application_envelope",
+      "manufacturer_capacity_map",
+      "compressor_swept_volume",
+      "isentropic_and_volumetric_maps",
+      "fluid_lubricant_compatibility",
+      "heat_source_supply",
+      "heat_sink_service",
+      "heat_exchangers",
+      "motor_and_auxiliaries",
+      "instrumentation_calibration",
+      "observer_training_data",
+      "observer_heldout_validation",
+      "pressure_safety_basis"
+    ],
+    "nonqualifying_sections": [],
+    "section_count": 14,
+    "matched_section_count": 0,
+    "claim_boundary": "Supporting URL strings and supplied data cannot substitute independent OEM/safety and instrument review"
+  },
+  "observer_evidence_gate": {
+    "status": "NO_MATCHED_INSTRUMENTED_OBSERVER_DATA",
+    "records": 0,
+    "missing_evidence": [
+      "raw_data_sha256",
+      "measurement_reference_uri",
+      "sensor_calibration_uri",
+      "instrumented_asset_id",
+      "train_interval",
+      "heldout_interval"
+    ],
+    "claim": "observer empirical validity UNKNOWN"
+  },
+  "unmet_evidence_requirements": {
+    "asset_identity": "Same named 310kW installation, manufacturer model/serial and approved configuration",
+    "manufacturer_application_envelope": "Dated compressor model-specific suction/discharge, oil, motor and discharge temperature limits",
+    "manufacturer_capacity_map": "Independent measured/OEM condenser duty and input power as function of speed/source/sink",
+    "compressor_swept_volume": "Independent OEM swept volume; NOT back-calculated from 310kW target",
+    "isentropic_and_volumetric_maps": "Same compressor efficiency/volumetric curves with uncertainties",
+    "fluid_lubricant_compatibility": "OEM-approved R1233zd(E) and oil combinations at nominated conditions",
+    "heat_source_supply": "Measured mass flow, inlet/outlet temperature, pressure losses and minimum outlet bound",
+    "heat_sink_service": "Measured water/heat-transfer loop mass flow, inlet/outlet temperatures and allowable pressures",
+    "heat_exchangers": "Independent process/evaporator/condenser UA, pinch, pressure loss and flow-pressure ranges",
+    "motor_and_auxiliaries": "Measured motor/drive/auxiliary electrical input and calibrated metering",
+    "instrumentation_calibration": "Traceable sensor locations, uncertainty budgets and sample timestamps",
+    "observer_training_data": "Instrumented excitation history with measured command and process/ambient disturbances",
+    "observer_heldout_validation": "Nonoverlapping, time-aligned reference measurements of HEADER T and ACTUAL compressor modulation",
+    "pressure_safety_basis": "Pressure rating, relief, alarm/interlocks and jurisdiction-specific design review"
+  },
+  "prohibited_conclusions": [
+    "310kW reference equipment exists or is rated for 133C service",
+    "different measured compressor is the reference compressor",
+    "EN12900 polynomial rows constitute measured hardware observations",
+    "two-phase oil-mixed scroll evidence validates dry-vapor compressor",
+    "nominal motor electricity or source/sink HX design is independently known",
+    "property-matched numerical observer is validated by real measured truth",
+    "MPC performance and energy costs generalize to a commercial machine"
+  ]
+}
