@@ -11,7 +11,7 @@ from ht_hp_controlbench.benchmark import nominal_tunings
 from ht_hp_controlbench.core import Disturbance
 from ht_hp_controlbench.mpc import MPCConfig
 from ht_hp_controlbench.pi import PISettings
-from ht_hp_controlbench.realfluid import CycleAssumptions, build_cycle_map
+from ht_hp_controlbench.realfluid import CycleAssumptions, build_cycle_map, PointRejected
 from ht_hp_controlbench.wp7_control import (
     PropertyControlCase, declared_property_cases, run_property_controller, compare_property_pair
 )
@@ -118,6 +118,19 @@ class WP7MatchedControlStructuralTests(TestCase):
         self.assertIsNone(result["electricity_kWh"])
         self.assertFalse(result["matched_service_gate"])
         self.assertTrue(result["failure_reason"])
+
+    def test_invalid_exact_rk4_endpoint_cannot_commit_a_step(self):
+        # Four intermediate RK4 stages can all be valid even if their
+        # weighted candidate endpoint leaves the property-map envelope.
+        with patch("ht_hp_controlbench.wp7_control._validate_accepted_endpoint",
+                   side_effect=PointRejected("endpoint_only_phase_rejection")):
+            result=self.run_case("PI_IMC")
+        self.assertEqual(result["status"],"failed_physical_or_numerical_constraint")
+        self.assertEqual(result["completed_time_s"],0.)
+        self.assertIsNone(result["iae_Ks"])
+        self.assertIsNone(result["electricity_kWh"])
+        self.assertFalse(result["matched_service_gate"])
+        self.assertIn("endpoint_only_phase_rejection",result["failure_reason"])
 
     def test_no_energy_saving_credit_for_unmatched_terminal_resources(self):
         pi=self.run_case("PI_IMC")
