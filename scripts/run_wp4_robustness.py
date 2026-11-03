@@ -7,26 +7,19 @@ period. This is a new fair clock, NOT a comparison to WP3's 60-s CSV.
 from __future__ import annotations
 from pathlib import Path
 from collections import defaultdict
-import csv,json
+import csv,json,os
 import numpy as np
 from ht_hp_controlbench.core import Parameters
-from ht_hp_controlbench.pi import identify_step,tune_imc,identify_relay,tune_relay_tyreus_luyben
+from ht_hp_controlbench.benchmark import nominal_tunings,tuning_manifest,BENCHMARK_ID
 from ht_hp_controlbench.robustness import declared_cases
 from ht_hp_controlbench.mpc import MPCConfig
 from ht_hp_controlbench.mpc_robustness import run_robust_mpc_case
 
 
 def main():
-    root=Path('results');root.mkdir(exist_ok=True)
+    root=Path(os.environ.get('HTHP_RESULTS_DIR','results'));root.mkdir(parents=True,exist_ok=True)
     nominal=Parameters(hx_mode='no_bypass')
-    step=identify_step(nominal)
-    relay=identify_relay(nominal)
-    pi={
-       'IMC_lambda_0p5tau':tune_imc(step,.5),
-       'IMC_lambda_1tau':tune_imc(step,1.),
-       'IMC_lambda_2tau':tune_imc(step,2.),
-       'relay_PI':tune_relay_tyreus_luyben(relay)
-    }
+    pi,step,relay=nominal_tunings()
     cases=declared_cases(nominal)
     cfg=MPCConfig(horizon=6,period_s=120,integration_step_s=20,
                   solver_backend='slsqp')
@@ -65,6 +58,8 @@ def main():
             wins[min(finite,key=lambda r:r['iae_Ks'])['method']]+=1
     summary={
        'scientific_status':'synthetic partial-observation robustness, not certified robust MPC',
+       'benchmark_id':BENCHMARK_ID,
+       'nominal_tuning':tuning_manifest(pi,step,relay),
        'measurement_budget':'one noisy/delayed buffer-temperature sensor shared by all methods; MPC other states predicted from nominal model',
        'disturbance_budget':'MPC persistence of current source/return; separately report perfect-future advantage',
        'sampling':{'sensor_period_s':60,'controller_period_s':120,'duration_s':14400,'integration_step_s':20},

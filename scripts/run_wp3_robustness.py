@@ -5,6 +5,8 @@ Command: python scripts/run_wp3_robustness.py (after pip install -e .[plots]).
 from __future__ import annotations
 from collections import defaultdict
 from pathlib import Path
+import os
+from ht_hp_controlbench.benchmark import BENCHMARK_ID
 import csv
 import json
 import math
@@ -16,8 +18,8 @@ from ht_hp_controlbench.robustness import declared_cases, simulate_robust_pi
 
 
 def main() -> None:
-    root = Path('results')
-    root.mkdir(exist_ok=True)
+    root = Path(os.environ.get('HTHP_RESULTS_DIR','results'))
+    root.mkdir(parents=True, exist_ok=True)
     nominal = Parameters(hx_mode='no_bypass')
     step = identify_step(nominal)
     relay = identify_relay(nominal)
@@ -72,6 +74,8 @@ def main() -> None:
 
     summary = {
         'scientific_status': 'synthetic uncalibrated numerical PI sensitivity only',
+        'benchmark_id': BENCHMARK_ID,
+        'nominal_pi_gains': {k: {'kp':v.kp,'ki':v.ki} for k,v in methods.items()},
         'measurement_model': 'Gaussian white noise at control samples; integer-sample delay; no estimator',
         'parameter_model': 'one-at-a-time perturbations with fixed nominal PI gains and bias',
         'controller_tuning_origin': 'all methods identified on nominal no-bypass plant',

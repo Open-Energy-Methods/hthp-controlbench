@@ -1,19 +1,18 @@
 """WP4 synthetic, equal-sampling PI-vs-MPC study; never claim equipment validation."""
 from __future__ import annotations
-import csv, json
+import csv, json, os
 from dataclasses import replace
 from pathlib import Path
 import numpy as np
 from ht_hp_controlbench.core import Parameters, Disturbance, equilibrium
 from ht_hp_controlbench.pi import PIController, PISettings, metrics
+from ht_hp_controlbench.benchmark import nominal_tunings, tuning_manifest, BENCHMARK_ID
 from ht_hp_controlbench.mpc import MPCConfig, closed_loop_mpc
 from ht_hp_controlbench.sim import Schedule, simulate
 
 ROOT=Path(__file__).resolve().parents[1]
-OUT=ROOT/'results'
-OUT.mkdir(exist_ok=True)
-IMC=PISettings(0.03842421355656901,1.2387208598348781e-05,'FOPDT_IMC_lambda_0p5tau')
-RELAY=PISettings(0.3451917157008826,0.00020116067348536278,'Relay_TyreusLuyben')
+OUT=Path(os.environ.get('HTHP_RESULTS_DIR',str(ROOT/'results')))
+OUT.mkdir(parents=True,exist_ok=True)
 
 
 def disturbance(t):
@@ -43,6 +42,9 @@ def measure(sim,target,period):
 
 def main():
     nominal=Parameters()
+    tunings, step_ident, relay_ident = nominal_tunings()
+    imc=tunings['IMC_lambda_0p5tau']
+    relay=tunings['relay_PI']
     cfg=MPCConfig(horizon=10)
     scenarios={
         'passive_nominal':nominal,
@@ -52,14 +54,14 @@ def main():
     }
     rows=[]; sampled={}
     for name,actual in scenarios.items():
-        for source,variant in ((IMC,'PI_IMC'),(RELAY,'PI_relay')):
+        for source,variant in ((imc,'PI_IMC'),(relay,'PI_relay')):
             sim,target,fallbacks,rejected=pi_comparison(nominal,actual,cfg,source)
             record=dict(scenario=name,controller=variant,information='current measurement only',
                         mpc_fallbacks=fallbacks,mpc_rejected=rejected,**measure(sim,target,cfg.period_s))
             rows.append(record)
             if name=='passive_nominal':sampled[variant]=(sim,target)
         for advanced in (False,True):
-            sim,ctrl,target=closed_loop_mpc(nominal,cfg,IMC,7200,advance_forecast=advanced,mismatch=actual)
+            sim,ctrl,target=closed_loop_mpc(nominal,cfg,imc,7200,advance_forecast=advanced,mismatch=actual)
             variant='MPC_advance_forecast' if advanced else 'MPC_persistence'
             record=dict(scenario=name,controller=variant,information='future perfect scenario' if advanced else 'current persistence',
                     mpc_fallbacks=ctrl.fallback_events,
@@ -74,7 +76,9 @@ def main():
        'horizon':cfg.horizon,'horizon_minutes':cfg.horizon*cfg.period_s/60,
        'electricity_price_EUR_per_kWh':.16,
        'comparison':'equal current information reported separately from future-known disturbances',
-       'service':'physical heat and specification service remain separately tracked'},
+       'service':'physical heat and specification service remain separately tracked',
+       'benchmark_id': BENCHMARK_ID,
+       'nominal_tuning': tuning_manifest(tunings, step_ident, relay_ident)},
        'results':rows},indent=2))
     try:
         import matplotlib
