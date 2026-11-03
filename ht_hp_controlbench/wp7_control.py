@@ -24,6 +24,21 @@ WATER_MASS_KG = 5000.0
 BENCHMARK = "WP7_PropertyTruth_SyntheticPredictor_Pilot_v1"
 
 
+def _validate_accepted_endpoint(v,model:CycleMap,d:Disturbance,props,pressure:float):
+    """Fail closed on the *accepted* RK4 state, not only its four substages.
+
+    The RK4 weighted candidate need not coincide with any intermediate stage.
+    Endpoint property and interpolation checks catch a possible step crossing
+    the phase or declared compressor-map envelope.
+    """
+    if not np.all(np.isfinite(v)):
+        raise PointRejected("nonfinite_property_trajectory")
+    tb=_prop(props,"T","IF97::Water","P",pressure,"H",float(v[1]))
+    water_loop_state(max(float(v[0]),float(tb)),model.assumptions,props)
+    model.evaluate(float(v[2]),d.t_source,float(v[0]))
+    return float(tb)
+
+
 @dataclass(frozen=True)
 class PropertyControlCase:
     name: str = "nominal"
@@ -200,17 +215,19 @@ def run_property_controller(
                     applied = next_applied
                     decisions.append((t,applied))
             hx = heat_exchanger(true_tb,p,d)
-            passed_steps += int(hx.qualified)
-            energy_spec_unserved += hx.q_spec_unserved * step_s
-            energy_physical_shortfall += max(0.,hx.q_requested-hx.q_transferred)*step_s
-            iae += abs(true_tb-target)*step_s
             k1=stage(y,applied,d)
             k2=stage(y+.5*step_s*k1,applied,d)
             k3=stage(y+.5*step_s*k2,applied,d)
             k4=stage(y+step_s*k3,applied,d)
-            y = y + (step_s/6.)*(k1+2*k2+2*k3+k4)
-            if not np.all(np.isfinite(y)):
-                raise PointRejected("nonfinite_property_trajectory")
+            candidate=y+(step_s/6.)*(k1+2*k2+2*k3+k4)
+            _validate_accepted_endpoint(candidate,model,d,props,pressure)
+            # Accounting and state are committed only after all stages AND the
+            # exact new endpoint pass property/phase/envelope checks.
+            y=candidate
+            passed_steps += int(hx.qualified)
+            energy_spec_unserved += hx.q_spec_unserved * step_s
+            energy_physical_shortfall += max(0.,hx.q_requested-hx.q_transferred)*step_s
+            iae += abs(true_tb-target)*step_s
             finished_steps += 1
         except (PointRejected,ValueError,FloatingPointError,OverflowError) as exc:
             failure = f"{type(exc).__name__}:{exc}"
