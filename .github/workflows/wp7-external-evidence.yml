@@ -62,6 +62,20 @@ jobs:
                   results/wp7_external_empirical_source_counts_v1.csv
           if ! git diff --cached --quiet; then
             git commit -m 'WP7: publish independently sourced experimental provenance and unknown equipment evidence gates'
+            git fetch origin audit-wp7-independent-empirical-evidence-v1
+            # Do not publish results generated against stale scientific sources.
+            # A concurrent README edit is harmless; changes to equations,
+            # data acquisition or audit code force a new workflow execution.
+            for path in ht_hp_controlbench/wp7_external_evidence.py \
+                        ht_hp_controlbench/realfluid.py \
+                        scripts/run_wp7_external_empirical_audit.py \
+                        tests/test_wp7_external_evidence.py; do
+              if [ "$(git rev-parse HEAD~1:\"$path\")" != "$(git rev-parse origin/audit-wp7-independent-empirical-evidence-v1:\"$path\")" ]; then
+                echo "Scientific source changed during audit; refusing stale numerical publication: $path" >&2
+                exit 1
+              fi
+            done
+            git rebase origin/audit-wp7-independent-empirical-evidence-v1
             git push origin HEAD:audit-wp7-independent-empirical-evidence-v1
           fi
       - name: Archive original-source-provenance report without redistributing raw files
