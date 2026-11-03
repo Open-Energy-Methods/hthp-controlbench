@@ -1,0 +1,53 @@
+name: Publish reviewed A01 corrected L1 benchmark
+
+on:
+  push:
+    branches:
+      - audit-a01-rebenchmark-L1-v2
+    paths:
+      - .github/workflows/audit-a01-publication.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: audit-a01-publication
+  cancel-in-progress: false
+
+jobs:
+  checked-regeneration:
+    if: github.repository == 'abhijith-sivaprasadan/hthp-controlbench'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install numerical and plotting dependencies
+        run: python -m pip install -e '.[plots,qp,realfluid]'
+      - name: Verify controller and results parsing tests
+        run: python -m unittest discover -s tests -p 'test_wp5_analysis.py' -v
+      - name: Regenerate corrected WP3 to WP5 from the same checkout
+        run: |
+          python scripts/run_wp3.py
+          python scripts/run_wp3_robustness.py
+          python scripts/run_wp4_robustness.py
+          python scripts/run_wp5.py
+          python scripts/snapshot_a01_rebenchmark.py
+      - name: Commit only checked versioned results to audit branch
+        shell: bash
+        run: |
+          test -s results/L1_RelayPeak_v2/manifest.json
+          test -s results/L1_RelayPeak_v2/wp4_robustness_matrix.csv
+          test -s results/L1_RelayPeak_v2/wp5_analysis.json
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -f results/L1_RelayPeak_v2/
+          git diff --cached --stat
+          git diff --cached --quiet && { echo 'No new versioned snapshot to publish'; exit 1; }
+          git commit -m 'data: publish CI-regenerated corrected L1_RelayPeak_v2 results'
+          git push origin HEAD:audit-a01-rebenchmark-L1-v2

@@ -1,0 +1,106 @@
+{
+  "benchmark_id": "L1_RelayPeak_v2",
+  "status": "CORRECTED_RELAY__SYNTHETIC_L1__NOT_EQUIPMENT_VALIDATED",
+  "git_source_commit": "427e30b8604d94a16ebde9cb4d73ae2e7b5b080d",
+  "historical_comparison": "Root results/wp3_*,wp4_robustness_*,wp5_* were produced before the A01 peak correction. These remain historical L1 values.",
+  "relay_temperature_peak_k": 0.08900550207009701,
+  "relay_period_s": 780.0,
+  "relay_ku_approx": 0.6437330072916004,
+  "relay_kp_command_per_k": 0.20116656477862513,
+  "relay_ki_command_per_ks": 0.00011722993285467663,
+  "wp4_run_count": 100,
+  "wp4_scenarios": 20,
+  "claim_boundary": "Same synthetic WP2 L1 plant, not WP7 real-fluid truth; no hardware PID/MPC performance certification.",
+  "files": [
+    {
+      "path": "results/L1_RelayPeak_v2/wp3_pi_comparison.csv",
+      "bytes": 1915,
+      "sha256": "5d65aadfab5c80d5817205f1875350c4f568fa491165a4ab3e93a949705b12b7"
+    },
+    {
+      "path": "results/L1_RelayPeak_v2/wp3_identification.txt",
+      "bytes": 4702,
+      "sha256": "3facf225bf77bb4d1d008a97b78bc172ba9758c3669b3c596f50857e4cd1067e"
+    },
+    {
+      "path": "results/L1_RelayPeak_v2/wp3_robustness_matrix.csv",
+      "bytes": 26106,
+      "sha256": "38e1b18e7190f432a50be85e6fbd49bd06b7976f238accadc24a748bb2fbc45d"
+    },
+    {
+      "path": "results/L1_RelayPeak_v2/wp3_robustness_summary.json",
+      "bytes": 2796,
+      "sha256": "34e69cb8406ae86f8bc5677472ae7aac72e6212fa28c7d5ee253d609712749a5"
+    },
+    {
+      "path": "results/L1_RelayPeak_v2/wp3_robustness_comparison.png",
+      "bytes": 203424,
+      "sha256": "32bc24725c2ebf7e41c88bfd9cc239413fa2b512c950397434e5c0d6ae646a63"
+    },
+    {
+      "path": "results/L1_RelayPeak_v2/wp3_pi_comparison.png",
+      "bytes": 212493,
+      "sha256": "7ef6d1401cc94a93e83fd798afdbd087a04e0263954f9b13ce6a9e866fdad2eb"
+    },
+    {
+      "path": "results/L1_RelayPeak_v2/wp4_robustness_matrix.csv",
+      "bytes": 35347,
+      "sha256": "ed65b5c68511cfee72ca101abd7c1e482a2ca6510cb7e79eebbb686bc2c5b845"
+    },
+    {
+      "path": "results/L1_RelayPeak_v2/wp4_robustness_summary.json",
+      "bytes": 15170,
+      "sha256": "52f3624dae0d3168c59bab99e4471bea779f0d494405a86d2d65827d199d6bcc"
+    },
+    {
+      "path": "results/L1_RelayPeak_v2/wp4_robustness_comparison.png",
+      "bytes": 86355,
+      "sha256": "3326b9ee33f86bd40df23308e042692e2af0eb6c135925a5659d93a17135bb6f"
+    },
+    {
+      "path": "results/L1_RelayPeak_v2/wp5_analysis.json",
+      "bytes": 92486,
+      "sha256": "ba16f33502cae38c285ea7d3e412b6442ac14d6ae6cc55b6889b6adaa0453eb2"
+    },
+    {
+      "path": "results/L1_RelayPeak_v2/wp5_case_comparison.csv",
+      "bytes": 7212,
+      "sha256": "95745f0af41b7ce144c4ae063f855e8f228b7bc0f47f6b8f6e29b0155d786c8a"
+    },
+    {
+      "path": "results/L1_RelayPeak_v2/wp5_paired_comparisons.csv",
+      "bytes": 19493,
+      "sha256": "c49ff37899cda1314c69c2d6b7d9c04a04dededa5cc7c9779f4908b62f8c1f59"
+    },
+    {
+      "path": "results/L1_RelayPeak_v2/wp5_controller_summary.csv",
+      "bytes": 740,
+      "sha256": "094a38c80ba7febce7ec7648ca9276a0b7fca8635cc4025a7cd2187d2222ccea"
+    },
+    {
+      "path": "results/L1_RelayPeak_v2/wp5_category_summary.csv",
+      "bytes": 630,
+      "sha256": "159ca8d6aa2db762db0db8c664d8657e23b1dc4def677c547886072966f130fa"
+    },
+    {
+      "path": "results/L1_RelayPeak_v2/wp5_forecast_sensitivity.csv",
+      "bytes": 480,
+      "sha256": "6360963710e0bb98507ae16e965b53595b4d21a8fb9bfc4331cb579dbb410bac"
+    },
+    {
+      "path": "results/L1_RelayPeak_v2/wp5_comparative_report.md",
+      "bytes": 11622,
+      "sha256": "4ab064b328e1aa31a7a532a19c740c5496d60630f05fb29ec0c3c53921fd3ff0"
+    },
+    {
+      "path": "results/L1_RelayPeak_v2/wp5_paired_tracking.png",
+      "bytes": 123329,
+      "sha256": "8004adeecf21d994744d4e0c32a32dd032347d6dc86928adf1823010a3093fd2"
+    },
+    {
+      "path": "results/L1_RelayPeak_v2/wp5_eligible_energy.png",
+      "bytes": 107801,
+      "sha256": "18cf1cffa43323be7f0e483179225cc9728335e146de620078a96dc81ee06556"
+    }
+  ]
+}

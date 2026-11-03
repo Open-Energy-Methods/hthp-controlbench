@@ -36,6 +36,17 @@ jobs:
         run: python scripts/run_wp4_robustness.py
       - name: Reproduce WP5 service-gated controller comparison
         run: python scripts/run_wp5.py
+      - name: Freeze corrected relay-peak L1 benchmark without rewriting legacy files
+        if: matrix.python-version == '3.12'
+        run: python scripts/snapshot_a01_rebenchmark.py
+      - name: Upload corrected WP3–WP5 synthetic L1 results
+        if: matrix.python-version == '3.12'
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit-a01-L1_RelayPeak_v2
+          path: results/L1_RelayPeak_v2/
+          if-no-files-found: error
+          retention-days: 90
       - name: Reproduce WP6 active-set and self-optimising control study
         run: python scripts/run_wp6.py
       - name: Reproduce WP7 CoolProp cycle and fluid property screen
