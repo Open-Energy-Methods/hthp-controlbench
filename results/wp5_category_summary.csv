@@ -1,0 +1,9 @@
+category,cases,qualifying_MPC_relay_pairs,MPC_lower_IAE_cases,median_paired_IAE_pct_all_cases,median_energy_delta_only_compliant_kWh
+bypass and UA,1,1,0,359.18930393800264,1.9782797554545368
+capacity change,3,2,1,464.05955193668933,-3.1588255653176702
+combined disturbance,2,2,0,71.39241401918088,-5.282894951389153
+nominal,1,1,1,-80.59140895661457,0.6673143930645438
+seeded sensor noise,6,6,6,-50.50757229543501,0.900610756295066
+sensor delay,2,2,2,-83.46447814176199,1.1295522423245643
+setpoint excursion,1,1,1,-9.968580255783865,-2.65890120965787
+thermal parameter change,4,3,3,-72.61371249155124,0.6430632514895933

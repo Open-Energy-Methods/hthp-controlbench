@@ -34,3 +34,5 @@ jobs:
       - name: Reproduce WP4 partial-observation robustness matrix
         if: matrix.python-version == '3.12'
         run: python scripts/run_wp4_robustness.py
+      - name: Reproduce WP5 service-gated controller comparison
+        run: python scripts/run_wp5.py

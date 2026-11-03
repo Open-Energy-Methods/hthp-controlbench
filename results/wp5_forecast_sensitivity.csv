@@ -1,0 +1,3 @@
+case,persistence_iae_Ks,advance_iae_Ks,delta_iae_Ks,persistence_electricity_kWh,advance_electricity_kWh,distinct_information_mode
+nominal,153.1921803359637,140.47899149113107,-12.713188844832644,584.109841547269,584.0927541273253,advance sees actual future disturbances; persistence does not
+heatpump_capacity_minus20pct,14743.94153849201,14794.634630326309,50.693091834298684,559.9759021623219,559.9013365214857,advance sees actual future disturbances; persistence does not
