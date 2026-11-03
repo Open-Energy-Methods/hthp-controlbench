@@ -1,0 +1,120 @@
+{
+  "interpretation": "end-to-end Python simulated-run timing, NOT median QP solve-time or real-time guarantee",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "python": "3.13.5",
+  "cpu_logical_count": 5,
+  "numpy": "2.3.5",
+  "scipy": "1.17.0",
+  "repeats": 2,
+  "duration_s": 7200,
+  "records": [
+    {
+      "case": "nominal",
+      "method": "IMC_0p5",
+      "runs": [
+        0.04839653700037161,
+        0.04652760400040279
+      ],
+      "median_wall_s": 0.0474620705003872,
+      "min_wall_s": 0.04652760400040279,
+      "max_wall_s": 0.04839653700037161,
+      "controller_updates": 60
+    },
+    {
+      "case": "nominal",
+      "method": "relay_PI",
+      "runs": [
+        0.04371544199966593,
+        0.04928031600002214
+      ],
+      "median_wall_s": 0.04649787899984403,
+      "min_wall_s": 0.04371544199966593,
+      "max_wall_s": 0.04928031600002214,
+      "controller_updates": 60
+    },
+    {
+      "case": "nominal",
+      "method": "MPC_persistence",
+      "runs": [
+        0.83108685399975,
+        0.886596303999795
+      ],
+      "median_wall_s": 0.8588415789997725,
+      "min_wall_s": 0.83108685399975,
+      "max_wall_s": 0.886596303999795,
+      "controller_updates": 60
+    },
+    {
+      "case": "noise_0.30K_seed_11",
+      "method": "IMC_0p5",
+      "runs": [
+        0.05400659799988716,
+        0.07011048200001824
+      ],
+      "median_wall_s": 0.0620585399999527,
+      "min_wall_s": 0.05400659799988716,
+      "max_wall_s": 0.07011048200001824,
+      "controller_updates": 60
+    },
+    {
+      "case": "noise_0.30K_seed_11",
+      "method": "relay_PI",
+      "runs": [
+        0.04067317399994863,
+        0.0421620349998193
+      ],
+      "median_wall_s": 0.041417604499883964,
+      "min_wall_s": 0.04067317399994863,
+      "max_wall_s": 0.0421620349998193,
+      "controller_updates": 60
+    },
+    {
+      "case": "noise_0.30K_seed_11",
+      "method": "MPC_persistence",
+      "runs": [
+        0.8025782249997064,
+        0.9313948549997804
+      ],
+      "median_wall_s": 0.8669865399997434,
+      "min_wall_s": 0.8025782249997064,
+      "max_wall_s": 0.9313948549997804,
+      "controller_updates": 60
+    },
+    {
+      "case": "heatpump_capacity_minus20pct",
+      "method": "IMC_0p5",
+      "runs": [
+        0.07289765499990608,
+        0.043170502000066335
+      ],
+      "median_wall_s": 0.05803407849998621,
+      "min_wall_s": 0.043170502000066335,
+      "max_wall_s": 0.07289765499990608,
+      "controller_updates": 60
+    },
+    {
+      "case": "heatpump_capacity_minus20pct",
+      "method": "relay_PI",
+      "runs": [
+        0.04087761300024795,
+        0.04189996000013707
+      ],
+      "median_wall_s": 0.04138878650019251,
+      "min_wall_s": 0.04087761300024795,
+      "max_wall_s": 0.04189996000013707,
+      "controller_updates": 60
+    },
+    {
+      "case": "heatpump_capacity_minus20pct",
+      "method": "MPC_persistence",
+      "runs": [
+        0.8140456849996554,
+        0.9407848870000635
+      ],
+      "median_wall_s": 0.8774152859998594,
+      "min_wall_s": 0.8140456849996554,
+      "max_wall_s": 0.9407848870000635,
+      "controller_updates": 60
+    }
+  ]
+}

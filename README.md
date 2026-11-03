@@ -2,7 +2,7 @@
 
 **Research software for the comparative study of PI/PID, model-predictive and self-optimising control of industrial high-temperature heat pumps.**
 
-**Current implementation: WP2 synthetic plant + WP3 PI robustness + WP4 initial constrained MPC benchmark.** Two independent tuning methods, anti-windup, and reproducible noise, delay, parameter-mismatch and actuator-saturation comparisons are implemented. Physical PID tuning, genuine SOC and real-fluid calibration are **not** implemented or validated. WP4 MPC is implemented for synthetic numerical experiments only.
+**Current implementation: WP2 synthetic plant + WP3 independently tuned PI and robustness + WP4 constrained MPC and OSQP audit + WP5 scenario-wise comparative synthesis.** Two independent tuning methods, anti-windup, and reproducible noise, delay, parameter-mismatch and actuator-saturation comparisons are implemented. Physical PID tuning, genuine SOC and real-fluid calibration are **not** implemented or validated. WP4 MPC and WP5 comparative conclusions are simulation-only and lack experimental validation.
 
 ![Example synthetic open-loop thermal response](results/wp2_illustrative_thermal_response.png)
 
@@ -12,7 +12,7 @@ The [research plan v0.5](docs/RESEARCH_PLAN_v0.5.md) is the frozen proposal; it 
 
 ## Research organisation
 
-The planned programme shares one plant model across three independently testable research studies: (I) PI/PID versus MPC; (II) self-optimising control with active-set economics; (III) fluid feasibility and thermal-storage flexibility. These are future studies; their existence in the plan does not imply completed simulations or results.
+The planned programme shares one plant model across three independently testable research studies: (I) PI/PID versus MPC; (II) self-optimising control with active-set economics; (III) fluid feasibility and thermal-storage flexibility. Study I now includes a synthetic WP5 comparative analysis; Studies II (genuine SOC) and III (real-fluid/storage) remain research stages. Their inclusion in the plan does not imply completed calculations.
 
 ---
 
@@ -104,3 +104,12 @@ Reproduce with `python scripts/run_wp4.py` after installing dependencies. Result
 The robustness comparison now runs all PI and MPC methods with one identical noisy/delayed buffer-temperature sensor, an identical 120-second controller update period, a nominal-model-based estimate for MPC's unmeasured states, and independently reported perfect-forecast scenarios. On the synthetic predeclared set, MPC has lower IAE in 14 of 20 cases; relay-derived PI leads the other six. Severe physical compressor derating causes service failure under every controller. **No experiment or robust-stability proof is implied.**
 
 A dedicated **optional OSQP QP backend** was added alongside SciPy SLSQP. Install `pip install -e '.[plots,qp]'` and run `python scripts/run_wp4_solver_audit.py`; GitHub Actions executes both solver checks and the full robustness matrix. Backend equivalence is a numerical check, not a hardware/real-time guarantee.
+
+
+## WP5 — service-gated PI/MPC comparative analysis (implemented)
+
+[WP5 research methods and limitations](docs/WP5_COMPARATIVE_STUDY.md) · [generated full comparative report](results/wp5_comparative_report.md) · [paired comparison CSV](results/wp5_paired_comparisons.csv) · [case-level quality screening](results/wp5_case_comparison.csv) · [synthetic IAE contrasts](results/wp5_paired_tracking.png) · [energy contrasts only for service-compliant pairs](results/wp5_eligible_energy.png).
+
+WP5 uses **the existing** WP4 twenty-case/five-method numerical matrix; no new plant calibration or controller tuning is introduced. All **100 runs** were numerically complete, but both 20%-lower-process-UA and severe 40%-compressor-derating cases failed specification-qualified service for every controller. In the raw unconditional IAE ranking, MPC leads **14/20** scenarios and relay PI **6/20**. When both simulated process service and physical heat transfer are required, **MPC leads 13 of the 18 scenarios with any qualified method**, relay PI 5. This is a count over deliberately selected, correlated synthetic cases—not a statistical probability or demonstration of industrial performance.
+
+The report includes 80 paired MPC–PI comparisons, quality-gated energy and Pareto analysis, two separately marked perfect-future-disturbance cases, documented fallback failures, and an optional platform-specific end-to-end runtime pilot. It does **not** establish energy-cost savings, model predictive control stability, or a calibrated commercial HTHP operating envelope. Run `python scripts/run_wp5.py` after `python scripts/run_wp4_robustness.py` to regenerate every WP5 table and figure.
