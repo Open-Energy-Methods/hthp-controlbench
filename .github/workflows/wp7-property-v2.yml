@@ -5,6 +5,11 @@ on:
     branches: [wp7-property-consistent-mpc-observer-v2]
     paths:
       - '.github/workflows/wp7-property-v2.yml'
+      - 'ht_hp_controlbench/wp7_predictor.py'
+      - 'ht_hp_controlbench/wp7_control.py'
+      - 'ht_hp_controlbench/mpc.py'
+      - 'scripts/run_wp7_property_predictor.py'
+      - 'tests/test_wp7_property_predictor.py'
   workflow_dispatch:
 
 permissions:
