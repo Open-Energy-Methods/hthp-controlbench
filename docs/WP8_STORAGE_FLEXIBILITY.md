@@ -89,3 +89,8 @@ If the nominal *uncapped* cycle gives a positive eligible saving, it is still **
 - All sensitivities synthetic; no imported real-time power-market prices or undocumented manufacturer data.
 
 **Closure boundary:** WP8 provides reproducible scientific evidence of when thermal flexibility is possible *under assumed plant parameters* and why it may be valueless under more restrictive envelopes. Equipment validation, full dynamic refrigerant transients and market-based commercial conclusions remain future external-data requirements.
+
+
+### Truncated simulation accounting
+
+The reported `service_qualified_fraction` now uses the **full requested 24-hour horizon** as its denominator. A step that is rejected by a property, physical, or equipment-envelope check is *not* counted as delivered service; remaining unrun steps also cannot count as qualified service. `service_qualified_fraction_completed` is a diagnostic fraction of successfully integrated steps only, and `completed_fraction` records the portion of the requested horizon actually integrated. `spec_unserved_kwh` integrates shortfall on **completed** steps only, so it is not a credible full-horizon service estimate after an aborted simulation. Such runs are ineligible for any tariff-cost comparison, and partial-run cost/electricity deltas are null. This avoids fractions exceeding 1 when numerical integration aborts mid-step.

@@ -1,6 +1,10 @@
 """WP8: thermodynamic service and tariff flexibility regression, no OEM claims."""
 import unittest
 from dataclasses import replace
+from unittest.mock import patch
+
+import ht_hp_controlbench.storage_flexibility as flexmod
+from ht_hp_controlbench.realfluid import PointRejected
 
 from ht_hp_controlbench.core import Disturbance, Parameters
 from ht_hp_controlbench.realfluid import build_cycle_map
@@ -82,6 +86,28 @@ class TestWP8(unittest.TestCase):
                 5e6*(x['final_header_k']-x['initial_header_k'])/3.6e6,delta=1e-4)
         self.assertGreater(b['max_buffer_k'],a['max_buffer_k']+.1)
         self.assertGreater(b['electricity_kwh'],0)
+
+    def test_aborted_integrator_step_cannot_create_service_fraction_over_one(self):
+        # Force failure during the second step with an otherwise feasible
+        # analytic property double. Only the FIRST completed interval may
+        # count as qualified; all remaining 24-hour intervals are unserved.
+        stage=flexmod._stage
+        calls=[0]
+        def fail_on_second_step(*args, **kwargs):
+            calls[0]+=1
+            if calls[0]==5:
+                raise PointRejected('deliberately_aborted_RK4_step')
+            return stage(*args, **kwargs)
+        with patch.object(flexmod, '_stage', side_effect=fail_on_second_step):
+            result=simulate_24h(self.map,'baseline_pi',self.cfg,props=self.props)
+        self.assertEqual(result['status'],'failed_physical_or_property_constraint')
+        self.assertEqual(result['completed_steps'],1)
+        self.assertEqual(result['steps'],1440)
+        self.assertAlmostEqual(result['completed_fraction'],1/1440)
+        self.assertAlmostEqual(result['service_qualified_fraction'],1/1440)
+        self.assertAlmostEqual(result['service_qualified_fraction_completed'],1.0)
+        self.assertLessEqual(result['service_qualified_fraction'],1.)
+        self.assertFalse(result['equipment_verified'])
 
     def test_no_credit_when_service_fails_even_if_cash_is_lower(self):
         # Pure outcome gate: deliberately violated during 45-min event for small mass.

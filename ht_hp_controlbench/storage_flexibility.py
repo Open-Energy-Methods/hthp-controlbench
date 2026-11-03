@@ -189,9 +189,13 @@ def simulate_24h(model:CycleMap, policy:str='baseline_pi',settings:FlexSettings|
         try:
             tb=_prop(props,'T','IF97::Water','P',pressure,'H',float(y[1]))
             hx=heat_exchanger(tb,p,d)
-            qual_count+=int(hx.qualified)
-            # An all-or-nothing service KPI is separate from physical heat.
-            unserved_j+=max(0.,hx.q_requested-(hx.q_transferred if hx.qualified else 0.))*cfg.dt_s
+            # Sampled service belongs to a completed integration interval only.
+            # In particular, a rejected RK4 step must never increase the
+            # service numerator while leaving completed_steps unchanged.
+            qualified_this_step=int(hx.qualified)
+            # This integrated KPI covers completed physical steps ONLY;
+            # a truncated future is separately a failure of the 24-hour gate.
+            unserved_this_step=max(0.,hx.q_requested-(hx.q_transferred if hx.qualified else 0.))*cfg.dt_s
             max_tb=max(max_tb,tb);min_tb=min(min_tb,tb)
             if k%period_steps==0:
                 if policy=='baseline_pi':target=cfg.nominal_buffer_k
@@ -218,6 +222,8 @@ def simulate_24h(model:CycleMap, policy:str='baseline_pi',settings:FlexSettings|
             key=('low' if pr==tariff.low_eur_kwh else 'high' if pr==tariff.high_eur_kwh else 'regular')
             price_elec[key]+=e_kwh
             steps_ok+=1
+            qual_count+=qualified_this_step
+            unserved_j+=unserved_this_step
             if store_trajectory and (k%period_steps==0 or k==nsteps-1):
                 trajectory.append(dict(time_h=t/3600.,buffer_c=tb-273.15,
                                        header_c=float(y[0]-273.15),command=u,n_actual=float(y[2]),
@@ -231,7 +237,12 @@ def simulate_24h(model:CycleMap, policy:str='baseline_pi',settings:FlexSettings|
     q_service=max(0.,heat_exchanger(_prop(props,'T','IF97::Water','P',pressure,'H',float(y[1])),p,d).q_requested)
     return dict(policy=policy,status='complete' if not violations and steps_ok==nsteps else 'failed_physical_or_property_constraint',
                 completed_steps=steps_ok,steps=nsteps,failures=violations,
-                duration_s=cfg.duration_s,service_qualified_fraction=qual_count/max(steps_ok,1),
+                duration_s=cfg.duration_s,
+                # Full requested horizon: aborted steps are not qualified.
+                service_qualified_fraction=qual_count/max(nsteps,1),
+                # Separate conditional diagnostic, never used to claim 24-h success.
+                service_qualified_fraction_completed=qual_count/max(steps_ok,1),
+                completed_fraction=steps_ok/max(nsteps,1),
                 spec_unserved_kwh=unserved_j/3.6e6,service_required_w=q_service,
                 electricity_kwh=float(y[4]/3.6e6),condenser_heat_kwh=float(y[3]/3.6e6),
                 process_heat_kwh=float(y[5]/3.6e6),loss_heat_kwh=float((y[6]+y[7])/3.6e6),
