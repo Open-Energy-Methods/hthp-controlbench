@@ -2,6 +2,8 @@
 
 **Research software for the comparative study of PI/PID, model-predictive and self-optimising control of industrial high-temperature heat pumps.**
 
+**Start here for an external research review:** [concise research snapshot](docs/INDUSTRIAL_HTHP_CONTROL_RESEARCH_SNAPSHOT.md) · [WP7 model-mismatch stress test](results/wp7_model_mismatch_v3_report.md) · [independent empirical-evidence audit](results/wp7_external_empirical_evidence_v1.md). These are computational research studies **without pilot-scale or OEM validation**; the reports preserve failures and negative electricity results.
+
 
 > **Verification correction (audit A01, 2026-11-03):** The WP3 relay
 > amplitude estimator has been corrected to use settled oscillation peaks,
