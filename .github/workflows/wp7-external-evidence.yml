@@ -70,7 +70,7 @@ jobs:
                         ht_hp_controlbench/realfluid.py \
                         scripts/run_wp7_external_empirical_audit.py \
                         tests/test_wp7_external_evidence.py; do
-              if [ "$(git rev-parse HEAD~1:\"$path\")" != "$(git rev-parse origin/audit-wp7-independent-empirical-evidence-v1:\"$path\")" ]; then
+              if [ "$(git rev-parse "HEAD~1:$path")" != "$(git rev-parse "origin/audit-wp7-independent-empirical-evidence-v1:$path")" ]; then
                 echo "Scientific source changed during audit; refusing stale numerical publication: $path" >&2
                 exit 1
               fi
