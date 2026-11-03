@@ -228,6 +228,14 @@ HX/pump/pressure-equipment approval. Reproduce with
 `.[realfluid]`. The original experimental files are not committed to
 the repository; hashes, DOIs and aggregated evidence are preserved.
 
+A separate [seven-channel real-instrumentation contract](docs/WP7_INSTRUMENTED_OBSERVER_DATA_CONTRACT.md)
+and `scripts/score_wp7_measured_observer.py` can score held-out header/
+modulation errors **only after a genuine matching-asset CSV and its
+cryptographic provenance manifest are provided**. The tool cannot create
+instrument readings or certify OEM performance. Both source and sink
+finite-flow gates currently return **UNVERIFIED**; water-based
+temperature-drop/flow calculations are arithmetic sensitivities only.
+
 ## WP8 — Temperature-qualified storage and synthetic price flexibility
 
 WP8 tests finite high-temperature water storage against the WP7 CoolProp/IF97
