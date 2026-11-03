@@ -1,0 +1,35 @@
+name: WP7 property-control pilot audit
+
+on:
+  push:
+    branches: [wp7-matched-property-controller-pilot]
+    paths:
+      - '.github/workflows/wp7-control-audit.yml'
+  workflow_dispatch:
+
+jobs:
+  focused-thermodynamic-control-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install physical and solver dependencies
+        run: python -m pip install -e '.[qp,realfluid,plots]'
+      - name: Run matched controller structural and CoolProp tests
+        run: python -m unittest discover -s tests -p 'test_wp7_control.py' -v
+      - name: Generate service- and terminal-gated property-control ledger
+        run: python scripts/run_wp7_control.py
+      - name: Archive WP7 control outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: wp7-matched-controller-pilot
+          path: |
+            results/wp7_control_pilot.json
+            results/wp7_control_pilot.csv
+            results/wp7_control_pairs.csv
+            results/wp7_control_pilot_report.md
+          if-no-files-found: error
+          retention-days: 90
