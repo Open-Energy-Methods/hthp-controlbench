@@ -48,12 +48,14 @@ documentation.
 
 The external audit separately recomputes the model's condenser COP,
 compressor ideal power and evaporator heat extraction using CoolProp.
-Its finite-source test starts with **UNKNOWN mass flow / allowable outlet**,
-not a guessed industrial sensor reading. An illustrative water heat balance
-can show a **necessary minimum mass flow** for assumed 5/10/15 K source
-cooling, but this is not proof of HX UA, pinch, pressure drop, pump
-availability, evaporator frosting, compressor oil compatibility or 310 kW
-thermal delivery.
+Its finite-source and finite-sink tests start with **UNKNOWN mass
+flow / allowable inlet/outlet limits**, not guessed industrial sensor readings.
+Illustrative water enthalpy balances give **necessary minimum mass flows**
+for assumed 5/10/15 K source cooling and 10/20/30 K sink heating. These
+are not proof of HX UA, pinch, pressure drop, pump availability,
+evaporator frosting, compressor oil compatibility or 310 kW thermal delivery.
+A measured source/sink energy bound below the required duty is a negative
+screen; a bound above it is necessary but not sufficient for feasible heat transfer.
 
 A *real* feasibility decision must combine the model-specific compressor
 map, refrigerant quality/speed limits, measured source/sink flow and
@@ -119,6 +121,19 @@ timebase problems, target-asset mismatch, absent withheld channels and
 train/held-out leakage. Even a complete metadata packet is
 `INSTRUMENTED_TRACE_PRESENT__INDEPENDENT_REVIEW_REQUIRED`,
 not an automatic empirical-validity certificate.
+
+With **actual** matching-asset data, run
+`python scripts/score_wp7_measured_observer.py --csv /secured/log.csv
+--manifest /secured/manifest.json --output /secured/result.json`.
+The runner checks the raw file SHA-256 and uses the nominal property
+observer only with initial measured hidden states, subsequent buffer
+temperature, prior applied commands and known source/return disturbances.
+Later header/modulation measurements are **post-hoc scoring only**.
+It computes held-out MAE/RMSE/bias/max-error but returns
+`DESCRIPTIVE_MEASURED_HOLDOUT_RESIDUALS__INDEPENDENT_REVIEW_REQUIRED`
+even with small errors. It refuses unaligned or unmodelled sensor latency.
+See [the strict seven-channel data contract](WP7_INSTRUMENTED_OBSERVER_DATA_CONTRACT.md).
+No matching real records are included in this project.
 
 ## 5. Reproduction / scope limits
 
