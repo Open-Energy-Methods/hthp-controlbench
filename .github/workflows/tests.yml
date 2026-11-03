@@ -47,6 +47,9 @@ jobs:
           path: results/L1_RelayPeak_v2/
           if-no-files-found: error
           retention-days: 90
+      - name: Audit regenerated WP3–WP5 numerics against reviewed L1 v2 snapshot
+        if: matrix.python-version == '3.12'
+        run: python scripts/check_published_benchmark.py
       - name: Reproduce WP6 active-set and self-optimising control study
         run: python scripts/run_wp6.py
       - name: Reproduce WP7 CoolProp cycle and fluid property screen
