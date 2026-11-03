@@ -98,11 +98,12 @@ def run_property_controller(
                 n_min=max(0., model.modulations[0]),
                 n_max=min(1., model.modulations[-1]))
     props = props if props is not None else coolprop_backend()
-    nominal_tunings_dict, _, _ = nominal_tunings()
-    setting = pi_settings if pi_settings is not None else (
-        nominal_tunings_dict["relay_PI"] if method == "PI_relay"
-        else nominal_tunings_dict["IMC_lambda_0p5tau"]
-    )
+    if pi_settings is not None:
+        setting = pi_settings
+    else:
+        nominal_tunings_dict, _, _ = nominal_tunings()
+        setting = (nominal_tunings_dict["relay_PI"] if method == "PI_relay"
+                   else nominal_tunings_dict["IMC_lambda_0p5tau"])
     d0 = _disturbance(0., case)
     initial = hold_service_at_buffer(403.15, model, p, d0, props=props)
     if not initial["status"].startswith("same_service_property_feasible"):
