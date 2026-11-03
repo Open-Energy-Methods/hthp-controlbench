@@ -1,0 +1,1086 @@
+{
+  "audit_id": "WP7_Comparability_ClaimBoundary_Sensitivity_v4",
+  "source_benchmark": "WP7_NominalPredictor_TruthParameterMismatch_Holdout_v3",
+  "disclaimer": "POST-HOC sensitivity of arbitrary comparability limits; not a confidence interval, hardware validation or model uncertainty bound",
+  "carrier_warning": "Thermal terminal inventory differences in kWh_thermal are not interchangeable with compressor electrical energy kWh_electric; no conversion or economic correction is inferred",
+  "rederived_default_gate_matches_published": true,
+  "nominal_mpc_best_efficiency_not_claimed": true,
+  "source_hardware_validated": false,
+  "sensitivity": {
+    "0.50": {
+      "inventory_tolerance_kWh": 0.5,
+      "actuator_tolerance": 0.02,
+      "eligible_count": 4,
+      "eligible_cases": [
+        "nominal|PI_IMC",
+        "nominal|PI_relay",
+        "ua_proc_plus15_noisy_delayed|PI_relay",
+        "compressor_lag_plus30_source_drop3|PI_relay"
+      ],
+      "eligible_delta_electricity_kWh": [
+        0.7581002096143266,
+        0.1636958908366637,
+        0.41845368216556267,
+        0.6312230317425644
+      ],
+      "rows": [
+        {
+          "case": "nominal",
+          "pi": "PI_IMC",
+          "complete": true,
+          "service": true,
+          "eligible": true,
+          "reasons": [],
+          "delta_electricity_kWh_raw_if_full": 0.7581002096143266,
+          "delta_iae_Ks_raw_if_full": -1139.3342372951952,
+          "eligible_delta_electricity_kWh": 0.7581002096143266,
+          "delta_header_inventory_kWh": -0.004918305556600444,
+          "delta_buffer_inventory_kWh": 0.0056725860911277515,
+          "delta_total_inventory_kWh": 0.0007542805345277515,
+          "delta_modulation": -0.0013587363201511549,
+          "delta_command": -0.0013389305756090764,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": 0.0009949615169101216
+        },
+        {
+          "case": "nominal",
+          "pi": "PI_relay",
+          "complete": true,
+          "service": true,
+          "eligible": true,
+          "reasons": [],
+          "delta_electricity_kWh_raw_if_full": 0.1636958908366637,
+          "delta_iae_Ks_raw_if_full": -361.18269586524207,
+          "eligible_delta_electricity_kWh": 0.1636958908366637,
+          "delta_header_inventory_kWh": -0.03572607961264862,
+          "delta_buffer_inventory_kWh": -0.14986540328100117,
+          "delta_total_inventory_kWh": -0.18559148289364957,
+          "delta_modulation": -0.0003343901740725519,
+          "delta_command": -0.0003311462066608595,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": 1.133757737870362
+        },
+        {
+          "case": "ua_proc_minus15_source_drop3",
+          "pi": "PI_IMC",
+          "complete": false,
+          "service": false,
+          "eligible": false,
+          "reasons": [
+            "incomplete_or_unqualified_initial_state"
+          ],
+          "delta_electricity_kWh_raw_if_full": null,
+          "delta_iae_Ks_raw_if_full": null,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": null,
+          "delta_buffer_inventory_kWh": null,
+          "delta_total_inventory_kWh": null,
+          "delta_modulation": null,
+          "delta_command": null,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        },
+        {
+          "case": "ua_proc_minus15_source_drop3",
+          "pi": "PI_relay",
+          "complete": false,
+          "service": false,
+          "eligible": false,
+          "reasons": [
+            "incomplete_or_unqualified_initial_state"
+          ],
+          "delta_electricity_kWh_raw_if_full": null,
+          "delta_iae_Ks_raw_if_full": null,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": null,
+          "delta_buffer_inventory_kWh": null,
+          "delta_total_inventory_kWh": null,
+          "delta_modulation": null,
+          "delta_command": null,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        },
+        {
+          "case": "ua_proc_plus15_noisy_delayed",
+          "pi": "PI_IMC",
+          "complete": true,
+          "service": true,
+          "eligible": false,
+          "reasons": [
+            "actuator_mismatch_final_compressor_modulation",
+            "actuator_mismatch_final_applied_command"
+          ],
+          "delta_electricity_kWh_raw_if_full": 0.6028193921460172,
+          "delta_iae_Ks_raw_if_full": -851.0722103094611,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": -0.03668187988492061,
+          "delta_buffer_inventory_kWh": -0.44266224307130986,
+          "delta_total_inventory_kWh": -0.47934412295623074,
+          "delta_modulation": 0.020032343267262998,
+          "delta_command": 0.02910919237738685,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        },
+        {
+          "case": "ua_proc_plus15_noisy_delayed",
+          "pi": "PI_relay",
+          "complete": true,
+          "service": true,
+          "eligible": true,
+          "reasons": [],
+          "delta_electricity_kWh_raw_if_full": 0.41845368216556267,
+          "delta_iae_Ks_raw_if_full": -409.58954088474115,
+          "eligible_delta_electricity_kWh": 0.41845368216556267,
+          "delta_header_inventory_kWh": 0.0705447213268447,
+          "delta_buffer_inventory_kWh": 0.21310554749717192,
+          "delta_total_inventory_kWh": 0.28365026882401656,
+          "delta_modulation": 0.005049460550026308,
+          "delta_command": 0.005312913814067843,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": 0.6778534421207204
+        },
+        {
+          "case": "compressor_lag_plus30_source_drop3",
+          "pi": "PI_IMC",
+          "complete": true,
+          "service": true,
+          "eligible": false,
+          "reasons": [
+            "inventory_mismatch_final_header_energy_delta_kWh",
+            "inventory_mismatch_final_buffer_energy_delta_kWh",
+            "inventory_mismatch_final_total_energy_delta_kWh"
+          ],
+          "delta_electricity_kWh_raw_if_full": 5.105703057766618,
+          "delta_iae_Ks_raw_if_full": -2990.569013747134,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": 1.348193142461914,
+          "delta_buffer_inventory_kWh": 5.8238596083640015,
+          "delta_total_inventory_kWh": 7.172052750825914,
+          "delta_modulation": 0.0038847601230763695,
+          "delta_command": 0.0030902579141911524,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        },
+        {
+          "case": "compressor_lag_plus30_source_drop3",
+          "pi": "PI_relay",
+          "complete": true,
+          "service": true,
+          "eligible": true,
+          "reasons": [],
+          "delta_electricity_kWh_raw_if_full": 0.6312230317425644,
+          "delta_iae_Ks_raw_if_full": -767.8912181800229,
+          "eligible_delta_electricity_kWh": 0.6312230317425644,
+          "delta_header_inventory_kWh": 0.03747325839024529,
+          "delta_buffer_inventory_kWh": 0.22008890697276629,
+          "delta_total_inventory_kWh": 0.25756216536301135,
+          "delta_modulation": -0.0030122780156093265,
+          "delta_command": -0.0029200635723306556,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": 0.40803670400299097
+        },
+        {
+          "case": "header_buffer_khb_minus15_combined",
+          "pi": "PI_IMC",
+          "complete": true,
+          "service": true,
+          "eligible": false,
+          "reasons": [
+            "inventory_mismatch_final_header_energy_delta_kWh",
+            "inventory_mismatch_final_buffer_energy_delta_kWh",
+            "inventory_mismatch_final_total_energy_delta_kWh",
+            "actuator_mismatch_final_applied_command"
+          ],
+          "delta_electricity_kWh_raw_if_full": 2.9586540135479993,
+          "delta_iae_Ks_raw_if_full": -1206.2200616923412,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": 0.8056025061043057,
+          "delta_buffer_inventory_kWh": 3.738040959707966,
+          "delta_total_inventory_kWh": 4.543643465812272,
+          "delta_modulation": -0.016534049404000495,
+          "delta_command": -0.025776754049468553,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        },
+        {
+          "case": "header_buffer_khb_minus15_combined",
+          "pi": "PI_relay",
+          "complete": true,
+          "service": true,
+          "eligible": false,
+          "reasons": [
+            "inventory_mismatch_final_buffer_energy_delta_kWh",
+            "inventory_mismatch_final_total_energy_delta_kWh",
+            "actuator_mismatch_final_compressor_modulation",
+            "actuator_mismatch_final_applied_command"
+          ],
+          "delta_electricity_kWh_raw_if_full": 0.6928689631717191,
+          "delta_iae_Ks_raw_if_full": -475.8994774391442,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": 0.19115598973782097,
+          "delta_buffer_inventory_kWh": 1.0743353137751304,
+          "delta_total_inventory_kWh": 1.2654913035129511,
+          "delta_modulation": -0.02106592398762963,
+          "delta_command": -0.03438693078768429,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        }
+      ]
+    },
+    "0.25": {
+      "inventory_tolerance_kWh": 0.25,
+      "actuator_tolerance": 0.02,
+      "eligible_count": 2,
+      "eligible_cases": [
+        "nominal|PI_IMC",
+        "nominal|PI_relay"
+      ],
+      "eligible_delta_electricity_kWh": [
+        0.7581002096143266,
+        0.1636958908366637
+      ],
+      "rows": [
+        {
+          "case": "nominal",
+          "pi": "PI_IMC",
+          "complete": true,
+          "service": true,
+          "eligible": true,
+          "reasons": [],
+          "delta_electricity_kWh_raw_if_full": 0.7581002096143266,
+          "delta_iae_Ks_raw_if_full": -1139.3342372951952,
+          "eligible_delta_electricity_kWh": 0.7581002096143266,
+          "delta_header_inventory_kWh": -0.004918305556600444,
+          "delta_buffer_inventory_kWh": 0.0056725860911277515,
+          "delta_total_inventory_kWh": 0.0007542805345277515,
+          "delta_modulation": -0.0013587363201511549,
+          "delta_command": -0.0013389305756090764,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": 0.0009949615169101216
+        },
+        {
+          "case": "nominal",
+          "pi": "PI_relay",
+          "complete": true,
+          "service": true,
+          "eligible": true,
+          "reasons": [],
+          "delta_electricity_kWh_raw_if_full": 0.1636958908366637,
+          "delta_iae_Ks_raw_if_full": -361.18269586524207,
+          "eligible_delta_electricity_kWh": 0.1636958908366637,
+          "delta_header_inventory_kWh": -0.03572607961264862,
+          "delta_buffer_inventory_kWh": -0.14986540328100117,
+          "delta_total_inventory_kWh": -0.18559148289364957,
+          "delta_modulation": -0.0003343901740725519,
+          "delta_command": -0.0003311462066608595,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": 1.133757737870362
+        },
+        {
+          "case": "ua_proc_minus15_source_drop3",
+          "pi": "PI_IMC",
+          "complete": false,
+          "service": false,
+          "eligible": false,
+          "reasons": [
+            "incomplete_or_unqualified_initial_state"
+          ],
+          "delta_electricity_kWh_raw_if_full": null,
+          "delta_iae_Ks_raw_if_full": null,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": null,
+          "delta_buffer_inventory_kWh": null,
+          "delta_total_inventory_kWh": null,
+          "delta_modulation": null,
+          "delta_command": null,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        },
+        {
+          "case": "ua_proc_minus15_source_drop3",
+          "pi": "PI_relay",
+          "complete": false,
+          "service": false,
+          "eligible": false,
+          "reasons": [
+            "incomplete_or_unqualified_initial_state"
+          ],
+          "delta_electricity_kWh_raw_if_full": null,
+          "delta_iae_Ks_raw_if_full": null,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": null,
+          "delta_buffer_inventory_kWh": null,
+          "delta_total_inventory_kWh": null,
+          "delta_modulation": null,
+          "delta_command": null,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        },
+        {
+          "case": "ua_proc_plus15_noisy_delayed",
+          "pi": "PI_IMC",
+          "complete": true,
+          "service": true,
+          "eligible": false,
+          "reasons": [
+            "inventory_mismatch_final_buffer_energy_delta_kWh",
+            "inventory_mismatch_final_total_energy_delta_kWh",
+            "actuator_mismatch_final_compressor_modulation",
+            "actuator_mismatch_final_applied_command"
+          ],
+          "delta_electricity_kWh_raw_if_full": 0.6028193921460172,
+          "delta_iae_Ks_raw_if_full": -851.0722103094611,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": -0.03668187988492061,
+          "delta_buffer_inventory_kWh": -0.44266224307130986,
+          "delta_total_inventory_kWh": -0.47934412295623074,
+          "delta_modulation": 0.020032343267262998,
+          "delta_command": 0.02910919237738685,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        },
+        {
+          "case": "ua_proc_plus15_noisy_delayed",
+          "pi": "PI_relay",
+          "complete": true,
+          "service": true,
+          "eligible": false,
+          "reasons": [
+            "inventory_mismatch_final_total_energy_delta_kWh"
+          ],
+          "delta_electricity_kWh_raw_if_full": 0.41845368216556267,
+          "delta_iae_Ks_raw_if_full": -409.58954088474115,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": 0.0705447213268447,
+          "delta_buffer_inventory_kWh": 0.21310554749717192,
+          "delta_total_inventory_kWh": 0.28365026882401656,
+          "delta_modulation": 0.005049460550026308,
+          "delta_command": 0.005312913814067843,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        },
+        {
+          "case": "compressor_lag_plus30_source_drop3",
+          "pi": "PI_IMC",
+          "complete": true,
+          "service": true,
+          "eligible": false,
+          "reasons": [
+            "inventory_mismatch_final_header_energy_delta_kWh",
+            "inventory_mismatch_final_buffer_energy_delta_kWh",
+            "inventory_mismatch_final_total_energy_delta_kWh"
+          ],
+          "delta_electricity_kWh_raw_if_full": 5.105703057766618,
+          "delta_iae_Ks_raw_if_full": -2990.569013747134,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": 1.348193142461914,
+          "delta_buffer_inventory_kWh": 5.8238596083640015,
+          "delta_total_inventory_kWh": 7.172052750825914,
+          "delta_modulation": 0.0038847601230763695,
+          "delta_command": 0.0030902579141911524,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        },
+        {
+          "case": "compressor_lag_plus30_source_drop3",
+          "pi": "PI_relay",
+          "complete": true,
+          "service": true,
+          "eligible": false,
+          "reasons": [
+            "inventory_mismatch_final_total_energy_delta_kWh"
+          ],
+          "delta_electricity_kWh_raw_if_full": 0.6312230317425644,
+          "delta_iae_Ks_raw_if_full": -767.8912181800229,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": 0.03747325839024529,
+          "delta_buffer_inventory_kWh": 0.22008890697276629,
+          "delta_total_inventory_kWh": 0.25756216536301135,
+          "delta_modulation": -0.0030122780156093265,
+          "delta_command": -0.0029200635723306556,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        },
+        {
+          "case": "header_buffer_khb_minus15_combined",
+          "pi": "PI_IMC",
+          "complete": true,
+          "service": true,
+          "eligible": false,
+          "reasons": [
+            "inventory_mismatch_final_header_energy_delta_kWh",
+            "inventory_mismatch_final_buffer_energy_delta_kWh",
+            "inventory_mismatch_final_total_energy_delta_kWh",
+            "actuator_mismatch_final_applied_command"
+          ],
+          "delta_electricity_kWh_raw_if_full": 2.9586540135479993,
+          "delta_iae_Ks_raw_if_full": -1206.2200616923412,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": 0.8056025061043057,
+          "delta_buffer_inventory_kWh": 3.738040959707966,
+          "delta_total_inventory_kWh": 4.543643465812272,
+          "delta_modulation": -0.016534049404000495,
+          "delta_command": -0.025776754049468553,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        },
+        {
+          "case": "header_buffer_khb_minus15_combined",
+          "pi": "PI_relay",
+          "complete": true,
+          "service": true,
+          "eligible": false,
+          "reasons": [
+            "inventory_mismatch_final_buffer_energy_delta_kWh",
+            "inventory_mismatch_final_total_energy_delta_kWh",
+            "actuator_mismatch_final_compressor_modulation",
+            "actuator_mismatch_final_applied_command"
+          ],
+          "delta_electricity_kWh_raw_if_full": 0.6928689631717191,
+          "delta_iae_Ks_raw_if_full": -475.8994774391442,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": 0.19115598973782097,
+          "delta_buffer_inventory_kWh": 1.0743353137751304,
+          "delta_total_inventory_kWh": 1.2654913035129511,
+          "delta_modulation": -0.02106592398762963,
+          "delta_command": -0.03438693078768429,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        }
+      ]
+    },
+    "0.10": {
+      "inventory_tolerance_kWh": 0.1,
+      "actuator_tolerance": 0.02,
+      "eligible_count": 1,
+      "eligible_cases": [
+        "nominal|PI_IMC"
+      ],
+      "eligible_delta_electricity_kWh": [
+        0.7581002096143266
+      ],
+      "rows": [
+        {
+          "case": "nominal",
+          "pi": "PI_IMC",
+          "complete": true,
+          "service": true,
+          "eligible": true,
+          "reasons": [],
+          "delta_electricity_kWh_raw_if_full": 0.7581002096143266,
+          "delta_iae_Ks_raw_if_full": -1139.3342372951952,
+          "eligible_delta_electricity_kWh": 0.7581002096143266,
+          "delta_header_inventory_kWh": -0.004918305556600444,
+          "delta_buffer_inventory_kWh": 0.0056725860911277515,
+          "delta_total_inventory_kWh": 0.0007542805345277515,
+          "delta_modulation": -0.0013587363201511549,
+          "delta_command": -0.0013389305756090764,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": 0.0009949615169101216
+        },
+        {
+          "case": "nominal",
+          "pi": "PI_relay",
+          "complete": true,
+          "service": true,
+          "eligible": false,
+          "reasons": [
+            "inventory_mismatch_final_buffer_energy_delta_kWh",
+            "inventory_mismatch_final_total_energy_delta_kWh"
+          ],
+          "delta_electricity_kWh_raw_if_full": 0.1636958908366637,
+          "delta_iae_Ks_raw_if_full": -361.18269586524207,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": -0.03572607961264862,
+          "delta_buffer_inventory_kWh": -0.14986540328100117,
+          "delta_total_inventory_kWh": -0.18559148289364957,
+          "delta_modulation": -0.0003343901740725519,
+          "delta_command": -0.0003311462066608595,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        },
+        {
+          "case": "ua_proc_minus15_source_drop3",
+          "pi": "PI_IMC",
+          "complete": false,
+          "service": false,
+          "eligible": false,
+          "reasons": [
+            "incomplete_or_unqualified_initial_state"
+          ],
+          "delta_electricity_kWh_raw_if_full": null,
+          "delta_iae_Ks_raw_if_full": null,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": null,
+          "delta_buffer_inventory_kWh": null,
+          "delta_total_inventory_kWh": null,
+          "delta_modulation": null,
+          "delta_command": null,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        },
+        {
+          "case": "ua_proc_minus15_source_drop3",
+          "pi": "PI_relay",
+          "complete": false,
+          "service": false,
+          "eligible": false,
+          "reasons": [
+            "incomplete_or_unqualified_initial_state"
+          ],
+          "delta_electricity_kWh_raw_if_full": null,
+          "delta_iae_Ks_raw_if_full": null,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": null,
+          "delta_buffer_inventory_kWh": null,
+          "delta_total_inventory_kWh": null,
+          "delta_modulation": null,
+          "delta_command": null,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        },
+        {
+          "case": "ua_proc_plus15_noisy_delayed",
+          "pi": "PI_IMC",
+          "complete": true,
+          "service": true,
+          "eligible": false,
+          "reasons": [
+            "inventory_mismatch_final_buffer_energy_delta_kWh",
+            "inventory_mismatch_final_total_energy_delta_kWh",
+            "actuator_mismatch_final_compressor_modulation",
+            "actuator_mismatch_final_applied_command"
+          ],
+          "delta_electricity_kWh_raw_if_full": 0.6028193921460172,
+          "delta_iae_Ks_raw_if_full": -851.0722103094611,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": -0.03668187988492061,
+          "delta_buffer_inventory_kWh": -0.44266224307130986,
+          "delta_total_inventory_kWh": -0.47934412295623074,
+          "delta_modulation": 0.020032343267262998,
+          "delta_command": 0.02910919237738685,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        },
+        {
+          "case": "ua_proc_plus15_noisy_delayed",
+          "pi": "PI_relay",
+          "complete": true,
+          "service": true,
+          "eligible": false,
+          "reasons": [
+            "inventory_mismatch_final_buffer_energy_delta_kWh",
+            "inventory_mismatch_final_total_energy_delta_kWh"
+          ],
+          "delta_electricity_kWh_raw_if_full": 0.41845368216556267,
+          "delta_iae_Ks_raw_if_full": -409.58954088474115,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": 0.0705447213268447,
+          "delta_buffer_inventory_kWh": 0.21310554749717192,
+          "delta_total_inventory_kWh": 0.28365026882401656,
+          "delta_modulation": 0.005049460550026308,
+          "delta_command": 0.005312913814067843,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        },
+        {
+          "case": "compressor_lag_plus30_source_drop3",
+          "pi": "PI_IMC",
+          "complete": true,
+          "service": true,
+          "eligible": false,
+          "reasons": [
+            "inventory_mismatch_final_header_energy_delta_kWh",
+            "inventory_mismatch_final_buffer_energy_delta_kWh",
+            "inventory_mismatch_final_total_energy_delta_kWh"
+          ],
+          "delta_electricity_kWh_raw_if_full": 5.105703057766618,
+          "delta_iae_Ks_raw_if_full": -2990.569013747134,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": 1.348193142461914,
+          "delta_buffer_inventory_kWh": 5.8238596083640015,
+          "delta_total_inventory_kWh": 7.172052750825914,
+          "delta_modulation": 0.0038847601230763695,
+          "delta_command": 0.0030902579141911524,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        },
+        {
+          "case": "compressor_lag_plus30_source_drop3",
+          "pi": "PI_relay",
+          "complete": true,
+          "service": true,
+          "eligible": false,
+          "reasons": [
+            "inventory_mismatch_final_buffer_energy_delta_kWh",
+            "inventory_mismatch_final_total_energy_delta_kWh"
+          ],
+          "delta_electricity_kWh_raw_if_full": 0.6312230317425644,
+          "delta_iae_Ks_raw_if_full": -767.8912181800229,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": 0.03747325839024529,
+          "delta_buffer_inventory_kWh": 0.22008890697276629,
+          "delta_total_inventory_kWh": 0.25756216536301135,
+          "delta_modulation": -0.0030122780156093265,
+          "delta_command": -0.0029200635723306556,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        },
+        {
+          "case": "header_buffer_khb_minus15_combined",
+          "pi": "PI_IMC",
+          "complete": true,
+          "service": true,
+          "eligible": false,
+          "reasons": [
+            "inventory_mismatch_final_header_energy_delta_kWh",
+            "inventory_mismatch_final_buffer_energy_delta_kWh",
+            "inventory_mismatch_final_total_energy_delta_kWh",
+            "actuator_mismatch_final_applied_command"
+          ],
+          "delta_electricity_kWh_raw_if_full": 2.9586540135479993,
+          "delta_iae_Ks_raw_if_full": -1206.2200616923412,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": 0.8056025061043057,
+          "delta_buffer_inventory_kWh": 3.738040959707966,
+          "delta_total_inventory_kWh": 4.543643465812272,
+          "delta_modulation": -0.016534049404000495,
+          "delta_command": -0.025776754049468553,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        },
+        {
+          "case": "header_buffer_khb_minus15_combined",
+          "pi": "PI_relay",
+          "complete": true,
+          "service": true,
+          "eligible": false,
+          "reasons": [
+            "inventory_mismatch_final_header_energy_delta_kWh",
+            "inventory_mismatch_final_buffer_energy_delta_kWh",
+            "inventory_mismatch_final_total_energy_delta_kWh",
+            "actuator_mismatch_final_compressor_modulation",
+            "actuator_mismatch_final_applied_command"
+          ],
+          "delta_electricity_kWh_raw_if_full": 0.6928689631717191,
+          "delta_iae_Ks_raw_if_full": -475.8994774391442,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": 0.19115598973782097,
+          "delta_buffer_inventory_kWh": 1.0743353137751304,
+          "delta_total_inventory_kWh": 1.2654913035129511,
+          "delta_modulation": -0.02106592398762963,
+          "delta_command": -0.03438693078768429,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        }
+      ]
+    },
+    "0.05": {
+      "inventory_tolerance_kWh": 0.05,
+      "actuator_tolerance": 0.02,
+      "eligible_count": 1,
+      "eligible_cases": [
+        "nominal|PI_IMC"
+      ],
+      "eligible_delta_electricity_kWh": [
+        0.7581002096143266
+      ],
+      "rows": [
+        {
+          "case": "nominal",
+          "pi": "PI_IMC",
+          "complete": true,
+          "service": true,
+          "eligible": true,
+          "reasons": [],
+          "delta_electricity_kWh_raw_if_full": 0.7581002096143266,
+          "delta_iae_Ks_raw_if_full": -1139.3342372951952,
+          "eligible_delta_electricity_kWh": 0.7581002096143266,
+          "delta_header_inventory_kWh": -0.004918305556600444,
+          "delta_buffer_inventory_kWh": 0.0056725860911277515,
+          "delta_total_inventory_kWh": 0.0007542805345277515,
+          "delta_modulation": -0.0013587363201511549,
+          "delta_command": -0.0013389305756090764,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": 0.0009949615169101216
+        },
+        {
+          "case": "nominal",
+          "pi": "PI_relay",
+          "complete": true,
+          "service": true,
+          "eligible": false,
+          "reasons": [
+            "inventory_mismatch_final_buffer_energy_delta_kWh",
+            "inventory_mismatch_final_total_energy_delta_kWh"
+          ],
+          "delta_electricity_kWh_raw_if_full": 0.1636958908366637,
+          "delta_iae_Ks_raw_if_full": -361.18269586524207,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": -0.03572607961264862,
+          "delta_buffer_inventory_kWh": -0.14986540328100117,
+          "delta_total_inventory_kWh": -0.18559148289364957,
+          "delta_modulation": -0.0003343901740725519,
+          "delta_command": -0.0003311462066608595,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        },
+        {
+          "case": "ua_proc_minus15_source_drop3",
+          "pi": "PI_IMC",
+          "complete": false,
+          "service": false,
+          "eligible": false,
+          "reasons": [
+            "incomplete_or_unqualified_initial_state"
+          ],
+          "delta_electricity_kWh_raw_if_full": null,
+          "delta_iae_Ks_raw_if_full": null,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": null,
+          "delta_buffer_inventory_kWh": null,
+          "delta_total_inventory_kWh": null,
+          "delta_modulation": null,
+          "delta_command": null,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        },
+        {
+          "case": "ua_proc_minus15_source_drop3",
+          "pi": "PI_relay",
+          "complete": false,
+          "service": false,
+          "eligible": false,
+          "reasons": [
+            "incomplete_or_unqualified_initial_state"
+          ],
+          "delta_electricity_kWh_raw_if_full": null,
+          "delta_iae_Ks_raw_if_full": null,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": null,
+          "delta_buffer_inventory_kWh": null,
+          "delta_total_inventory_kWh": null,
+          "delta_modulation": null,
+          "delta_command": null,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        },
+        {
+          "case": "ua_proc_plus15_noisy_delayed",
+          "pi": "PI_IMC",
+          "complete": true,
+          "service": true,
+          "eligible": false,
+          "reasons": [
+            "inventory_mismatch_final_buffer_energy_delta_kWh",
+            "inventory_mismatch_final_total_energy_delta_kWh",
+            "actuator_mismatch_final_compressor_modulation",
+            "actuator_mismatch_final_applied_command"
+          ],
+          "delta_electricity_kWh_raw_if_full": 0.6028193921460172,
+          "delta_iae_Ks_raw_if_full": -851.0722103094611,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": -0.03668187988492061,
+          "delta_buffer_inventory_kWh": -0.44266224307130986,
+          "delta_total_inventory_kWh": -0.47934412295623074,
+          "delta_modulation": 0.020032343267262998,
+          "delta_command": 0.02910919237738685,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        },
+        {
+          "case": "ua_proc_plus15_noisy_delayed",
+          "pi": "PI_relay",
+          "complete": true,
+          "service": true,
+          "eligible": false,
+          "reasons": [
+            "inventory_mismatch_final_header_energy_delta_kWh",
+            "inventory_mismatch_final_buffer_energy_delta_kWh",
+            "inventory_mismatch_final_total_energy_delta_kWh"
+          ],
+          "delta_electricity_kWh_raw_if_full": 0.41845368216556267,
+          "delta_iae_Ks_raw_if_full": -409.58954088474115,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": 0.0705447213268447,
+          "delta_buffer_inventory_kWh": 0.21310554749717192,
+          "delta_total_inventory_kWh": 0.28365026882401656,
+          "delta_modulation": 0.005049460550026308,
+          "delta_command": 0.005312913814067843,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        },
+        {
+          "case": "compressor_lag_plus30_source_drop3",
+          "pi": "PI_IMC",
+          "complete": true,
+          "service": true,
+          "eligible": false,
+          "reasons": [
+            "inventory_mismatch_final_header_energy_delta_kWh",
+            "inventory_mismatch_final_buffer_energy_delta_kWh",
+            "inventory_mismatch_final_total_energy_delta_kWh"
+          ],
+          "delta_electricity_kWh_raw_if_full": 5.105703057766618,
+          "delta_iae_Ks_raw_if_full": -2990.569013747134,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": 1.348193142461914,
+          "delta_buffer_inventory_kWh": 5.8238596083640015,
+          "delta_total_inventory_kWh": 7.172052750825914,
+          "delta_modulation": 0.0038847601230763695,
+          "delta_command": 0.0030902579141911524,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        },
+        {
+          "case": "compressor_lag_plus30_source_drop3",
+          "pi": "PI_relay",
+          "complete": true,
+          "service": true,
+          "eligible": false,
+          "reasons": [
+            "inventory_mismatch_final_buffer_energy_delta_kWh",
+            "inventory_mismatch_final_total_energy_delta_kWh"
+          ],
+          "delta_electricity_kWh_raw_if_full": 0.6312230317425644,
+          "delta_iae_Ks_raw_if_full": -767.8912181800229,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": 0.03747325839024529,
+          "delta_buffer_inventory_kWh": 0.22008890697276629,
+          "delta_total_inventory_kWh": 0.25756216536301135,
+          "delta_modulation": -0.0030122780156093265,
+          "delta_command": -0.0029200635723306556,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        },
+        {
+          "case": "header_buffer_khb_minus15_combined",
+          "pi": "PI_IMC",
+          "complete": true,
+          "service": true,
+          "eligible": false,
+          "reasons": [
+            "inventory_mismatch_final_header_energy_delta_kWh",
+            "inventory_mismatch_final_buffer_energy_delta_kWh",
+            "inventory_mismatch_final_total_energy_delta_kWh",
+            "actuator_mismatch_final_applied_command"
+          ],
+          "delta_electricity_kWh_raw_if_full": 2.9586540135479993,
+          "delta_iae_Ks_raw_if_full": -1206.2200616923412,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": 0.8056025061043057,
+          "delta_buffer_inventory_kWh": 3.738040959707966,
+          "delta_total_inventory_kWh": 4.543643465812272,
+          "delta_modulation": -0.016534049404000495,
+          "delta_command": -0.025776754049468553,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        },
+        {
+          "case": "header_buffer_khb_minus15_combined",
+          "pi": "PI_relay",
+          "complete": true,
+          "service": true,
+          "eligible": false,
+          "reasons": [
+            "inventory_mismatch_final_header_energy_delta_kWh",
+            "inventory_mismatch_final_buffer_energy_delta_kWh",
+            "inventory_mismatch_final_total_energy_delta_kWh",
+            "actuator_mismatch_final_compressor_modulation",
+            "actuator_mismatch_final_applied_command"
+          ],
+          "delta_electricity_kWh_raw_if_full": 0.6928689631717191,
+          "delta_iae_Ks_raw_if_full": -475.8994774391442,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": 0.19115598973782097,
+          "delta_buffer_inventory_kWh": 1.0743353137751304,
+          "delta_total_inventory_kWh": 1.2654913035129511,
+          "delta_modulation": -0.02106592398762963,
+          "delta_command": -0.03438693078768429,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        }
+      ]
+    },
+    "0.01": {
+      "inventory_tolerance_kWh": 0.01,
+      "actuator_tolerance": 0.02,
+      "eligible_count": 1,
+      "eligible_cases": [
+        "nominal|PI_IMC"
+      ],
+      "eligible_delta_electricity_kWh": [
+        0.7581002096143266
+      ],
+      "rows": [
+        {
+          "case": "nominal",
+          "pi": "PI_IMC",
+          "complete": true,
+          "service": true,
+          "eligible": true,
+          "reasons": [],
+          "delta_electricity_kWh_raw_if_full": 0.7581002096143266,
+          "delta_iae_Ks_raw_if_full": -1139.3342372951952,
+          "eligible_delta_electricity_kWh": 0.7581002096143266,
+          "delta_header_inventory_kWh": -0.004918305556600444,
+          "delta_buffer_inventory_kWh": 0.0056725860911277515,
+          "delta_total_inventory_kWh": 0.0007542805345277515,
+          "delta_modulation": -0.0013587363201511549,
+          "delta_command": -0.0013389305756090764,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": 0.0009949615169101216
+        },
+        {
+          "case": "nominal",
+          "pi": "PI_relay",
+          "complete": true,
+          "service": true,
+          "eligible": false,
+          "reasons": [
+            "inventory_mismatch_final_header_energy_delta_kWh",
+            "inventory_mismatch_final_buffer_energy_delta_kWh",
+            "inventory_mismatch_final_total_energy_delta_kWh"
+          ],
+          "delta_electricity_kWh_raw_if_full": 0.1636958908366637,
+          "delta_iae_Ks_raw_if_full": -361.18269586524207,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": -0.03572607961264862,
+          "delta_buffer_inventory_kWh": -0.14986540328100117,
+          "delta_total_inventory_kWh": -0.18559148289364957,
+          "delta_modulation": -0.0003343901740725519,
+          "delta_command": -0.0003311462066608595,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        },
+        {
+          "case": "ua_proc_minus15_source_drop3",
+          "pi": "PI_IMC",
+          "complete": false,
+          "service": false,
+          "eligible": false,
+          "reasons": [
+            "incomplete_or_unqualified_initial_state"
+          ],
+          "delta_electricity_kWh_raw_if_full": null,
+          "delta_iae_Ks_raw_if_full": null,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": null,
+          "delta_buffer_inventory_kWh": null,
+          "delta_total_inventory_kWh": null,
+          "delta_modulation": null,
+          "delta_command": null,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        },
+        {
+          "case": "ua_proc_minus15_source_drop3",
+          "pi": "PI_relay",
+          "complete": false,
+          "service": false,
+          "eligible": false,
+          "reasons": [
+            "incomplete_or_unqualified_initial_state"
+          ],
+          "delta_electricity_kWh_raw_if_full": null,
+          "delta_iae_Ks_raw_if_full": null,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": null,
+          "delta_buffer_inventory_kWh": null,
+          "delta_total_inventory_kWh": null,
+          "delta_modulation": null,
+          "delta_command": null,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        },
+        {
+          "case": "ua_proc_plus15_noisy_delayed",
+          "pi": "PI_IMC",
+          "complete": true,
+          "service": true,
+          "eligible": false,
+          "reasons": [
+            "inventory_mismatch_final_header_energy_delta_kWh",
+            "inventory_mismatch_final_buffer_energy_delta_kWh",
+            "inventory_mismatch_final_total_energy_delta_kWh",
+            "actuator_mismatch_final_compressor_modulation",
+            "actuator_mismatch_final_applied_command"
+          ],
+          "delta_electricity_kWh_raw_if_full": 0.6028193921460172,
+          "delta_iae_Ks_raw_if_full": -851.0722103094611,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": -0.03668187988492061,
+          "delta_buffer_inventory_kWh": -0.44266224307130986,
+          "delta_total_inventory_kWh": -0.47934412295623074,
+          "delta_modulation": 0.020032343267262998,
+          "delta_command": 0.02910919237738685,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        },
+        {
+          "case": "ua_proc_plus15_noisy_delayed",
+          "pi": "PI_relay",
+          "complete": true,
+          "service": true,
+          "eligible": false,
+          "reasons": [
+            "inventory_mismatch_final_header_energy_delta_kWh",
+            "inventory_mismatch_final_buffer_energy_delta_kWh",
+            "inventory_mismatch_final_total_energy_delta_kWh"
+          ],
+          "delta_electricity_kWh_raw_if_full": 0.41845368216556267,
+          "delta_iae_Ks_raw_if_full": -409.58954088474115,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": 0.0705447213268447,
+          "delta_buffer_inventory_kWh": 0.21310554749717192,
+          "delta_total_inventory_kWh": 0.28365026882401656,
+          "delta_modulation": 0.005049460550026308,
+          "delta_command": 0.005312913814067843,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        },
+        {
+          "case": "compressor_lag_plus30_source_drop3",
+          "pi": "PI_IMC",
+          "complete": true,
+          "service": true,
+          "eligible": false,
+          "reasons": [
+            "inventory_mismatch_final_header_energy_delta_kWh",
+            "inventory_mismatch_final_buffer_energy_delta_kWh",
+            "inventory_mismatch_final_total_energy_delta_kWh"
+          ],
+          "delta_electricity_kWh_raw_if_full": 5.105703057766618,
+          "delta_iae_Ks_raw_if_full": -2990.569013747134,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": 1.348193142461914,
+          "delta_buffer_inventory_kWh": 5.8238596083640015,
+          "delta_total_inventory_kWh": 7.172052750825914,
+          "delta_modulation": 0.0038847601230763695,
+          "delta_command": 0.0030902579141911524,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        },
+        {
+          "case": "compressor_lag_plus30_source_drop3",
+          "pi": "PI_relay",
+          "complete": true,
+          "service": true,
+          "eligible": false,
+          "reasons": [
+            "inventory_mismatch_final_header_energy_delta_kWh",
+            "inventory_mismatch_final_buffer_energy_delta_kWh",
+            "inventory_mismatch_final_total_energy_delta_kWh"
+          ],
+          "delta_electricity_kWh_raw_if_full": 0.6312230317425644,
+          "delta_iae_Ks_raw_if_full": -767.8912181800229,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": 0.03747325839024529,
+          "delta_buffer_inventory_kWh": 0.22008890697276629,
+          "delta_total_inventory_kWh": 0.25756216536301135,
+          "delta_modulation": -0.0030122780156093265,
+          "delta_command": -0.0029200635723306556,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        },
+        {
+          "case": "header_buffer_khb_minus15_combined",
+          "pi": "PI_IMC",
+          "complete": true,
+          "service": true,
+          "eligible": false,
+          "reasons": [
+            "inventory_mismatch_final_header_energy_delta_kWh",
+            "inventory_mismatch_final_buffer_energy_delta_kWh",
+            "inventory_mismatch_final_total_energy_delta_kWh",
+            "actuator_mismatch_final_applied_command"
+          ],
+          "delta_electricity_kWh_raw_if_full": 2.9586540135479993,
+          "delta_iae_Ks_raw_if_full": -1206.2200616923412,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": 0.8056025061043057,
+          "delta_buffer_inventory_kWh": 3.738040959707966,
+          "delta_total_inventory_kWh": 4.543643465812272,
+          "delta_modulation": -0.016534049404000495,
+          "delta_command": -0.025776754049468553,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        },
+        {
+          "case": "header_buffer_khb_minus15_combined",
+          "pi": "PI_relay",
+          "complete": true,
+          "service": true,
+          "eligible": false,
+          "reasons": [
+            "inventory_mismatch_final_header_energy_delta_kWh",
+            "inventory_mismatch_final_buffer_energy_delta_kWh",
+            "inventory_mismatch_final_total_energy_delta_kWh",
+            "actuator_mismatch_final_compressor_modulation",
+            "actuator_mismatch_final_applied_command"
+          ],
+          "delta_electricity_kWh_raw_if_full": 0.6928689631717191,
+          "delta_iae_Ks_raw_if_full": -475.8994774391442,
+          "eligible_delta_electricity_kWh": null,
+          "delta_header_inventory_kWh": 0.19115598973782097,
+          "delta_buffer_inventory_kWh": 1.0743353137751304,
+          "delta_total_inventory_kWh": 1.2654913035129511,
+          "delta_modulation": -0.02106592398762963,
+          "delta_command": -0.03438693078768429,
+          "absolute_total_thermal_delta_over_abs_electrical_delta_DIFFERENT_UNITS_OF_ENERGY": null
+        }
+      ]
+    }
+  }
+}
