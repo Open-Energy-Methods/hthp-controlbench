@@ -7,6 +7,7 @@ on:
       - ".github/workflows/wp7-mismatch-v3.yml"
       - "ht_hp_controlbench/wp7_control.py"
       - "scripts/run_wp7_model_mismatch.py"
+      - "scripts/plot_wp7_model_mismatch.py"
       - "tests/test_wp7_model_mismatch.py"
   workflow_dispatch:
 
@@ -32,10 +33,12 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_wp7_model_mismatch.py' -v
       - name: Reproduce the frozen WP7 v2 nominal anchor and all predeclared mismatch cases
         run: python scripts/run_wp7_model_mismatch.py
+      - name: Render provenance-linked SVG without drawing failed runs as zeros
+        run: python scripts/plot_wp7_model_mismatch.py
       - name: Audit full-run service/terminal comparison gating
         run: |
           python - <<'PY'
-          import json,math
+          import json,math,xml.etree.ElementTree as ET
           from pathlib import Path
           p=Path("results/wp7_model_mismatch_v3.json")
           x=json.loads(p.read_text())
@@ -45,6 +48,9 @@ jobs:
           assert any(d["method"]=="MPC_property" for d in x["nominal_anchor_v2_audit"])
           assert x["no_model_or_gain_retuning"] and x["same_sensing_same_command_limits"]
           assert x["property_model_verified_against_hardware"] is False
+          svg=ET.parse("results/wp7_model_mismatch_v3_summary.svg").getroot()
+          assert svg.tag.endswith("svg")
+          assert len(svg.findall(".//{http://www.w3.org/2000/svg}text"))>20
           assert len(x["cases"])==5 and len(x["runs"])==15 and len(x["pairs"])==10
           assert len({(r["case"],r["controller"]) for r in x["runs"]})==15
           assert len({(p["case"],p["baseline"]) for p in x["pairs"]})==10
@@ -71,7 +77,8 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add results/wp7_model_mismatch_v3.json \
                   results/wp7_model_mismatch_v3_pairs.csv \
-                  results/wp7_model_mismatch_v3_report.md
+                  results/wp7_model_mismatch_v3_report.md \
+                  results/wp7_model_mismatch_v3_summary.svg
           if ! git diff --cached --quiet; then
             git commit -m "WP7 v3: archive independent frozen-predictor mismatch stress-test ledger"
             git fetch origin research-wp7-model-mismatch-sintef-v3
@@ -92,5 +99,6 @@ jobs:
             results/wp7_model_mismatch_v3.json
             results/wp7_model_mismatch_v3_pairs.csv
             results/wp7_model_mismatch_v3_report.md
+            results/wp7_model_mismatch_v3_summary.svg
           if-no-files-found: error
           retention-days: 90
