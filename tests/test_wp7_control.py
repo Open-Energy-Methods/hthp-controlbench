@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from math import exp, log
+import copy
 from unittest import TestCase, skipUnless
 from unittest.mock import patch
 import unittest
@@ -12,7 +13,7 @@ from ht_hp_controlbench.mpc import MPCConfig
 from ht_hp_controlbench.pi import PISettings
 from ht_hp_controlbench.realfluid import CycleAssumptions, build_cycle_map
 from ht_hp_controlbench.wp7_control import (
-    PropertyControlCase, declared_property_cases, run_property_controller
+    PropertyControlCase, declared_property_cases, run_property_controller, compare_property_pair
 )
 
 
@@ -117,6 +118,31 @@ class WP7MatchedControlStructuralTests(TestCase):
         self.assertIsNone(result["electricity_kWh"])
         self.assertFalse(result["matched_service_gate"])
         self.assertTrue(result["failure_reason"])
+
+    def test_no_energy_saving_credit_for_unmatched_terminal_resources(self):
+        pi=self.run_case("PI_IMC")
+        mpc=self.run_case("MPC_persistence")
+        # The nominal physical-control pilot can be compared descriptively,
+        # but resource equivalence is always checked before electricity credit.
+        group=compare_property_pair(pi,mpc)
+        self.assertIn("eligible_for_conditional_electricity_comparison",group)
+        adversarial=copy.deepcopy(mpc)
+        adversarial["final_header_energy_delta_kWh"] = pi["final_header_energy_delta_kWh"]+9.72
+        adversarial["final_total_energy_delta_kWh"] = pi["final_total_energy_delta_kWh"]+9.72
+        pair=compare_property_pair(pi,adversarial)
+        self.assertFalse(pair["eligible_for_conditional_electricity_comparison"])
+        self.assertIsNone(pair["delta_electricity_kWh"])
+        self.assertIn("terminal_header_inventory_mismatch",pair["ineligibility_reasons"])
+        self.assertIn("terminal_total_thermal_energy_mismatch",pair["ineligibility_reasons"])
+        different=copy.deepcopy(mpc)
+        different["final_compressor_modulation"] = pi["final_compressor_modulation"]+0.1
+        pair=compare_property_pair(pi,different)
+        self.assertFalse(pair["eligible_for_conditional_electricity_comparison"])
+        self.assertIn("terminal_compressor_modulation_mismatch",pair["ineligibility_reasons"])
+        biased=copy.deepcopy(mpc)
+        biased["seed"] += 1
+        with self.assertRaisesRegex(ValueError,"unequal scenario"):
+            compare_property_pair(pi,biased)
 
     def test_mpc_solver_failure_has_bounded_pi_fallback(self):
         row=self.run_case("MPC_persistence",force_mpc_failure=True)
