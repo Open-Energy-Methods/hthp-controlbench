@@ -255,3 +255,12 @@ matrix, plots and scientific report when CoolProp is installed.
 See [WP8 methods](docs/WP8_STORAGE_FLEXIBILITY.md) and
 [WP8 generated report](results/wp8_scientific_report.md).
 
+<!-- portfolio-reader-guide-2026:start -->
+## Engineering portfolio reader's guide (November 2026)
+
+**What to inspect:** Industrial HTHP control research with computational comparisons and openly reported model-mismatch and thermal-equivalence limitations; no pilot or OEM validation.
+
+**Portfolio context:** [Selected work for engineering recruiters](https://abhijith-sivaprasadan.github.io/for/armada-2026.html) · [Armada 2026 employer-facing selection](https://abhijith-sivaprasadan.github.io/for/armada-2026.html).
+
+These navigation links do not supersede the research status, assumptions, provenance, licences or validation limits documented above. This independent research project is not an employer-commissioned deliverable or externally qualified engineering product.
+<!-- portfolio-reader-guide-2026:end -->
